@@ -6,31 +6,47 @@
     <title>Mithran Snacks - Rewards</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="container center-box">
-        <img src="logo.png" alt="Logo" class="login-logo" id="secretLogo">
+    <div class="container">
+        <div style="text-align: center; margin-top: 30px;">
+            <img src="logo.png" style="width: 120px;" id="secretLogo">
+        </div>
         
-        <div class="card-box">
-            <h2>Track Your Rewards</h2>
-            <p>Enter your Member ID to check stamps.</p>
-            <input type="text" id="checkID" placeholder="Enter ID (e.g. MSC8821)">
+        <div class="card-box" style="margin-top: 20px;">
+            <h2>Check Your Rewards</h2>
+            <input type="text" id="checkID" placeholder="Enter Member ID (e.g. MSC8821)">
             <button onclick="checkStatus()">Check Status</button>
         </div>
 
         <div id="resultBox" class="card-box hidden">
-            <h3 id="resName"></h3>
-            <div style="font-size: 3rem; color: var(--primary); margin: 10px 0;">
+            <h3 id="resName" style="color:var(--primary)"></h3>
+            
+            <div style="font-size: 3rem; color: var(--accent); font-weight: bold; margin: 10px 0;">
                 <span id="resStamps">0</span><span style="font-size: 1.5rem; color:#999">/5</span>
             </div>
-            <p id="resMsg"></p>
+            <p id="resMsg" style="margin-bottom: 20px;"></p>
+
+            <div id="publicIdCardContainer" class="id-card-wrapper">
+                <img src="logo.png" class="card-logo">
+                <div class="card-title">MITHRAN SNACKS</div>
+                <div class="card-detail">
+                    <span>NAME</span>
+                    <strong id="publicCardName"></strong>
+                </div>
+                <div class="card-detail">
+                    <span>MOBILE</span>
+                    <strong id="publicCardMobile"></strong>
+                </div>
+                <div class="card-id" id="publicCardID"></div>
+            </div>
         </div>
     </div>
+
     <script src="script.js"></script>
     <script>
-        // Secret Door Logic
+        // Secret Door
         let clicks = 0;
         document.getElementById('secretLogo').addEventListener('click', () => {
             clicks++;
