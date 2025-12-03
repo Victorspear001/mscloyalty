@@ -1,7 +1,7 @@
 {
   "name": "Mithran Snacks Loyalty",
   "short_name": "MithranSnacks",
-  "start_url": "customer.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#e3f2fd",
   "theme_color": "#0056b3",
