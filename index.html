@@ -3,428 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mithran Snacks Corner - Loyalty System</title>
+    <title>Mithran Snacks Corner</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
-    <style>
-        :root {
-            --primary: #0056b3; /* Deep Blue */
-            --secondary: #e3f2fd; /* Light Blue */
-            --accent: #ff9800; /* Orange for snacks */
-            --white: #ffffff;
-            --text: #333;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--secondary);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            background: var(--white);
-            width: 90%;
-            max-width: 500px;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        h1, h2 { color: var(--primary); margin-bottom: 1rem; }
-        
-        .hidden { display: none; }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: 0.3s;
-            margin-top: 10px;
-        }
-
-        button:hover { background-color: #004494; }
-        .btn-secondary { background: #6c757d; }
-        .btn-secondary:hover { background: #5a6268; }
-        
-        .link {
-            color: var(--primary);
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            display: block;
-        }
-
-        /* Dashboard Styles */
-        .customer-list-item {
-            background: #f8f9fa;
-            border-left: 5px solid var(--primary);
-            padding: 15px;
-            margin-bottom: 10px;
-            text-align: left;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .stamp-box {
-            display: flex;
-            gap: 5px;
-        }
-
-        .stamp {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: #ddd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
-
-        .stamp.active { background: var(--primary); color: white; }
-        .stamp.free { background: var(--accent); color: white; animation: pulse 1s infinite; }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        /* ID Card Design */
-        #idCardContainer {
-            background: linear-gradient(135deg, var(--primary), #003d80);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px auto;
-            width: 320px; /* Standard ID width */
-            text-align: left;
-            position: relative;
-            overflow: hidden;
-            border: 2px solid gold;
-        }
-
-        #idCardContainer h3 { margin: 0; font-size: 1.2rem; color: gold; text-transform: uppercase; }
-        #idCardContainer p { margin: 5px 0; font-size: 0.9rem; }
-        .id-number { font-family: 'Courier New', monospace; font-size: 1.4rem; letter-spacing: 2px; font-weight: bold; background: rgba(255,255,255,0.2); padding: 5px; border-radius: 5px; text-align: center; margin-top: 10px; }
-        .logo-area { position: absolute; top: 10px; right: 15px; font-size: 2rem; opacity: 0.3; }
-
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="container">
+    <section id="customerView" class="view active">
+        <div class="logo-container">
+            <img src="logo.png" alt="Mithran Snacks" id="secretLogo" onclick="triggerSecretDoor()">
+        </div>
+        <h1>Check Your Rewards</h1>
+        <div class="card">
+            <input type="text" id="checkCustID" placeholder="Enter Your ID (e.g., MSC1234)">
+            <button onclick="checkMyStatus()">Check Status</button>
+            <div id="customerResult" class="hidden">
+                <div id="publicIdCard"></div>
+                 <h3 id="statusMessage"></h3>
+            </div>
+        </div>
+    </section>
+
+    <section id="authView" class="view hidden">
+        <div class="logo-container small">
+            <img src="logo.png" alt="Logo">
+        </div>
         
-        <div id="loginSection">
-            <h2><i class="fas fa-utensils"></i> Mithran Snacks</h2>
-            <p>Admin Login</p>
+        <div id="loginForm">
+            <h2>Admin Login</h2>
             <input type="text" id="loginUser" placeholder="Username">
             <input type="password" id="loginPass" placeholder="Password">
             <button onclick="handleLogin()">Log In</button>
-            <span class="link" onclick="showRegister()">New Admin? Register</span>
-            <span class="link" onclick="showRecovery()">Forgot Password?</span>
+            <p class="link" onclick="toggleAuth('register')">Register New Admin</p>
+            <p class="link" onclick="toggleAuth('reset')">Forgot Password?</p>
+            <button class="btn-sec" onclick="goHome()">Back to Shop</button>
         </div>
 
-        <div id="registerSection" class="hidden">
+        <div id="registerForm" class="hidden">
             <h2>Admin Registration</h2>
-            <input type="text" id="regUser" placeholder="Choose Username">
-            <input type="password" id="regPass" placeholder="Choose Password">
-            <select id="regSecQ">
-                <option value="" disabled selected>Select Security Question</option>
-                <option value="pet">What is your first pet's name?</option>
-                <option value="city">What city were you born in?</option>
-            </select>
-            <input type="text" id="regSecA" placeholder="Answer">
+            <input type="email" id="regEmail" placeholder="Email Address (for recovery)">
+            <input type="text" id="regUser" placeholder="Create Special Username">
+            <input type="password" id="regPass" placeholder="Password">
             <button onclick="handleRegister()">Register</button>
-            <button class="btn-secondary" onclick="showLogin()">Back to Login</button>
+            <p class="link" onclick="toggleAuth('login')">Back to Login</p>
         </div>
 
-        <div id="recoverySection" class="hidden">
+        <div id="resetForm" class="hidden">
             <h2>Reset Password</h2>
-            <input type="text" id="recUser" placeholder="Enter Username">
-            <button onclick="fetchSecurityQuestion()">Find Account</button>
-            
-            <div id="recStep2" class="hidden">
-                <p id="recQDisplay" style="font-weight:bold; color:var(--primary)"></p>
-                <input type="text" id="recAns" placeholder="Your Answer">
-                <button onclick="verifySecurityAnswer()">Verify & Show Password</button>
-            </div>
-            <button class="btn-secondary" onclick="showLogin()">Back</button>
+            <p>We will send a reset link to your registered email.</p>
+            <input type="email" id="resetEmail" placeholder="Enter Registered Email">
+            <button onclick="handlePasswordReset()">Send Reset Link</button>
+            <p class="link" onclick="toggleAuth('login')">Back to Login</p>
+        </div>
+    </section>
+
+    <section id="dashboardView" class="view hidden">
+        <div class="nav-bar">
+            <img src="logo.png" class="nav-logo">
+            <h2>Admin Panel</h2>
+            <button class="btn-sec small" onclick="handleLogout()">Logout</button>
         </div>
 
-        <div id="dashboardSection" class="hidden">
-            <h2>Dashboard</h2>
-            <button onclick="showAddCustomer()" style="background:var(--accent)">+ Add New Customer</button>
-            <hr>
-            <h3>Customer List</h3>
-            <input type="text" id="searchBar" placeholder="Search by Mobile or Name..." onkeyup="filterCustomers()">
-            <div id="customerList">Loading...</div>
-            <button class="btn-secondary" onclick="logout()">Logout</button>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('list')">Customer List</button>
+            <button class="tab-btn" onclick="switchTab('add')">Add Customer</button>
         </div>
 
-        <div id="addCustomerSection" class="hidden">
-            <h2>New Customer</h2>
-            <input type="text" id="custName" placeholder="Customer Name">
-            <input type="number" id="custMobile" placeholder="Mobile Number">
-            <button onclick="generateCustomer()">Generate ID Card</button>
-            
-            <div id="previewArea" class="hidden">
-                <div id="idCardContainer">
-                    <div class="logo-area"><i class="fas fa-hamburger"></i></div>
-                    <h3>Mithran Snacks</h3>
-                    <p style="font-size: 0.7rem;">LOYALTY MEMBER CARD</p>
-                    <hr style="border-color: rgba(255,255,255,0.3);">
-                    <p><strong>Name:</strong> <span id="cardName"></span></p>
-                    <p><strong>Mobile:</strong> <span id="cardMobile"></span></p>
-                    <div class="id-number" id="cardID">MSC----</div>
-                    <p style="font-size:0.7rem; margin-top:10px; text-align:center;">Buy 4 Snacks, Get 5th Free!</p>
+        <div id="tabList" class="tab-content active">
+            <div class="controls">
+                <input type="text" id="searchInput" placeholder="Search Name, Mobile, or ID..." onkeyup="filterCustomers()">
+                <div class="csv-controls">
+                    <button onclick="exportCSV()" class="btn-green"><i class="fas fa-file-export"></i> Export CSV</button>
+                    <label for="csvInput" class="btn-blue"><i class="fas fa-file-import"></i> Import CSV</label>
+                    <input type="file" id="csvInput" accept=".csv" onchange="importCSV(this)" hidden>
                 </div>
-                <button onclick="saveAndDownload()" style="background: green">Save & Download ID</button>
             </div>
-            <button class="btn-secondary" onclick="showDashboard()">Cancel</button>
+            <div id="customerTable">Loading...</div>
         </div>
 
-    </div>
-
-    <script>
-        // 1. SUPABASE CONFIGURATION (Fill these in!)
-        const supabaseUrl = 'https://ddajnivluoxcslnlvtyc.supabase.co'; 
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkYWpuaXZsdW94Y3Nsbmx2dHljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NDI4NzUsImV4cCI6MjA4MDMxODg3NX0.x1jGYuVzR6Csow89-spV6I_IxCS0CKUEnqjlDlzjpCs';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-        // --- NAVIGATION FUNCTIONS ---
-        function hideAll() {
-            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
-        }
-        function showLogin() { hideAll(); document.getElementById('loginSection').classList.remove('hidden'); }
-        function showRegister() { hideAll(); document.getElementById('registerSection').classList.remove('hidden'); }
-        function showRecovery() { hideAll(); document.getElementById('recoverySection').classList.remove('hidden'); }
-        function showDashboard() { 
-            hideAll(); 
-            document.getElementById('dashboardSection').classList.remove('hidden'); 
-            loadCustomers();
-        }
-        function showAddCustomer() { 
-            hideAll(); 
-            document.getElementById('addCustomerSection').classList.remove('hidden'); 
-            document.getElementById('previewArea').classList.add('hidden');
-            document.getElementById('custName').value = '';
-            document.getElementById('custMobile').value = '';
-        }
-
-        // --- AUTH LOGIC ---
-        async function handleRegister() {
-            const user = document.getElementById('regUser').value;
-            const pass = document.getElementById('regPass').value;
-            const q = document.getElementById('regSecQ').value;
-            const a = document.getElementById('regSecA').value;
-
-            if(!user || !pass || !q || !a) return alert("Fill all fields");
-
-            const { data, error } = await supabase
-                .from('admins')
-                .insert([{ username: user, password: pass, security_question: q, security_answer: a }]);
-
-            if (error) alert("Error: " + error.message);
-            else { alert("Registered! Please login."); showLogin(); }
-        }
-
-        async function handleLogin() {
-            const user = document.getElementById('loginUser').value;
-            const pass = document.getElementById('loginPass').value;
-
-            const { data, error } = await supabase
-                .from('admins')
-                .select('*')
-                .eq('username', user)
-                .eq('password', pass)
-                .single();
-
-            if (data) {
-                showDashboard();
-            } else {
-                alert("Invalid Credentials");
-            }
-        }
-
-        // --- RECOVERY LOGIC ---
-        let recoveryData = null;
-        async function fetchSecurityQuestion() {
-            const user = document.getElementById('recUser').value;
-            const { data, error } = await supabase.from('admins').select('*').eq('username', user).single();
-            
-            if(data) {
-                recoveryData = data;
-                document.getElementById('recQDisplay').innerText = data.security_question === 'pet' ? "First Pet's Name?" : "Birth City?";
-                document.getElementById('recStep2').classList.remove('hidden');
-            } else {
-                alert("User not found");
-            }
-        }
-
-        function verifySecurityAnswer() {
-            const ans = document.getElementById('recAns').value;
-            if(ans.toLowerCase() === recoveryData.security_answer.toLowerCase()) {
-                alert("Your Password is: " + recoveryData.password);
-            } else {
-                alert("Incorrect Answer");
-            }
-        }
-
-        // --- CUSTOMER & LOYALTY LOGIC ---
-        let currentCustomers = [];
-
-        async function loadCustomers() {
-            const list = document.getElementById('customerList');
-            list.innerHTML = 'Loading...';
-            const { data, error } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
-            
-            if(data) {
-                currentCustomers = data;
-                renderList(data);
-            }
-        }
-
-        function renderList(data) {
-            const list = document.getElementById('customerList');
-            list.innerHTML = '';
-            data.forEach(cust => {
-                let stampHTML = '';
-                // Logic: 0 to 4 stamps. If 4, show "Free".
-                for(let i=1; i<=5; i++) {
-                    if(i <= cust.stamps) {
-                        stampHTML += `<div class="stamp active"><i class="fas fa-check"></i></div>`;
-                    } else if(i === 5 && cust.stamps === 4) {
-                         stampHTML += `<div class="stamp free" title="Click to Claim Free Snack" onclick="addStamp(${cust.id}, ${cust.stamps})"><i class="fas fa-gift"></i></div>`;
-                    } else {
-                        stampHTML += `<div class="stamp" onclick="addStamp(${cust.id}, ${cust.stamps})">${i}</div>`;
-                    }
-                }
-
-                let card = `
-                <div class="customer-list-item">
-                    <div>
-                        <strong>${cust.name}</strong><br>
-                        <small>${cust.customer_id_code}</small>
+        <div id="tabAdd" class="tab-content">
+            <div class="split-layout">
+                <div class="form-side">
+                    <h3>New Customer Registration</h3>
+                    <input type="text" id="newCustName" placeholder="Customer Name">
+                    <input type="number" id="newCustMobile" placeholder="Mobile Number">
+                    <button onclick="previewCard()">Generate ID Card</button>
+                </div>
+                <div class="preview-side hidden" id="cardPreviewBox">
+                    <div id="idCardContainer">
+                        <img src="logo.png" class="card-logo">
+                        <div class="card-header">MITHRAN SNACKS</div>
+                        <div class="card-chip"><i class="fas fa-microchip"></i></div>
+                        <div class="card-body">
+                            <div class="card-row">
+                                <span>NAME</span>
+                                <strong id="cardName"></strong>
+                            </div>
+                            <div class="card-row">
+                                <span>MOBILE</span>
+                                <strong id="cardMobile"></strong>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="id-code" id="cardID">MSC----</div>
+                            <small>Buy 4 Get 1 Free</small>
+                        </div>
                     </div>
-                    <div class="stamp-box">
-                        ${stampHTML}
-                    </div>
-                </div>`;
-                list.innerHTML += card;
-            });
-        }
+                    <button onclick="saveAndDownload()" class="btn-green">Save & Download</button>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        async function addStamp(id, currentStamps) {
-            let newStamps = currentStamps + 1;
-            let message = "";
-
-            if (currentStamps === 4) {
-                // He is claiming the free snack, reset to 0
-                if(confirm("Customer is claiming their FREE 5th Snack! Confirm?")) {
-                    newStamps = 0;
-                    message = "Free Snack Claimed! Card Reset.";
-                } else {
-                    return;
-                }
-            } else if (newStamps === 4) {
-                message = "Stamped! Next snack is FREE!";
-            } else {
-                message = "Stamped!";
-            }
-
-            const { error } = await supabase
-                .from('customers')
-                .update({ stamps: newStamps })
-                .eq('id', id);
-
-            if(!error) {
-                alert(message);
-                loadCustomers();
-            }
-        }
-
-        function filterCustomers() {
-            const term = document.getElementById('searchBar').value.toLowerCase();
-            const filtered = currentCustomers.filter(c => 
-                c.name.toLowerCase().includes(term) || 
-                c.mobile.includes(term) || 
-                c.customer_id_code.toLowerCase().includes(term)
-            );
-            renderList(filtered);
-        }
-
-        // --- ID CARD GENERATION ---
-        let generatedIDCode = '';
-
-        async function generateCustomer() {
-            const name = document.getElementById('custName').value;
-            const mobile = document.getElementById('custMobile').value;
-            if(!name || !mobile) return alert("Enter Name and Mobile");
-
-            // Generate ID: MSC + Random 4 digits (Simple check)
-            const randomNum = Math.floor(1000 + Math.random() * 9000);
-            generatedIDCode = 'MSC' + randomNum;
-
-            document.getElementById('cardName').innerText = name;
-            document.getElementById('cardMobile').innerText = mobile;
-            document.getElementById('cardID').innerText = generatedIDCode;
-            
-            document.getElementById('previewArea').classList.remove('hidden');
-        }
-
-        async function saveAndDownload() {
-            const name = document.getElementById('custName').value;
-            const mobile = document.getElementById('custMobile').value;
-
-            // 1. Save to Supabase
-            const { error } = await supabase.from('customers').insert([
-                { name: name, mobile: mobile, customer_id_code: generatedIDCode, stamps: 0 }
-            ]);
-
-            if(error) {
-                alert("Error saving: " + error.message);
-                return;
-            }
-
-            // 2. Download ID Card
-            html2canvas(document.querySelector("#idCardContainer")).then(canvas => {
-                let link = document.createElement('a');
-                link.download = `${name}_ID_Card.jpg`;
-                link.href = canvas.toDataURL("image/jpeg");
-                link.click();
-                alert("Customer Saved & Card Downloaded!");
-                showDashboard();
-            });
-        }
-
-        function logout() {
-            showLogin();
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
