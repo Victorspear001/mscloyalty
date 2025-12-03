@@ -3,7 +3,7 @@
   "short_name": "MithranSnacks",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#e3f2fd",
+  "background_color": "#f0f8ff",
   "theme_color": "#0056b3",
   "icons": [
     {
