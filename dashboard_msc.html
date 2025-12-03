@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Admin Panel</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,62 +12,106 @@
 </head>
 <body>
 
+    <!-- === AUTH SECTION === -->
     <div id="authSection" class="container">
-        <div class="card-box" style="margin-top:50px;">
-            <img src="logo.png" style="width:80px; margin-bottom:10px;">
+        <div class="card-box text-center" style="margin-top: 60px;">
+            <img src="logo.png" class="logo-small">
+            
+            <!-- Login Form -->
             <div id="loginForm">
-                <h2>Admin Panel</h2>
+                <h2>Admin Login</h2>
                 <input type="text" id="loginUser" placeholder="Username">
                 <input type="password" id="loginPass" placeholder="Password">
-                <button onclick="login()">Log In</button>
+                <button class="btn-primary" onclick="login()">Log In</button>
+                <div><span class="link" onclick="toggleAuth('reg')">Create Account</span></div>
+                <div><span class="link" onclick="toggleAuth('reset')">Forgot Password</span></div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="regForm" class="hidden">
+                <h2>New Admin</h2>
+                <input type="email" id="regEmail" placeholder="Email Address">
+                <input type="text" id="regUser" placeholder="Set Username">
+                <input type="password" id="regPass" placeholder="Set Password">
+                <button class="btn-primary" onclick="register()">Register</button>
+                <div class="link" onclick="toggleAuth('login')">Back to Login</div>
+            </div>
+
+            <!-- Reset Form -->
+            <div id="resetForm" class="hidden">
+                <h2>Reset Password</h2>
+                <input type="email" id="resetEmail" placeholder="Registered Email">
+                <button class="btn-primary" onclick="resetPass()">Send Reset Link</button>
+                <div class="link" onclick="toggleAuth('login')">Back to Login</div>
             </div>
         </div>
     </div>
 
+    <!-- === DASHBOARD SECTION === -->
     <div id="dashboardSection" class="container hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <img src="logo.png" style="height:40px;">
-            <button onclick="logout()" style="width:auto; background:#607d8b; padding:5px 15px; font-size:0.8rem;">Logout</button>
+        
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div style="display:flex; align-items:center; gap: 10px;">
+                <img src="logo.png" style="width: 40px; border-radius:50%;">
+                <h3 style="margin:0; color: var(--primary);">Mithran Admin</h3>
+            </div>
+            <button class="btn-secondary" onclick="logout()">Logout</button>
         </div>
 
-        <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <button onclick="switchTab('list')" class="tab-btn" style="flex:1;">Customer List</button>
-            <button onclick="switchTab('add')" class="tab-btn" style="flex:1; background:#ddd; color:#333;">Add New</button>
+        <!-- Tabs -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('list')">Customer List</button>
+            <button class="tab-btn" onclick="switchTab('add')">Add New</button>
         </div>
 
+        <!-- TAB 1: LIST -->
         <div id="viewList">
-            <input type="text" id="searchBar" placeholder="Search..." onkeyup="filterList()" style="margin-bottom:15px;">
-            <div id="customerListContainer"></div>
+            <input type="text" id="searchBar" placeholder="Search Customer..." onkeyup="filterList()">
+            
+            <div style="display:flex; gap:10px; margin-bottom: 20px;">
+                <button class="btn-secondary" style="background: var(--success);" onclick="exportData()">Export CSV</button>
+                <label class="btn-secondary" style="background: var(--primary); cursor:pointer; flex:1; text-align:center;">
+                    Import CSV <input type="file" hidden onchange="importData(this)">
+                </label>
+            </div>
+
+            <div id="customerListContainer">Loading...</div>
         </div>
 
+        <!-- TAB 2: ADD CUSTOMER -->
         <div id="viewAdd" class="hidden">
             <div class="card-box">
-                <h3>New Customer</h3>
-                <input type="text" id="newName" placeholder="Name">
-                <input type="number" id="newMobile" placeholder="Mobile">
-                <button onclick="saveCustomer()">Save & Generate ID</button>
+                <h3>New Registration</h3>
+                <input type="text" id="newName" placeholder="Full Name">
+                <input type="number" id="newMobile" placeholder="Mobile Number">
+                <button class="btn-primary" onclick="saveCustomer()">Register Customer</button>
             </div>
         </div>
+
     </div>
 
-    <div id="idCardModal" class="modal-overlay hidden">
+    <!-- === POPUP MODAL (ID CARD) === -->
+    <div id="modalOverlay" class="modal-overlay hidden">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
-            <h3>Customer ID Card</h3>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3 style="margin-top:0;">Customer ID</h3>
             
-            <div id="modalIdCard" class="id-card-wrapper">
-                <img src="logo.png" class="card-logo">
-                <div class="card-title">MITHRAN SNACKS</div>
-                <div class="card-detail">
-                    <span>NAME</span> <strong id="modalCardName"></strong>
-                </div>
-                <div class="card-detail">
-                    <span>MOBILE</span> <strong id="modalCardMobile"></strong>
-                </div>
-                <div class="card-id" id="modalCardID"></div>
+            <!-- ID CARD -->
+            <div id="modalIdCard" class="id-card-container">
+                <img src="logo.png" class="card-logo-img">
+                <div class="card-shop-title">Mithran Snacks</div>
+                
+                <div class="card-label">MEMBER NAME</div>
+                <div class="card-value" id="modalName"></div>
+                
+                <div class="card-label">MOBILE</div>
+                <div class="card-value" id="modalMobile"></div>
+                
+                <div class="card-id-badge" id="modalID"></div>
             </div>
 
-            <button onclick="downloadModalCard()" style="background:green; margin-top:15px;">Download JPG</button>
+            <button class="btn-primary" style="background: var(--success);" onclick="downloadModalCard()">Download JPG</button>
         </div>
     </div>
 
