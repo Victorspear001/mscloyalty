@@ -2,9 +2,11 @@
     --primary: #0056b3;     /* Royal Blue */
     --secondary: #f0f8ff;   /* Alice Blue */
     --accent: #ff9800;      /* Snack Orange */
+    --success: #28a745;     /* Green for Redeem */
     --text: #333;
     --white: #ffffff;
     --danger: #dc3545;
+    --gray: #cfd8dc;
 }
 
 body {
@@ -15,7 +17,7 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* === GENERAL LAYOUT === */
+/* === LAYOUT === */
 .container {
     max-width: 600px;
     margin: 0 auto;
@@ -34,160 +36,136 @@ body {
     flex-grow: 1;
 }
 
-/* === IMAGES & LOGOS === */
-.app-logo-small {
-    width: 60px;
-    height: auto;
-}
+/* === IMAGES === */
+.login-logo { width: 100px; margin-bottom: 15px; }
+.header-logo { height: 40px; width: auto; }
 
-.login-logo {
-    width: 100px; /* Fixed small size for login */
-    margin-bottom: 15px;
-}
-
-.header-logo {
-    height: 50px;
-    width: auto;
-}
-
-/* === FORMS & CARDS === */
+/* === CARDS & INPUTS === */
 .card-box {
     background: var(--white);
-    padding: 25px;
+    padding: 20px;
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    width: 100%;
-    box-sizing: border-box;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     margin-bottom: 20px;
 }
 
 input {
     width: 100%;
-    padding: 15px;
+    padding: 12px;
     margin: 10px 0;
     border: 2px solid #e0e0e0;
     border-radius: 10px;
     box-sizing: border-box;
-    font-size: 16px; /* Prevents zoom on iPhone */
+    font-size: 16px;
 }
-
 input:focus { border-color: var(--primary); outline: none; }
 
+/* === BUTTONS === */
 button {
     width: 100%;
-    padding: 15px;
+    padding: 12px;
     background: var(--primary);
     color: white;
     border: none;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    margin-top: 10px;
     transition: 0.2s;
 }
-
 button:active { transform: scale(0.98); }
-.btn-sec { background: #607d8b; }
-.btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
-.btn-danger { background: var(--danger); width: auto; padding: 5px 10px; font-size: 12px; }
 
-/* === ADMIN DASHBOARD === */
-.admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
-    margin-bottom: 20px;
+.btn-sec { background: #607d8b; width: auto; font-size: 0.9rem; padding: 8px 15px; }
+.btn-danger { background: var(--danger); width: 30px; height: 30px; padding: 0; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+.btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); margin-top: 10px; }
+.btn-small-control { width: 30px; height: 30px; padding: 0; border-radius: 50%; background: #90a4ae; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+
+/* Special Redeem Button */
+.btn-redeem {
+    background: var(--success);
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
 }
 
-/* TABS */
-.tab-container {
-    display: flex;
-    background: #e0e0e0;
-    border-radius: 10px;
-    padding: 5px;
-    margin-bottom: 20px;
-}
-
-.tab {
-    flex: 1;
-    padding: 12px;
-    text-align: center;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    color: #666;
-}
-
-.tab.active {
-    background: var(--white);
-    color: var(--primary);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    font-weight: bold;
-}
-
-.tab-content { display: none; animation: fadeIn 0.3s; }
+/* === DASHBOARD === */
+.admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+.tab-container { display: flex; background: #e0e0e0; border-radius: 10px; padding: 5px; margin-bottom: 20px; }
+.tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; color: #666; border-radius: 8px; font-weight: 500; }
+.tab.active { background: var(--white); color: var(--primary); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.tab-content { display: none; }
 .tab-content.active { display: block; }
 
-/* LIST ITEMS */
+/* === NEW STAMP DESIGN (CIRCLES) === */
 .customer-item {
     background: var(--white);
     padding: 15px;
-    border-radius: 10px;
+    border-radius: 12px;
     margin-bottom: 15px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     border-left: 5px solid var(--primary);
 }
 
-.stamp-row {
+.customer-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
-    background: #f8f9fa;
+    margin-bottom: 10px;
+}
+
+.visual-stamp-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Spreads items out */
+    background: #f1f8e9; /* Light green tint bg */
     padding: 10px;
-    border-radius: 8px;
+    border-radius: 10px;
+    gap: 5px;
 }
 
-.stamp-count {
-    font-size: 1.2rem;
+.stamp-circles-container {
+    display: flex;
+    gap: 5px;
+}
+
+.stamp-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
     font-weight: bold;
-    color: var(--primary);
-}
-
-/* ID CARD GENERATOR STYLE */
-#idCardContainer {
-    width: 320px;
-    height: 190px;
-    background: linear-gradient(135deg, #0056b3, #002a5c);
-    border-radius: 15px;
     color: white;
-    padding: 15px;
-    position: relative;
-    border: 2px solid #ffd700;
-    box-sizing: border-box;
-    font-family: 'Courier New', monospace;
-    margin: 0 auto;
-}
-.card-logo { position: absolute; top: 15px; right: 15px; width: 45px; opacity: 0.9; }
-.card-title { color: #ffd700; font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px;}
-.card-detail { font-size: 0.9rem; margin-top: 15px; }
-.card-detail span { display: block; font-size: 0.7rem; opacity: 0.7; }
-.card-detail strong { font-size: 1.1rem; font-family: sans-serif; }
-.card-id { 
-    margin-top: 20px; 
-    background: rgba(255,255,255,0.15); 
-    padding: 5px 10px; 
-    display: inline-block; 
-    border-radius: 5px; 
-    letter-spacing: 3px; 
-    font-weight: bold;
-    color: #ffd700;
+    background-color: var(--gray);
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* UTILITIES */
+.stamp-circle.filled {
+    background-color: var(--accent); /* Orange */
+    border-color: #ffe0b2;
+    transform: scale(1.1); /* Slightly pop out */
+}
+
+/* ID CARD GEN */
+#idCardContainer {
+    width: 300px; height: 180px;
+    background: linear-gradient(135deg, #0056b3, #002a5c);
+    border-radius: 15px; color: white; padding: 15px;
+    position: relative; border: 2px solid gold; margin: 0 auto;
+    font-family: 'Courier New', monospace;
+}
+.card-logo { position: absolute; top: 15px; right: 15px; width: 40px; opacity: 0.8; }
+.card-title { color: gold; font-weight: bold; font-size: 1.1rem; letter-spacing: 1px; }
+.card-detail { margin-top: 15px; font-size: 0.8rem; }
+.card-detail strong { display: block; font-size: 1rem; font-family: sans-serif; }
+.card-id { margin-top: 20px; background: rgba(255,255,255,0.2); display: inline-block; padding: 5px 10px; border-radius: 5px; color: gold; font-weight: bold; letter-spacing: 2px;}
+
 .hidden { display: none !important; }
-.link { color: var(--primary); text-decoration: underline; cursor: pointer; font-size: 0.9rem; margin-top: 15px; display: block;}
-@keyframes fadeIn { from{opacity:0} to{opacity:1}}
+.link { color: var(--primary); text-decoration: underline; cursor: pointer; font-size: 0.85rem; margin-top: 15px; display: block; }
