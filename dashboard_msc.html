@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+</head>
+<body>
+
+    <div id="authSection" class="container center-box">
+        <img src="logo.png" class="login-logo">
+        <div class="card-box">
+            <div id="loginForm">
+                <h2>Admin Panel</h2>
+                <input type="text" id="loginUser" placeholder="Username">
+                <input type="password" id="loginPass" placeholder="Password">
+                <button onclick="login()">Log In</button>
+                <span class="link" onclick="toggleAuth('reg')">New Admin Registration</span>
+                <span class="link" onclick="toggleAuth('reset')">Forgot Password?</span>
+            </div>
+
+            <div id="regForm" class="hidden">
+                <h2>Register Admin</h2>
+                <input type="email" id="regEmail" placeholder="Recovery Email">
+                <input type="text" id="regUser" placeholder="Username">
+                <input type="password" id="regPass" placeholder="Password">
+                <button onclick="register()">Register</button>
+                <span class="link" onclick="toggleAuth('login')">Back to Login</span>
+            </div>
+
+            <div id="resetForm" class="hidden">
+                <h2>Reset Password</h2>
+                <input type="email" id="resetEmail" placeholder="Enter Registered Email">
+                <button onclick="resetPass()">Send Reset Link</button>
+                <span class="link" onclick="toggleAuth('login')">Back to Login</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboardSection" class="container hidden">
+        <div class="admin-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img src="logo.png" class="header-logo">
+                <h3 style="margin:0;">Mithran Snacks</h3>
+            </div>
+            <button class="btn-sec" style="width:auto; padding: 8px 15px;" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="tab-container">
+            <div class="tab active" onclick="switchTab('list')">Customer List</div>
+            <div class="tab" onclick="switchTab('add')">Add Customer</div>
+        </div>
+
+        <div id="viewList" class="tab-content active">
+            <div class="card-box" style="padding:15px;">
+                <input type="text" id="searchBar" placeholder="Search Customer..." onkeyup="filterList()">
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="btn-outline" onclick="exportData()"><i class="fas fa-file-export"></i> Export CSV</button>
+                    <label for="importFile" style="flex:1; background:var(--primary); color:white; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                        <i class="fas fa-file-import"></i> Import
+                    </label>
+                    <input type="file" id="importFile" hidden onchange="importData(this)">
+                </div>
+            </div>
+            <div id="customerListContainer">Loading...</div>
+        </div>
+
+        <div id="viewAdd" class="tab-content">
+            <div class="card-box">
+                <h3>New Customer</h3>
+                <input type="text" id="newName" placeholder="Full Name">
+                <input type="number" id="newMobile" placeholder="Mobile Number">
+                <button onclick="saveCustomer()">Save Customer Data</button>
+                
+                <div id="downloadArea" class="hidden" style="margin-top:20px; border-top:1px solid #eee; padding-top:20px;">
+                    <p style="color:green; font-weight:bold;">Customer Saved Successfully!</p>
+                    
+                    <div id="idCardContainer">
+                        <img src="logo.png" class="card-logo">
+                        <div class="card-title">MITHRAN SNACKS</div>
+                        <div class="card-detail">
+                            <span>NAME</span>
+                            <strong id="cardName">NAME HERE</strong>
+                        </div>
+                        <div class="card-detail">
+                            <span>MOBILE</span>
+                            <strong id="cardMobile">1234567890</strong>
+                        </div>
+                        <div class="card-id" id="cardID">MSC----</div>
+                    </div>
+                    
+                    <button class="btn-sec" onclick="downloadImage()">Download ID Card (JPG)</button>
+                    <button class="btn-outline" onclick="resetAddForm()">Add Another Customer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
