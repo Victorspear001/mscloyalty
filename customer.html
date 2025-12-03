@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mithran Snacks - Rewards</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container center-box">
+        <img src="logo.png" alt="Logo" class="login-logo" id="secretLogo">
+        
+        <div class="card-box">
+            <h2>Track Your Rewards</h2>
+            <p>Enter your Member ID to check stamps.</p>
+            <input type="text" id="checkID" placeholder="Enter ID (e.g. MSC8821)">
+            <button onclick="checkStatus()">Check Status</button>
+        </div>
+
+        <div id="resultBox" class="card-box hidden">
+            <h3 id="resName"></h3>
+            <div style="font-size: 3rem; color: var(--primary); margin: 10px 0;">
+                <span id="resStamps">0</span><span style="font-size: 1.5rem; color:#999">/5</span>
+            </div>
+            <p id="resMsg"></p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        // Secret Door Logic
+        let clicks = 0;
+        document.getElementById('secretLogo').addEventListener('click', () => {
+            clicks++;
+            if(clicks === 5) window.location.href = 'dashboard_msc.html';
+            setTimeout(() => clicks = 0, 1000);
+        });
+    </script>
+</body>
+</html>
