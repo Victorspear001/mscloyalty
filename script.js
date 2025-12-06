@@ -6,26 +6,48 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- AUTH LOGIC ---
+
+// 1. Listen for Password Recovery Event (Users clicking email link)
+supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+        // Show the New Password Form
+        toggleAuth('newpass');
+    }
+});
+
 function toggleAuth(view) {
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('regForm').classList.add('hidden');
     document.getElementById('resetForm').classList.add('hidden');
+    document.getElementById('newPassForm').classList.add('hidden');
 
     if(view === 'login') document.getElementById('loginForm').classList.remove('hidden');
     if(view === 'reg') document.getElementById('regForm').classList.remove('hidden');
     if(view === 'reset') document.getElementById('resetForm').classList.remove('hidden');
+    if(view === 'newpass') document.getElementById('newPassForm').classList.remove('hidden');
 }
 
 async function login() {
     const user = document.getElementById('loginUser').value;
     const pass = document.getElementById('loginPass').value;
 
-    const { data } = await supabase.from('admin_profiles').select('email').eq('username', user).single();
-    if(!data) return alert("User not found");
+    // 1. Check DB Connection
+    const { data, error } = await supabase.from('admin_profiles').select('email').eq('username', user).single();
+    
+    if(error) {
+        if(error.message.includes("fetch")) {
+            return alert("⚠️ Database Connection Failed! It might be paused.");
+        }
+        return alert("User not found or Error: " + error.message);
+    }
 
-    const { error } = await supabase.auth.signInWithPassword({ email: data.email, password: pass });
-    if(error) return alert("Wrong Password");
+    if(!data) return alert("Username incorrect.");
 
+    // 2. Verify Password
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email: data.email, password: pass });
+    if(signInError) return alert("Wrong Password");
+
+    // Success
     document.getElementById('authSection').classList.add('hidden');
     document.getElementById('dashboardSection').classList.remove('hidden');
     loadCustomers();
@@ -48,10 +70,37 @@ async function register() {
     toggleAuth('login');
 }
 
-async function resetPass() {
+// --- NEW PASSWORD RESET LOGIC ---
+
+// 1. Send the Link (Points to dashboard_msc.html)
+async function sendResetLink() {
     const email = document.getElementById('resetEmail').value;
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    alert(error ? error.message : "Reset link sent to email.");
+    // Determine current URL path to ensure we redirect back to dashboard
+    const redirectUrl = window.location.origin + '/dashboard_msc.html';
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+    });
+
+    if (error) alert("Error: " + error.message);
+    else alert("Reset link sent! Check your email.");
+}
+
+// 2. Update the Password (After user clicks email link)
+async function updatePassword() {
+    const newPass = document.getElementById('newPasswordInput').value;
+    if(!newPass) return alert("Enter a new password");
+
+    const { error } = await supabase.auth.updateUser({ password: newPass });
+
+    if (error) {
+        alert("Error updating password: " + error.message);
+    } else {
+        alert("Password Updated Successfully! Please Log In.");
+        // Clear URL hash to remove tokens
+        history.replaceState(null, null, 'dashboard_msc.html');
+        toggleAuth('login');
+    }
 }
 
 async function logout() {
@@ -80,11 +129,16 @@ let allCustomers = [];
 
 async function loadCustomers() {
     const container = document.getElementById('customerListContainer');
-    if(!container) return; // We are not on admin page
+    if(!container) return; 
     
     container.innerHTML = '<p class="text-center">Loading Data...</p>';
-    const { data } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
     
+    if(error) {
+        container.innerHTML = `<p class="text-center" style="color:red">Error loading data.</p>`;
+        return;
+    }
+
     if(data) {
         allCustomers = data;
         renderList(data);
@@ -96,14 +150,12 @@ function renderList(data) {
     container.innerHTML = '';
 
     data.forEach(cust => {
-        // Generate Circles
         let circlesHtml = '';
         for(let i=1; i<=5; i++) {
             let active = i <= cust.stamps ? 'filled' : '';
             circlesHtml += `<div class="msc-circle ${active}">MSC</div>`;
         }
 
-        // Logic for Redeem vs Stamp
         let controls = '';
         if(cust.stamps >= 5) {
             controls = `<button class="btn-redeem" onclick="redeemGift(${cust.id})">Redeem Gift 🎁</button>`;
@@ -174,7 +226,7 @@ async function saveCustomer() {
     if(error) alert(error.message);
     else {
         alert("Customer Registered!");
-        openModal(name, mobile, idCode); // Show ID immediately
+        openModal(name, mobile, idCode);
         document.getElementById('newName').value = '';
         document.getElementById('newMobile').value = '';
     }
@@ -201,7 +253,7 @@ function downloadModalCard() {
     });
 }
 
-// --- CUSTOMER PAGE CHECK ---
+// --- CUSTOMER PAGE CHECK (for index.html) ---
 async function checkStatus() {
     const input = document.getElementById('checkID').value.trim();
     if(!input) return alert("Enter ID");
@@ -224,7 +276,6 @@ async function checkStatus() {
             document.getElementById('resMsg').innerText = `Buy ${5 - data.stamps} more to get free snack!`;
         }
 
-        // Fill Public Card
         document.getElementById('pubCardName').innerText = data.name.toUpperCase();
         document.getElementById('pubCardMobile').innerText = data.mobile;
         document.getElementById('pubCardID').innerText = data.customer_id_code;
