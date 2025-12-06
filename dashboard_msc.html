@@ -37,12 +37,21 @@
                 <div class="link" onclick="toggleAuth('login')">Back to Login</div>
             </div>
 
-            <!-- Reset Form -->
+            <!-- Send Reset Link Form -->
             <div id="resetForm" class="hidden">
                 <h2>Reset Password</h2>
+                <p style="font-size:0.9rem; color:#666;">Enter your email to receive a reset link.</p>
                 <input type="email" id="resetEmail" placeholder="Registered Email">
-                <button class="btn-primary" onclick="resetPass()">Send Reset Link</button>
+                <button class="btn-primary" onclick="sendResetLink()">Send Link</button>
                 <div class="link" onclick="toggleAuth('login')">Back to Login</div>
+            </div>
+
+            <!-- NEW: Set New Password Form (Appears after clicking email link) -->
+            <div id="newPassForm" class="hidden">
+                <h2>Set New Password</h2>
+                <p style="font-size:0.9rem; color:#666;">Enter your new password below.</p>
+                <input type="password" id="newPasswordInput" placeholder="New Password">
+                <button class="btn-primary" onclick="updatePassword()">Update Password</button>
             </div>
         </div>
     </div>
