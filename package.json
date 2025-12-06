@@ -2,9 +2,9 @@
   "name": "mithran-db-pinger",
   "version": "1.0.0",
   "description": "Keeps Supabase active",
-  "main": "ping.js",
+  "main": "scripts/ping.js",
   "scripts": {
-    "ping": "node ping.js"
+    "ping": "node scripts/ping.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0"
