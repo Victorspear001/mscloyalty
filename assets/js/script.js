@@ -4,11 +4,16 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- AUTH ---
+supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') toggleAuth('newpass');
+});
+
 function toggleAuth(view) {
     document.querySelectorAll('#loginForm, #regForm, #resetForm, #newPassForm').forEach(el => el.classList.add('hidden'));
     if(view === 'login') document.getElementById('loginForm').classList.remove('hidden');
     if(view === 'reg') document.getElementById('regForm').classList.remove('hidden');
     if(view === 'reset') document.getElementById('resetForm').classList.remove('hidden');
+    if(view === 'newpass') document.getElementById('newPassForm').classList.remove('hidden');
 }
 
 async function login() {
@@ -37,6 +42,21 @@ async function register() {
 
     await supabase.from('admin_profiles').insert([{ id: authData.user.id, username: user, email: email }]);
     alert("Registered!"); toggleAuth('login');
+}
+
+async function sendResetLink() {
+    const email = document.getElementById('resetEmail').value;
+    const redirectUrl = window.location.origin + '/dashboard_msc.html';
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl });
+    if (error) alert(error.message); else alert("Link sent!");
+}
+
+async function updatePassword() {
+    const newPass = document.getElementById('newPasswordInput').value;
+    if(!newPass) return alert("Enter new password");
+    const { error } = await supabase.auth.updateUser({ password: newPass });
+    if (error) alert(error.message);
+    else { alert("Password updated!"); history.replaceState(null, null, 'dashboard_msc.html'); toggleAuth('login'); }
 }
 
 async function logout() { await supabase.auth.signOut(); location.reload(); }
@@ -155,7 +175,7 @@ async function redeemGift(id) {
     await supabase.from('customers').update({ stamps: 0, redeems: customer.redeems }).eq('id', id);
 }
 
-// --- ADD CUSTOMER (FIXED) ---
+// --- ADD CUSTOMER (Immediate UI Update) ---
 async function saveCustomer() {
     const name = document.getElementById('newName').value;
     const mobile = document.getElementById('newMobile').value;
@@ -163,29 +183,23 @@ async function saveCustomer() {
 
     const idCode = 'MSC' + Math.floor(1000 + Math.random() * 9000);
 
-    // 1. Insert and SELECT the new row
+    // Insert and select
     const { data, error } = await supabase.from('customers')
         .insert([{ name, mobile, customer_id_code: idCode, redeems: 0, stamps: 0 }])
         .select()
-        .single(); // Returns the created object
+        .single();
 
     if(error) {
         alert("Error: " + error.message);
     } else {
-        // 2. Add to Local Array
+        // Add to local list and DOM
         allCustomers.unshift(data);
-
-        // 3. Add to DOM immediately (Top of list)
         const container = document.getElementById('customerListContainer');
         const newRow = createCustomerRow(data);
         container.insertBefore(newRow, container.firstChild);
 
         alert("Customer Added!");
-        
-        // 4. Open Modal for ID Download
         openModal(name, mobile, idCode);
-        
-        // 5. Clear Inputs
         document.getElementById('newName').value = '';
         document.getElementById('newMobile').value = '';
     }
