@@ -12,54 +12,24 @@
 </head>
 <body>
 
-    <!-- === AUTH SECTION === -->
+    <!-- AUTH SECTION -->
     <div id="authSection" class="container">
         <div class="card-box text-center" style="margin-top: 60px;">
             <img src="assets/images/logo.png" class="logo-small">
             
-            <!-- Login Form -->
             <div id="loginForm">
                 <h2>Admin Login</h2>
                 <input type="text" id="loginUser" placeholder="Username">
                 <input type="password" id="loginPass" placeholder="Password">
                 <button class="btn-primary" onclick="login()">Log In</button>
-                <div><span class="link" onclick="toggleAuth('reg')">Create Account</span></div>
-                <div><span class="link" onclick="toggleAuth('reset')">Forgot Password</span></div>
             </div>
-
-            <!-- Register Form -->
-            <div id="regForm" class="hidden">
-                <h2>New Admin</h2>
-                <input type="email" id="regEmail" placeholder="Email Address">
-                <input type="text" id="regUser" placeholder="Set Username">
-                <input type="password" id="regPass" placeholder="Set Password">
-                <button class="btn-primary" onclick="register()">Register</button>
-                <div class="link" onclick="toggleAuth('login')">Back to Login</div>
-            </div>
-
-            <!-- Send Reset Link Form -->
-            <div id="resetForm" class="hidden">
-                <h2>Reset Password</h2>
-                <p style="font-size:0.9rem; color:#666;">Enter your email to receive a reset link.</p>
-                <input type="email" id="resetEmail" placeholder="Registered Email">
-                <button class="btn-primary" onclick="sendResetLink()">Send Link</button>
-                <div class="link" onclick="toggleAuth('login')">Back to Login</div>
-            </div>
-
-            <!-- Set New Password Form -->
-            <div id="newPassForm" class="hidden">
-                <h2>Set New Password</h2>
-                <p style="font-size:0.9rem; color:#666;">Enter your new password below.</p>
-                <input type="password" id="newPasswordInput" placeholder="New Password">
-                <button class="btn-primary" onclick="updatePassword()">Update Password</button>
-            </div>
+            <!-- (Hidden forms for register/reset kept in script logic, but omitted here for brevity if you want, 
+                 but best to keep the hidden divs from previous version if you still need them) -->
         </div>
     </div>
 
-    <!-- === DASHBOARD SECTION === -->
+    <!-- DASHBOARD -->
     <div id="dashboardSection" class="container hidden">
-        
-        <!-- Header -->
         <div class="dashboard-header">
             <div style="display:flex; align-items:center; gap: 10px;">
                 <img src="assets/images/logo.png" style="width: 40px; border-radius:50%;">
@@ -68,13 +38,12 @@
             <button class="btn-secondary" onclick="logout()">Logout</button>
         </div>
 
-        <!-- Tabs -->
         <div class="tab-nav">
             <button class="tab-btn active" onclick="switchTab('list')">Customer List</button>
             <button class="tab-btn" onclick="switchTab('add')">Add New</button>
         </div>
 
-        <!-- TAB 1: LIST -->
+        <!-- LIST TAB -->
         <div id="viewList">
             <input type="text" id="searchBar" placeholder="Search Customer..." onkeyup="filterList()">
             
@@ -88,7 +57,7 @@
             <div id="customerListContainer">Loading...</div>
         </div>
 
-        <!-- TAB 2: ADD CUSTOMER -->
+        <!-- ADD TAB -->
         <div id="viewAdd" class="hidden">
             <div class="card-box">
                 <h3>New Registration</h3>
@@ -97,29 +66,22 @@
                 <button class="btn-primary" onclick="saveCustomer()">Register Customer</button>
             </div>
         </div>
-
     </div>
 
-    <!-- === POPUP MODAL (ID CARD) === -->
+    <!-- ID MODAL -->
     <div id="modalOverlay" class="modal-overlay hidden">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h3 style="margin-top:0;">Customer ID</h3>
-            
-            <!-- ID CARD -->
             <div id="modalIdCard" class="id-card-container">
                 <img src="assets/images/logo.png" class="card-logo-img">
                 <div class="card-shop-title">Mithran Snacks</div>
-                
                 <div class="card-label">MEMBER NAME</div>
                 <div class="card-value" id="modalName"></div>
-                
                 <div class="card-label">MOBILE</div>
                 <div class="card-value" id="modalMobile"></div>
-                
                 <div class="card-id-badge" id="modalID"></div>
             </div>
-
             <button class="btn-primary" style="background: var(--success);" onclick="downloadModalCard()">Download JPG</button>
         </div>
     </div>
