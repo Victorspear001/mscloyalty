@@ -1,32 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
 
 :root {
-    --primary: #0056b3;     /* Royal Blue */
+    --primary: #0056b3;
     --primary-dark: #003d80;
-    --secondary: #f0f8ff;   /* Alice Blue Background */
-    --accent: #ff9800;      /* Snack Orange */
-    --success: #28a745;     /* Redeem Green */
-    --danger: #dc3545;      /* Delete Red */
-    --text: #333333;
+    --secondary: #f0f8ff;
+    --accent: #ff9800;
+    --success: #00c853;
+    --danger: #ff1744;
+    --text: #263238;
     --white: #ffffff;
-    --gray-light: #e0e0e0;
-    --gray-dark: #607d8b;
+    --gray-light: #eceff1;
     --gold: #ffd700;
 }
 
 body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
-    padding: 0;
     background-color: var(--secondary);
     color: var(--text);
-    -webkit-font-smoothing: antialiased;
 }
 
-/* === UTILITIES === */
 .container {
     width: 100%;
-    max-width: 500px; /* Mobile focused width */
+    max-width: 500px;
     margin: 0 auto;
     padding: 20px;
     box-sizing: border-box;
@@ -36,112 +32,36 @@ body {
 }
 
 .hidden { display: none !important; }
-
 .text-center { text-align: center; }
 
-.link {
-    color: var(--primary);
-    text-decoration: none;
-    font-size: 0.9rem;
-    cursor: pointer;
-    margin-top: 15px;
-    display: inline-block;
-    border-bottom: 1px dashed var(--primary);
-}
-
-/* === CARDS & SECTIONS === */
+/* === CARDS === */
 .card-box {
     background: var(--white);
     padding: 25px;
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     margin-bottom: 20px;
-    transition: transform 0.2s;
 }
 
-.logo-small { width: 80px; margin-bottom: 15px; }
-
-/* === FORMS === */
+/* === BUTTONS & INPUTS === */
 input {
-    width: 100%;
-    padding: 14px;
-    margin: 8px 0;
-    border: 2px solid var(--gray-light);
-    border-radius: 12px;
-    font-size: 16px;
-    font-family: inherit;
-    box-sizing: border-box;
-    transition: 0.3s;
+    width: 100%; padding: 14px; margin: 8px 0;
+    border: 2px solid var(--gray-light); border-radius: 12px;
+    font-size: 16px; transition: 0.3s;
 }
+input:focus { border-color: var(--primary); outline: none; }
 
-input:focus {
-    border-color: var(--primary);
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.1);
-}
-
-/* === BUTTONS === */
 button {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-    font-family: inherit;
+    width: 100%; padding: 14px; border: none; border-radius: 12px;
+    font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s;
 }
-
 button:active { transform: scale(0.97); }
 
 .btn-primary { background: var(--primary); color: white; }
-.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: #546e7a; color: white; width: auto; padding: 8px 16px; font-size: 0.9rem; }
+.btn-danger { background: white; color: var(--danger); border: 1px solid var(--danger); width: auto; padding: 5px 10px; }
 
-.btn-secondary { background: var(--gray-dark); color: white; width: auto; padding: 8px 16px; font-size: 0.9rem; }
-
-.btn-danger { 
-    background: white; 
-    color: var(--danger); 
-    border: 1px solid var(--danger);
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    width: auto;
-}
-
-/* === ADMIN DASHBOARD === */
-.dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.tab-nav {
-    display: flex;
-    background: #dfe6e9;
-    border-radius: 12px;
-    padding: 4px;
-    margin-bottom: 20px;
-}
-
-.tab-btn {
-    flex: 1;
-    padding: 10px;
-    border-radius: 10px;
-    background: transparent;
-    color: #666;
-    font-weight: 500;
-}
-
-.tab-btn.active {
-    background: var(--white);
-    color: var(--primary);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    font-weight: 700;
-}
-
-/* === CUSTOMER LIST ITEM === */
+/* === ADMIN LIST ITEM (Optimized) === */
 .customer-item {
     background: var(--white);
     border-radius: 16px;
@@ -149,194 +69,117 @@ button:active { transform: scale(0.97); }
     margin-bottom: 15px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     border-left: 6px solid var(--primary);
+    transition: background 0.3s;
 }
 
 .customer-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    display: flex; justify-content: space-between; align-items: flex-start;
     margin-bottom: 12px;
 }
 
-.cust-name { font-weight: 700; font-size: 1.1rem; color: var(--text); }
-.cust-meta { font-size: 0.85rem; color: #777; display: block; margin-top: 2px;}
+.cust-name { font-weight: 700; font-size: 1.1rem; }
+.cust-meta { font-size: 0.85rem; color: #777; margin-top: 2px; }
 
-/* === STAMP SYSTEM === */
+.redeem-badge {
+    background: var(--gold); color: #5d4037;
+    font-size: 0.7rem; font-weight: 800;
+    padding: 2px 8px; border-radius: 10px;
+    text-transform: uppercase; letter-spacing: 1px;
+    display: inline-block; margin-top: 5px;
+}
+
+/* === STAMP ROW (4 Circles) === */
 .stamp-row {
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    background: #f8f9fa; padding: 10px;
+    border-radius: 12px; display: flex;
+    align-items: center; justify-content: space-between;
 }
 
-.circles-wrapper {
-    display: flex;
-    gap: 6px;
-}
+.circles-wrapper { display: flex; gap: 8px; }
 
+/* Bigger Circles for 4 count */
 .msc-circle {
-    width: 32px;
-    height: 32px;
-    background-color: #ddd;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 9px;
-    font-weight: 800;
-    color: white;
-    border: 2px solid white;
+    width: 38px; height: 38px;
+    background-color: #e0e0e0; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; color: white;
+    border: 3px solid white;
     box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .msc-circle.filled {
     background: var(--accent);
-    transform: scale(1.1);
-    box-shadow: 0 4px 6px rgba(255, 152, 0, 0.4);
-    border-color: #ffe0b2;
+    transform: scale(1.15);
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.4);
+    border-color: #fff3e0;
 }
 
 .ctrl-btn {
-    width: 32px; height: 32px;
-    border-radius: 50%;
+    width: 35px; height: 35px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem;
-    padding: 0;
-    line-height: 1;
+    font-size: 1.2rem; padding: 0; line-height: 1;
 }
 .btn-minus { background: #cfd8dc; color: #546e7a; }
 .btn-plus { background: var(--primary); color: white; }
 
 .btn-redeem {
-    background: var(--success);
-    color: white;
-    font-size: 0.8rem;
-    padding: 8px 12px;
+    background: var(--success); color: white;
+    font-size: 0.8rem; padding: 8px 12px;
     animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    0% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 200, 83, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0); }
 }
 
-/* === ID CARD (THE STYLISH PART) === */
-.id-card-container {
-    width: 300px;
-    height: 180px;
-    background: linear-gradient(135deg, #004e92, #000428); /* Deep Ocean Blue */
-    border-radius: 16px;
-    padding: 20px;
-    position: relative;
-    color: white;
-    box-shadow: 0 15px 35px rgba(0,86,179,0.3);
-    border: 2px solid var(--gold);
-    box-sizing: border-box;
-    margin: 20px auto;
-    text-align: left;
-    overflow: hidden;
+/* === CONGRATS FLYER POPUP === */
+.flyer-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 10000;
 }
 
-/* decorative circle */
-.id-card-container::before {
-    content: '';
-    position: absolute;
-    top: -50px; right: -50px;
-    width: 150px; height: 150px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 50%;
-}
-
-.card-logo-img {
-    position: absolute;
-    top: 15px; right: 15px;
-    width: 45px;
-    opacity: 0.9;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-}
-
-.card-shop-title {
-    color: var(--gold);
-    font-size: 1.2rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 20px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-}
-
-.card-label {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.6);
-    margin-bottom: 2px;
-    letter-spacing: 1px;
-}
-
-.card-value {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 12px;
-    font-family: 'Poppins', sans-serif;
-}
-
-.card-id-badge {
-    position: absolute;
-    bottom: 15px; right: 15px;
-    background: rgba(255, 215, 0, 0.2);
-    border: 1px solid var(--gold);
-    color: var(--gold);
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    letter-spacing: 2px;
-    font-size: 1rem;
-}
-
-/* === MODAL POPUP === */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    backdrop-filter: blur(5px);
-}
-
-.modal-content {
-    background: white;
-    width: 90%;
-    max-width: 360px;
-    padding: 25px;
-    border-radius: 20px;
-    position: relative;
+.flyer-content {
+    background: linear-gradient(135deg, #fff, #f0f8ff);
+    width: 90%; max-width: 400px;
+    padding: 30px; border-radius: 30px;
     text-align: center;
-    animation: slideUp 0.3s ease-out;
+    border: 4px solid var(--gold);
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+    animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
 
-.close-btn {
-    position: absolute;
-    top: 10px; right: 15px;
-    font-size: 2rem;
-    cursor: pointer;
-    line-height: 1;
-    color: #999;
+.flyer-title {
+    font-size: 2rem; color: var(--primary); margin: 10px 0;
+    font-weight: 800; text-transform: uppercase;
 }
 
-@keyframes slideUp {
-    from { transform: translateY(50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
+.flyer-emoji { font-size: 4rem; margin: 10px 0; animation: bounce 2s infinite; }
 
-/* Special styles for New Password Form headers */
-#newPassForm h2 {
-    color: var(--primary);
-    margin-bottom: 10px;
+.flyer-text { font-size: 1.1rem; color: #555; margin-bottom: 20px; }
+
+@keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+@keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-20px);} 60% {transform: translateY(-10px);} }
+
+/* === ID CARD === */
+.id-card-container {
+    width: 300px; height: 180px;
+    background: linear-gradient(135deg, #004e92, #000428);
+    border-radius: 16px; padding: 20px; position: relative;
+    color: white; border: 2px solid var(--gold);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    margin: 20px auto; text-align: left;
+}
+.card-logo-img { position: absolute; top: 15px; right: 15px; width: 45px; opacity: 0.9; }
+.card-shop-title { color: var(--gold); font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 20px; }
+.card-label { font-size: 0.65rem; color: rgba(255,255,255,0.6); letter-spacing: 1px; }
+.card-value { font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; }
+.card-id-badge {
+    position: absolute; bottom: 15px; right: 15px;
+    border: 1px solid var(--gold); color: var(--gold);
+    padding: 4px 10px; border-radius: 8px; font-weight: bold; letter-spacing: 2px;
 }
