@@ -68,6 +68,9 @@ function switchTab(tab) {
         document.getElementById('viewList').classList.remove('hidden');
         document.getElementById('viewAdd').classList.add('hidden');
         document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        // Reset search when switching back to list
+        document.getElementById('searchBar').value = '';
+        renderList(allCustomers); 
     } else {
         document.getElementById('viewList').classList.add('hidden');
         document.getElementById('viewAdd').classList.remove('hidden');
@@ -91,10 +94,16 @@ async function loadCustomers() {
     }
 }
 
-function renderList(data) {
+function renderList(dataArray) {
     const container = document.getElementById('customerListContainer');
     container.innerHTML = '';
-    data.forEach(cust => container.appendChild(createCustomerRow(cust)));
+
+    if (dataArray.length === 0) {
+        container.innerHTML = '<p class="text-center" style="color:#777; margin-top:20px;">No customers found matching that search.</p>';
+        return;
+    }
+
+    dataArray.forEach(cust => container.appendChild(createCustomerRow(cust)));
 }
 
 function createCustomerRow(cust) {
@@ -196,6 +205,10 @@ async function saveCustomer() {
         allCustomers.unshift(data);
         const container = document.getElementById('customerListContainer');
         const newRow = createCustomerRow(data);
+        // Insert at top, but check if "No customers found" msg is there first
+        if (container.firstChild && container.firstChild.tagName === 'P') {
+            container.innerHTML = '';
+        }
         container.insertBefore(newRow, container.firstChild);
 
         alert("Customer Added!");
@@ -256,6 +269,26 @@ async function checkStatus() {
         document.getElementById('pubCardMobile').innerText = data.mobile;
         document.getElementById('pubCardID').innerText = data.customer_id_code;
     }
+}
+
+// --- SEARCH / FILTER LOGIC (UPDATED & FIXED) ---
+function filterList() {
+    const input = document.getElementById('searchBar');
+    if (!input) return; // Guard clause
+    
+    const term = input.value.toLowerCase().trim();
+    
+    // Filter against the local 'allCustomers' array
+    const filtered = allCustomers.filter(c => {
+        // Safe check for null values to prevent crashes
+        const name = (c.name || '').toLowerCase();
+        const mobile = (c.mobile || '').toString();
+        const id = (c.customer_id_code || '').toLowerCase();
+        
+        return name.includes(term) || mobile.includes(term) || id.includes(term);
+    });
+
+    renderList(filtered);
 }
 
 function exportData() {
