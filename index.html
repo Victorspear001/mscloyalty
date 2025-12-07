@@ -12,57 +12,69 @@
 
     <div class="container">
         <!-- Logo Section -->
-        <div class="text-center" style="margin-top: 40px;">
-            <img src="assets/images/logo.png" style="width: 140px; border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" id="secretLogo">
+        <div class="text-center" style="margin-top: 30px;">
+            <img src="assets/images/logo.png" style="width: 120px; border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" id="secretLogo">
             <h2 style="color: var(--primary); margin-top: 10px;">Mithran Snacks</h2>
-            <p style="color: #666;">Loyalty Rewards Program</p>
+            <p style="color: #666;">Buy 4 Get 5th Free!</p>
         </div>
 
         <!-- Check Status Card -->
         <div class="card-box" style="margin-top: 20px;">
-            <h3>Check Your Stamps</h3>
+            <h3>Check Stamps</h3>
             <p style="font-size: 0.9rem; color: #888; margin-bottom: 20px;">Enter your Member ID below</p>
-            
             <input type="text" id="checkID" placeholder="MSC ID (e.g. MSC4492)">
             <button class="btn-primary" onclick="checkStatus()">Check Rewards</button>
         </div>
 
-        <!-- Result Box (Hidden by default) -->
+        <!-- Result Box -->
         <div id="resultBox" class="card-box hidden">
-            <!-- Stats -->
             <div style="margin-bottom: 20px;">
                 <h2 id="resName" style="margin: 0; color: var(--primary);"></h2>
-                <div style="font-size: 3.5rem; font-weight: 800; color: var(--accent); line-height: 1;">
-                    <span id="resStamps">0</span><span style="font-size: 1.5rem; color: #ccc;">/5</span>
+                <!-- Total Redeems Badge -->
+                <div style="background:#fff8e1; color:#ff8f00; display:inline-block; padding:5px 10px; border-radius:10px; font-weight:bold; margin-top:5px; font-size:0.9rem; border:1px solid #ffca28;">
+                    Total Free Snacks Redeemed: <span id="pubRedeems">0</span>
+                </div>
+
+                <div style="font-size: 3.5rem; font-weight: 800; color: var(--accent); line-height: 1; margin-top:15px;">
+                    <span id="resStamps">0</span><span style="font-size: 1.5rem; color: #ccc;">/4</span>
                 </div>
                 <p id="resMsg" style="font-weight: 600; margin-top: 10px;"></p>
             </div>
 
-            <!-- ID Card Display -->
+            <!-- ID Card -->
             <div id="publicIdCard" class="id-card-container">
                 <img src="assets/images/logo.png" class="card-logo-img">
                 <div class="card-shop-title">Mithran Snacks</div>
-                
                 <div class="card-label">MEMBER NAME</div>
                 <div class="card-value" id="pubCardName"></div>
-                
                 <div class="card-label">MOBILE</div>
                 <div class="card-value" id="pubCardMobile"></div>
-                
                 <div class="card-id-badge" id="pubCardID"></div>
             </div>
         </div>
     </div>
 
+    <!-- CONGRATULATIONS FLYER POPUP -->
+    <div id="flyerOverlay" class="flyer-overlay hidden" onclick="closeFlyer()">
+        <div class="flyer-content">
+            <div class="flyer-title">Congratulations!</div>
+            <div class="flyer-emoji">🎁</div>
+            <div class="flyer-text">
+                You have collected 4 Stamps!<br>
+                <strong>Your 5th Snack is FREE!</strong>
+            </div>
+            <div style="font-size:0.9rem; color:#888;">Show this screen to the cashier.</div>
+            <button class="btn-primary" style="margin-top:20px;">Awesome!</button>
+        </div>
+    </div>
+
     <script src="assets/js/script.js"></script>
     <script>
-        // Secret Door Logic (5 Clicks)
+        // Secret Door (5 Clicks)
         let clicks = 0;
         document.getElementById('secretLogo').addEventListener('click', () => {
             clicks++;
-            if(clicks === 5) {
-                window.location.href = 'dashboard_msc.html';
-            }
+            if(clicks === 5) window.location.href = 'dashboard_msc.html';
             setTimeout(() => clicks = 0, 1000);
         });
     </script>
