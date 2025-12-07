@@ -9,19 +9,18 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
     <div class="container">
         <!-- Logo Section -->
         <div class="text-center" style="margin-top: 30px;">
-            <img src="assets/images/logo.png" style="width: 120px; border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" id="secretLogo">
+            <img src="assets/images/logo.png" class="logo-login" id="secretLogo">
             <h2 style="color: var(--primary); margin-top: 10px;">Mithran Snacks</h2>
             <p style="color: #666;">Buy 4 Get 5th Free!</p>
         </div>
 
-        <!-- Check Status Card -->
+        <!-- Check Status -->
         <div class="card-box" style="margin-top: 20px;">
             <h3>Check Stamps</h3>
-            <p style="font-size: 0.9rem; color: #888; margin-bottom: 20px;">Enter your Member ID below</p>
+            <p style="font-size: 0.9rem; color: #888; margin-bottom: 20px;">Enter Member ID</p>
             <input type="text" id="checkID" placeholder="MSC ID (e.g. MSC4492)">
             <button class="btn-primary" onclick="checkStatus()">Check Rewards</button>
         </div>
@@ -30,17 +29,14 @@
         <div id="resultBox" class="card-box hidden">
             <div style="margin-bottom: 20px;">
                 <h2 id="resName" style="margin: 0; color: var(--primary);"></h2>
-                <!-- Total Redeems Badge -->
                 <div style="background:#fff8e1; color:#ff8f00; display:inline-block; padding:5px 10px; border-radius:10px; font-weight:bold; margin-top:5px; font-size:0.9rem; border:1px solid #ffca28;">
                     Total Free Snacks Redeemed: <span id="pubRedeems">0</span>
                 </div>
-
                 <div style="font-size: 3.5rem; font-weight: 800; color: var(--accent); line-height: 1; margin-top:15px;">
                     <span id="resStamps">0</span><span style="font-size: 1.5rem; color: #ccc;">/4</span>
                 </div>
                 <p id="resMsg" style="font-weight: 600; margin-top: 10px;"></p>
             </div>
-
             <!-- ID Card -->
             <div id="publicIdCard" class="id-card-container">
                 <img src="assets/images/logo.png" class="card-logo-img">
@@ -54,23 +50,20 @@
         </div>
     </div>
 
-    <!-- CONGRATULATIONS FLYER POPUP -->
-    <div id="flyerOverlay" class="flyer-overlay hidden" onclick="closeFlyer()">
-        <div class="flyer-content">
-            <div class="flyer-title">Congratulations!</div>
-            <div class="flyer-emoji">🎁</div>
-            <div class="flyer-text">
-                You have collected 4 Stamps!<br>
-                <strong>Your 5th Snack is FREE!</strong>
+    <!-- FLYER POPUP -->
+    <div id="flyerOverlay" class="modal-overlay hidden" onclick="document.getElementById('flyerOverlay').classList.add('hidden')">
+        <div class="modal-content" style="border: 4px solid var(--gold);">
+            <div style="font-size: 2rem; color: var(--primary); font-weight: 800; text-transform: uppercase;">Congratulations!</div>
+            <div style="font-size: 4rem; margin: 10px 0;">🎁</div>
+            <div style="font-size: 1.1rem; color: #555; margin-bottom: 20px;">
+                You have collected 4 Stamps!<br><strong>Your 5th Snack is FREE!</strong>
             </div>
-            <div style="font-size:0.9rem; color:#888;">Show this screen to the cashier.</div>
-            <button class="btn-primary" style="margin-top:20px;">Awesome!</button>
+            <button class="btn-primary">Awesome!</button>
         </div>
     </div>
 
     <script src="assets/js/script.js"></script>
     <script>
-        // Secret Door (5 Clicks)
         let clicks = 0;
         document.getElementById('secretLogo').addEventListener('click', () => {
             clicks++;
