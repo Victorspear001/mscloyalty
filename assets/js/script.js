@@ -98,7 +98,7 @@ function renderList(dataArray) {
     container.innerHTML = '';
 
     if (dataArray.length === 0) {
-        container.innerHTML = '<p class="text-center" style="color:#777; margin-top:20px;">No customers found.</p>';
+        container.innerHTML = '<p class="text-center" style="color:#777; margin-top:20px;">No customers found matching that search.</p>';
         return;
     }
 
@@ -252,17 +252,20 @@ function openModal(name, mobile, id) {
     document.getElementById('modalName').innerText = name.toUpperCase();
     document.getElementById('modalMobile').innerText = mobile;
     document.getElementById('modalID').innerText = id;
-    // Generate QR for Admin Modal
     generateQRCode(id, 'modalQR');
     document.getElementById('modalOverlay').classList.remove('hidden');
 }
 function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); }
 
+// --- HIGH QUALITY ADMIN DOWNLOAD ---
 function downloadModalCard() {
-    html2canvas(document.querySelector("#modalIdCard")).then(canvas => {
+    html2canvas(document.querySelector("#modalIdCard"), {
+        scale: 5, // High Resolution
+        useCORS: true
+    }).then(canvas => {
         const link = document.createElement('a');
         link.download = `ID_${document.getElementById('modalName').innerText}.jpg`;
-        link.href = canvas.toDataURL("image/jpeg");
+        link.href = canvas.toDataURL("image/jpeg", 1.0);
         link.click();
     });
 }
@@ -292,15 +295,14 @@ async function checkStatus() {
         document.getElementById('pubCardMobile').innerText = data.mobile;
         document.getElementById('pubCardID').innerText = data.customer_id_code;
         
-        // Generate QR for Customer Card
         generateQRCode(data.customer_id_code, 'pubCardQR');
     }
 }
 
-// --- NEW: CUSTOMER ID DOWNLOAD & QR GEN ---
+// --- CUSTOMER ID DOWNLOAD & QR GEN ---
 function generateQRCode(text, elementId) {
     const container = document.getElementById(elementId);
-    container.innerHTML = ''; // Clear previous
+    container.innerHTML = '';
     new QRCode(container, {
         text: text,
         width: 64,
@@ -319,7 +321,6 @@ function openCustomerModal() {
     document.getElementById('custModalName').innerText = name;
     document.getElementById('custModalMobile').innerText = mobile;
     document.getElementById('custModalID').innerText = id;
-    // Generate QR for Download Modal
     generateQRCode(id, 'custModalQR');
     
     document.getElementById('customerModalOverlay').classList.remove('hidden');
@@ -329,11 +330,15 @@ function closeCustomerModal() {
     document.getElementById('customerModalOverlay').classList.add('hidden');
 }
 
+// --- HIGH QUALITY CUSTOMER DOWNLOAD ---
 function downloadCustomerCard() {
-    html2canvas(document.querySelector("#custModalIdCard")).then(canvas => {
+    html2canvas(document.querySelector("#custModalIdCard"), {
+        scale: 5, // High Resolution
+        useCORS: true
+    }).then(canvas => {
         const link = document.createElement('a');
         link.download = `MY_ID_${document.getElementById('custModalName').innerText}.jpg`;
-        link.href = canvas.toDataURL("image/jpeg");
+        link.href = canvas.toDataURL("image/jpeg", 1.0);
         link.click();
     });
 }
@@ -343,17 +348,14 @@ let html5QrcodeScanner;
 
 function initScanner() {
     document.getElementById('scannerModal').classList.remove('hidden');
-    
     html5QrcodeScanner = new Html5QrcodeScanner(
         "reader", { fps: 10, qrbox: 250 });
-        
     html5QrcodeScanner.render(onScanSuccess);
 }
 
 function onScanSuccess(decodedText, decodedResult) {
-    // Handle on success condition with the decoded text or result.
     document.getElementById('searchBar').value = decodedText;
-    filterList(); // Trigger search
+    filterList();
     closeScanner();
 }
 
