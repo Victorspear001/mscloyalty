@@ -12,23 +12,19 @@
 </head>
 <body>
 
-    <!-- HOME BUTTON (Left Top Corner) -->
     <a href="index.html" class="home-btn" title="Back to Customer Home">
         <i class="fas fa-home"></i>
     </a>
 
-    <!-- AUTH SECTION (Visible by default, hides Dashboard) -->
     <div id="authSection" class="container">
         <div class="card-box text-center" style="margin-top: 60px;">
             <img src="assets/images/logo.png" class="logo-login">
-            
             <div id="loginForm">
                 <h2>Admin Login</h2>
                 <input type="text" id="loginUser" placeholder="Username">
                 <input type="password" id="loginPass" placeholder="Password">
                 <button class="btn-primary" onclick="login()">Log In</button>
             </div>
-            <!-- (Hidden forms for logic) -->
             <div id="regForm" class="hidden">
                 <h2>New Admin</h2>
                 <input type="email" id="regEmail" placeholder="Email">
@@ -51,7 +47,6 @@
         </div>
     </div>
 
-    <!-- DASHBOARD (Hidden until Logged In) -->
     <div id="dashboardSection" class="container hidden">
         <div class="dashboard-header">
             <div class="brand-wrapper">
@@ -66,9 +61,8 @@
             <button class="tab-btn" onclick="switchTab('add')">Add New</button>
         </div>
 
-        <!-- LIST TAB -->
         <div id="viewList">
-            <input type="text" id="searchBar" placeholder="Search Customer..." onkeyup="filterList()">
+            <input type="text" id="searchBar" placeholder="Search by Name, Mobile or ID..." onkeyup="filterList()">
             <div style="display:flex; gap:10px; margin-bottom: 20px;">
                 <button class="btn-secondary" style="background: var(--success);" onclick="exportData()">Export CSV</button>
                 <label class="btn-secondary" style="background: var(--primary); cursor:pointer; flex:1; text-align:center;">
@@ -78,7 +72,6 @@
             <div id="customerListContainer">Loading...</div>
         </div>
 
-        <!-- ADD TAB -->
         <div id="viewAdd" class="hidden">
             <div class="card-box">
                 <h3>New Registration</h3>
@@ -89,7 +82,6 @@
         </div>
     </div>
 
-    <!-- ID MODAL (Outside main container for proper centering) -->
     <div id="modalOverlay" class="modal-overlay hidden">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
