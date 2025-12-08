@@ -88,40 +88,17 @@ button:active { transform: scale(0.97); }
 .btn-secondary { background: #546e7a; color: white; width: auto; padding: 8px 16px; font-size: 0.85rem; }
 .btn-danger { background: white; color: var(--danger); border: 1px solid var(--danger); width: auto; padding: 6px 10px; font-size: 0.8rem;}
 
-/* === SEARCH BAR WITH SCANNER (NEW) === */
-.search-container {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.search-container input {
-    margin: 0; /* Reset default margin */
-    flex-grow: 1;
-}
-
+/* === SEARCH & SCAN === */
+.search-container { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+.search-container input { margin: 0; flex-grow: 1; }
 .btn-scan {
-    background: var(--primary);
-    color: white;
-    width: 54px; /* Match input height roughly */
-    height: 54px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 86, 179, 0.2);
+    background: var(--primary); color: white; width: 54px; height: 54px;
+    padding: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 86, 179, 0.2);
 }
 
-/* === SCANNER MODAL (NEW) === */
-#reader {
-    width: 100%;
-    border-radius: 12px;
-    overflow: hidden;
-}
-/* Overrides for html5-qrcode library styles to match app */
+/* === SCANNER === */
+#reader { width: 100%; border-radius: 12px; overflow: hidden; }
 #reader__dashboard_section_csr span { color: var(--text) !important; }
 #reader__dashboard_section_swaplink { color: var(--primary) !important; text-decoration: none; }
 #reader button {
@@ -201,7 +178,7 @@ button:active { transform: scale(0.97); }
     font-size: 2rem; cursor: pointer; color: #999; line-height: 1;
 }
 
-/* === ID CARD WITH QR (UPDATED) === */
+/* === ID CARD WITH QR === */
 .id-card-container {
     width: 300px; height: 180px;
     background: linear-gradient(135deg, #004e92, #000428);
@@ -218,17 +195,12 @@ button:active { transform: scale(0.97); }
 .card-label { font-size: 0.65rem; color: rgba(255,255,255,0.6); letter-spacing: 1px; }
 .card-value { font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; }
 .card-id-badge {
-    position: absolute; bottom: 15px; left: 20px; /* Moved left */
+    position: absolute; bottom: 15px; left: 20px;
     border: 1px solid var(--gold); color: var(--gold);
     padding: 4px 10px; border-radius: 8px; font-weight: bold; letter-spacing: 2px;
 }
-/* QR Position on Card */
 .card-qr {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    background: white;
-    padding: 5px;
-    border-radius: 8px;
+    position: absolute; bottom: 15px; right: 15px;
+    background: white; padding: 5px; border-radius: 8px;
 }
 .tap-hint { font-size: 0.7rem; color: #ccc; text-align: center; margin-top: 5px; font-style: italic; }
