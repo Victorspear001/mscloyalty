@@ -37,33 +37,16 @@ body {
 .hidden { display: none !important; }
 .text-center { text-align: center; }
 
-/* === HOME BUTTON (NEW) === */
+/* === HOME BUTTON === */
 .home-btn {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    width: 45px;
-    height: 45px;
-    background: var(--white);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    color: var(--primary);
-    text-decoration: none;
-    z-index: 999; /* Always on top */
-    border: 2px solid var(--primary);
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    font-size: 1.2rem;
+    position: fixed; top: 20px; left: 20px; width: 45px; height: 45px;
+    background: var(--white); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); color: var(--primary);
+    text-decoration: none; z-index: 999; border: 2px solid var(--primary);
+    transition: all 0.3s; font-size: 1.2rem;
 }
-
-.home-btn:hover {
-    transform: scale(1.1) rotate(-10deg);
-    background: var(--primary);
-    color: var(--white);
-    box-shadow: 0 8px 20px rgba(0, 86, 179, 0.3);
-}
+.home-btn:hover { transform: scale(1.1); background: var(--primary); color: var(--white); }
 
 /* === LOGOS === */
 .logo-login {
@@ -71,24 +54,14 @@ body {
     margin-bottom: 15px; border-radius: 50%;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-
-.dashboard-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding-bottom: 15px; margin-bottom: 15px;
-}
-
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; margin-bottom: 15px; }
 .brand-wrapper { display: flex; align-items: center; gap: 12px; }
-
 .header-logo {
     width: 45px; height: 45px; object-fit: cover;
     border-radius: 50%; border: 2px solid var(--white);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-
-.brand-name {
-    margin: 0; color: var(--primary); font-size: 1.2rem;
-    font-weight: 700; line-height: 1.2;
-}
+.brand-name { margin: 0; color: var(--primary); font-size: 1.2rem; font-weight: 700; line-height: 1.2; }
 
 /* === CARDS === */
 .card-box {
@@ -122,13 +95,14 @@ button:active { transform: scale(0.97); }
 
 /* === CUSTOMER LIST === */
 .customer-item {
-    background: var(--white); border-radius: 16px;
-    padding: 15px; margin-bottom: 15px;
+    background: var(--white); border-radius: 16px; padding: 15px; margin-bottom: 15px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.03); border-left: 6px solid var(--primary);
 }
 .customer-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
 .cust-name { font-weight: 700; font-size: 1.1rem; }
 .cust-meta { font-size: 0.85rem; color: #777; margin-top: 2px; }
+.last-visit { font-size: 0.75rem; color: #888; font-style: italic; display: block; margin-top: 2px; } /* NEW */
+
 .redeem-badge {
     background: var(--gold); color: #5d4037; font-size: 0.7rem; font-weight: 800;
     padding: 2px 8px; border-radius: 10px; text-transform: uppercase;
@@ -142,8 +116,8 @@ button:active { transform: scale(0.97); }
 }
 .circles-wrapper { display: flex; gap: 8px; }
 .msc-circle {
-    width: 36px; height: 36px; background-color: #e0e0e0;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; background-color: #e0e0e0; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
     font-size: 10px; font-weight: 800; color: white;
     border: 3px solid white; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
 }
@@ -194,7 +168,11 @@ button:active { transform: scale(0.97); }
     color: white; border: 2px solid var(--gold);
     box-shadow: 0 15px 35px rgba(0,0,0,0.3);
     margin: 20px auto; text-align: left;
+    cursor: pointer; /* Clickable */
+    transition: transform 0.2s;
 }
+.id-card-container:active { transform: scale(0.98); }
+
 .card-logo-img { position: absolute; top: 15px; right: 15px; width: 45px; opacity: 0.9; }
 .card-shop-title { color: var(--gold); font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 20px; }
 .card-label { font-size: 0.65rem; color: rgba(255,255,255,0.6); letter-spacing: 1px; }
@@ -204,3 +182,4 @@ button:active { transform: scale(0.97); }
     border: 1px solid var(--gold); color: var(--gold);
     padding: 4px 10px; border-radius: 8px; font-weight: bold; letter-spacing: 2px;
 }
+.tap-hint { font-size: 0.7rem; color: #ccc; text-align: center; margin-top: 5px; font-style: italic; }
