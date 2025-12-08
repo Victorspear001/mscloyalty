@@ -116,7 +116,6 @@ function createCustomerRow(cust) {
         ? `<button id="btn-${cust.id}" class="btn-redeem" onclick="redeemGift(${cust.id})">Redeem 🎁</button>`
         : `<button id="btn-${cust.id}" class="ctrl-btn btn-plus" onclick="updateStampOptimistic(${cust.id}, 1)">+</button>`;
 
-    // Format Last Visit Date
     let lastVisitStr = "Never";
     if(cust.last_visited) {
         const d = new Date(cust.last_visited);
@@ -159,19 +158,16 @@ async function updateStampOptimistic(id, change) {
 
     customer.stamps = newStamps;
     
-    // Update Visit Time Logic (Only if adding stamp)
     let visitTime = customer.last_visited;
     if(change > 0) {
         visitTime = new Date().toISOString();
         customer.last_visited = visitTime;
-        // Update UI Text
         const d = new Date(visitTime);
         const niceDate = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         const visitEl = document.getElementById(`visit-${id}`);
         if(visitEl) visitEl.innerText = niceDate;
     }
 
-    // Update UI Circles
     for(let i=1; i<=4; i++) {
         const circle = document.getElementById(`circle-${id}-${i}`);
         if(circle) i <= newStamps ? circle.classList.add('filled') : circle.classList.remove('filled');
@@ -184,7 +180,6 @@ async function updateStampOptimistic(id, change) {
         actionWrapper.innerHTML = `<button class="ctrl-btn btn-plus" onclick="updateStampOptimistic(${id}, 1)">+</button>`;
     }
 
-    // Update DB
     await supabase.from('customers').update({ 
         stamps: newStamps,
         last_visited: visitTime 
@@ -198,14 +193,12 @@ async function redeemGift(id) {
 
     customer.stamps = 0;
     customer.redeems = (customer.redeems || 0) + 1;
-    customer.last_visited = new Date().toISOString(); // Update visit on redeem too
+    customer.last_visited = new Date().toISOString();
 
-    // UI Reset
     for(let i=1; i<=4; i++) document.getElementById(`circle-${id}-${i}`).classList.remove('filled');
     document.getElementById(`redeem-count-${id}`).innerText = customer.redeems;
     document.getElementById(`action-wrapper-${id}`).innerHTML = `<button class="ctrl-btn btn-plus" onclick="updateStampOptimistic(${id}, 1)">+</button>`;
     
-    // Update Visit Text
     const d = new Date();
     document.getElementById(`visit-${id}`).innerText = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
@@ -259,6 +252,8 @@ function openModal(name, mobile, id) {
     document.getElementById('modalName').innerText = name.toUpperCase();
     document.getElementById('modalMobile').innerText = mobile;
     document.getElementById('modalID').innerText = id;
+    // Generate QR for Admin Modal
+    generateQRCode(id, 'modalQR');
     document.getElementById('modalOverlay').classList.remove('hidden');
 }
 function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); }
@@ -296,19 +291,36 @@ async function checkStatus() {
         document.getElementById('pubCardName').innerText = data.name.toUpperCase();
         document.getElementById('pubCardMobile').innerText = data.mobile;
         document.getElementById('pubCardID').innerText = data.customer_id_code;
+        
+        // Generate QR for Customer Card
+        generateQRCode(data.customer_id_code, 'pubCardQR');
     }
 }
 
-// --- NEW: CUSTOMER ID DOWNLOAD (Index.html) ---
+// --- NEW: CUSTOMER ID DOWNLOAD & QR GEN ---
+function generateQRCode(text, elementId) {
+    const container = document.getElementById(elementId);
+    container.innerHTML = ''; // Clear previous
+    new QRCode(container, {
+        text: text,
+        width: 64,
+        height: 64,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+}
+
 function openCustomerModal() {
     const name = document.getElementById('pubCardName').innerText;
     const mobile = document.getElementById('pubCardMobile').innerText;
     const id = document.getElementById('pubCardID').innerText;
     
-    // Populate the hidden modal in index.html
     document.getElementById('custModalName').innerText = name;
     document.getElementById('custModalMobile').innerText = mobile;
     document.getElementById('custModalID').innerText = id;
+    // Generate QR for Download Modal
+    generateQRCode(id, 'custModalQR');
     
     document.getElementById('customerModalOverlay').classList.remove('hidden');
 }
@@ -324,6 +336,38 @@ function downloadCustomerCard() {
         link.href = canvas.toDataURL("image/jpeg");
         link.click();
     });
+}
+
+// --- NEW: ADMIN QR SCANNER ---
+let html5QrcodeScanner;
+
+function initScanner() {
+    document.getElementById('scannerModal').classList.remove('hidden');
+    
+    html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader", { fps: 10, qrbox: 250 });
+        
+    html5QrcodeScanner.render(onScanSuccess);
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+    // Handle on success condition with the decoded text or result.
+    document.getElementById('searchBar').value = decodedText;
+    filterList(); // Trigger search
+    closeScanner();
+}
+
+function closeScanner() {
+    if(html5QrcodeScanner) {
+        html5QrcodeScanner.clear().then(_ => {
+            document.getElementById('scannerModal').classList.add('hidden');
+        }).catch(error => {
+            console.error("Failed to clear scanner. ", error);
+            document.getElementById('scannerModal').classList.add('hidden');
+        });
+    } else {
+        document.getElementById('scannerModal').classList.add('hidden');
+    }
 }
 
 // --- SEARCH & EXPORT ---
@@ -354,8 +398,9 @@ function importData(input) {
         complete: async (res) => {
             const rows = res.data.filter(r => r.name && r.customer_id_code);
             if(rows.length > 0) {
+                const now = new Date().toISOString();
                 const { error } = await supabase.from('customers').upsert(rows.map(r => ({
-                    name: r.name, mobile: r.mobile, customer_id_code: r.customer_id_code, stamps: r.stamps || 0, redeems: r.redeems || 0
+                    name: r.name, mobile: r.mobile, customer_id_code: r.customer_id_code, stamps: r.stamps || 0, redeems: r.redeems || 0, last_visited: r.last_visited || now
                 })), { onConflict: 'customer_id_code'});
                 if(!error) { alert("Imported!"); loadCustomers(); }
             }
