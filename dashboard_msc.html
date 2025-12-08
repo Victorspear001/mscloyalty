@@ -6,6 +6,9 @@
     <title>Admin Panel</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -62,7 +65,11 @@
         </div>
 
         <div id="viewList">
-            <input type="text" id="searchBar" placeholder="Search by Name, Mobile or ID..." onkeyup="filterList()">
+            <div class="search-container">
+                <input type="text" id="searchBar" placeholder="Search by Name, Mobile or ID..." onkeyup="filterList()">
+                <button class="btn-scan" onclick="initScanner()"><i class="fas fa-camera"></i></button>
+            </div>
+
             <div style="display:flex; gap:10px; margin-bottom: 20px;">
                 <button class="btn-secondary" style="background: var(--success);" onclick="exportData()">Export CSV</button>
                 <label class="btn-secondary" style="background: var(--primary); cursor:pointer; flex:1; text-align:center;">
@@ -82,6 +89,14 @@
         </div>
     </div>
 
+    <div id="scannerModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeScanner()">&times;</span>
+            <h3 style="margin-top:0;">Scan Customer QR</h3>
+            <div id="reader"></div>
+        </div>
+    </div>
+
     <div id="modalOverlay" class="modal-overlay hidden">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
@@ -95,6 +110,7 @@
                 <div class="card-label">MOBILE</div>
                 <div class="card-value" id="modalMobile"></div>
                 <div class="card-id-badge" id="modalID"></div>
+                <div id="modalQR" class="card-qr"></div>
             </div>
 
             <button class="btn-primary" style="background: var(--success); margin-top: 15px;" onclick="downloadModalCard()">Download JPG</button>
