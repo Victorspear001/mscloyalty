@@ -68,7 +68,6 @@ function switchTab(tab) {
         document.getElementById('viewList').classList.remove('hidden');
         document.getElementById('viewAdd').classList.add('hidden');
         document.querySelectorAll('.tab-btn')[0].classList.add('active');
-        // Reset search when switching back to list
         document.getElementById('searchBar').value = '';
         renderList(allCustomers); 
     } else {
@@ -99,7 +98,7 @@ function renderList(dataArray) {
     container.innerHTML = '';
 
     if (dataArray.length === 0) {
-        container.innerHTML = '<p class="text-center" style="color:#777; margin-top:20px;">No customers found matching that search.</p>';
+        container.innerHTML = '<p class="text-center" style="color:#777; margin-top:20px;">No customers found.</p>';
         return;
     }
 
@@ -117,6 +116,13 @@ function createCustomerRow(cust) {
         ? `<button id="btn-${cust.id}" class="btn-redeem" onclick="redeemGift(${cust.id})">Redeem 🎁</button>`
         : `<button id="btn-${cust.id}" class="ctrl-btn btn-plus" onclick="updateStampOptimistic(${cust.id}, 1)">+</button>`;
 
+    // Format Last Visit Date
+    let lastVisitStr = "Never";
+    if(cust.last_visited) {
+        const d = new Date(cust.last_visited);
+        lastVisitStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+
     const div = document.createElement('div');
     div.className = 'customer-item';
     div.id = `cust-row-${cust.id}`;
@@ -125,6 +131,7 @@ function createCustomerRow(cust) {
             <div>
                 <div class="cust-name">${cust.name}</div>
                 <div class="cust-meta">${cust.mobile} | ${cust.customer_id_code}</div>
+                <div class="last-visit"><i class="far fa-clock"></i> Last: <span id="visit-${cust.id}">${lastVisitStr}</span></div>
                 <div class="redeem-badge">Redeems: <span id="redeem-count-${cust.id}">${cust.redeems || 0}</span></div>
             </div>
             <div>
@@ -141,7 +148,7 @@ function createCustomerRow(cust) {
     return div;
 }
 
-// --- OPTIMISTIC UPDATES ---
+// --- OPTIMISTIC UPDATES + TRACK VISIT ---
 async function updateStampOptimistic(id, change) {
     const customer = allCustomers.find(c => c.id === id);
     if (!customer) return;
@@ -151,8 +158,20 @@ async function updateStampOptimistic(id, change) {
     if (newStamps > 4) newStamps = 4;
 
     customer.stamps = newStamps;
+    
+    // Update Visit Time Logic (Only if adding stamp)
+    let visitTime = customer.last_visited;
+    if(change > 0) {
+        visitTime = new Date().toISOString();
+        customer.last_visited = visitTime;
+        // Update UI Text
+        const d = new Date(visitTime);
+        const niceDate = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const visitEl = document.getElementById(`visit-${id}`);
+        if(visitEl) visitEl.innerText = niceDate;
+    }
 
-    // Update UI
+    // Update UI Circles
     for(let i=1; i<=4; i++) {
         const circle = document.getElementById(`circle-${id}-${i}`);
         if(circle) i <= newStamps ? circle.classList.add('filled') : circle.classList.remove('filled');
@@ -165,7 +184,11 @@ async function updateStampOptimistic(id, change) {
         actionWrapper.innerHTML = `<button class="ctrl-btn btn-plus" onclick="updateStampOptimistic(${id}, 1)">+</button>`;
     }
 
-    await supabase.from('customers').update({ stamps: newStamps }).eq('id', id);
+    // Update DB
+    await supabase.from('customers').update({ 
+        stamps: newStamps,
+        last_visited: visitTime 
+    }).eq('id', id);
 }
 
 async function redeemGift(id) {
@@ -175,40 +198,45 @@ async function redeemGift(id) {
 
     customer.stamps = 0;
     customer.redeems = (customer.redeems || 0) + 1;
+    customer.last_visited = new Date().toISOString(); // Update visit on redeem too
 
     // UI Reset
     for(let i=1; i<=4; i++) document.getElementById(`circle-${id}-${i}`).classList.remove('filled');
     document.getElementById(`redeem-count-${id}`).innerText = customer.redeems;
     document.getElementById(`action-wrapper-${id}`).innerHTML = `<button class="ctrl-btn btn-plus" onclick="updateStampOptimistic(${id}, 1)">+</button>`;
+    
+    // Update Visit Text
+    const d = new Date();
+    document.getElementById(`visit-${id}`).innerText = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-    await supabase.from('customers').update({ stamps: 0, redeems: customer.redeems }).eq('id', id);
+    await supabase.from('customers').update({ 
+        stamps: 0, 
+        redeems: customer.redeems,
+        last_visited: customer.last_visited
+    }).eq('id', id);
 }
 
-// --- ADD CUSTOMER (Immediate UI Update) ---
+// --- ADD CUSTOMER ---
 async function saveCustomer() {
     const name = document.getElementById('newName').value;
     const mobile = document.getElementById('newMobile').value;
     if(!name || !mobile) return alert("Fill all fields");
 
     const idCode = 'MSC' + Math.floor(1000 + Math.random() * 9000);
+    const now = new Date().toISOString();
 
-    // Insert and select
     const { data, error } = await supabase.from('customers')
-        .insert([{ name, mobile, customer_id_code: idCode, redeems: 0, stamps: 0 }])
+        .insert([{ name, mobile, customer_id_code: idCode, redeems: 0, stamps: 0, last_visited: now }])
         .select()
         .single();
 
     if(error) {
         alert("Error: " + error.message);
     } else {
-        // Add to local list and DOM
         allCustomers.unshift(data);
         const container = document.getElementById('customerListContainer');
         const newRow = createCustomerRow(data);
-        // Insert at top, but check if "No customers found" msg is there first
-        if (container.firstChild && container.firstChild.tagName === 'P') {
-            container.innerHTML = '';
-        }
+        if (container.firstChild && container.firstChild.tagName === 'P') container.innerHTML = '';
         container.insertBefore(newRow, container.firstChild);
 
         alert("Customer Added!");
@@ -226,7 +254,7 @@ async function deleteCust(id) {
     }
 }
 
-// --- MODALS ---
+// --- ADMIN MODALS ---
 function openModal(name, mobile, id) {
     document.getElementById('modalName').innerText = name.toUpperCase();
     document.getElementById('modalMobile').innerText = mobile;
@@ -244,7 +272,7 @@ function downloadModalCard() {
     });
 }
 
-// --- CUSTOMER PAGE CHECKS ---
+// --- CUSTOMER PAGE LOGIC (Index.html) ---
 async function checkStatus() {
     const input = document.getElementById('checkID').value.trim();
     if(!input) return alert("Enter ID");
@@ -271,23 +299,45 @@ async function checkStatus() {
     }
 }
 
-// --- SEARCH / FILTER LOGIC (UPDATED & FIXED) ---
+// --- NEW: CUSTOMER ID DOWNLOAD (Index.html) ---
+function openCustomerModal() {
+    const name = document.getElementById('pubCardName').innerText;
+    const mobile = document.getElementById('pubCardMobile').innerText;
+    const id = document.getElementById('pubCardID').innerText;
+    
+    // Populate the hidden modal in index.html
+    document.getElementById('custModalName').innerText = name;
+    document.getElementById('custModalMobile').innerText = mobile;
+    document.getElementById('custModalID').innerText = id;
+    
+    document.getElementById('customerModalOverlay').classList.remove('hidden');
+}
+
+function closeCustomerModal() {
+    document.getElementById('customerModalOverlay').classList.add('hidden');
+}
+
+function downloadCustomerCard() {
+    html2canvas(document.querySelector("#custModalIdCard")).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `MY_ID_${document.getElementById('custModalName').innerText}.jpg`;
+        link.href = canvas.toDataURL("image/jpeg");
+        link.click();
+    });
+}
+
+// --- SEARCH & EXPORT ---
 function filterList() {
     const input = document.getElementById('searchBar');
-    if (!input) return; // Guard clause
-    
+    if (!input) return;
     const term = input.value.toLowerCase().trim();
     
-    // Filter against the local 'allCustomers' array
     const filtered = allCustomers.filter(c => {
-        // Safe check for null values to prevent crashes
         const name = (c.name || '').toLowerCase();
         const mobile = (c.mobile || '').toString();
         const id = (c.customer_id_code || '').toLowerCase();
-        
         return name.includes(term) || mobile.includes(term) || id.includes(term);
     });
-
     renderList(filtered);
 }
 
