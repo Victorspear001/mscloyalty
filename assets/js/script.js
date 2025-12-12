@@ -9,12 +9,11 @@ let html5QrcodeScanner;
 
 // --- INIT ---
 document.addEventListener('DOMContentLoaded', async () => {
-    // Auth Listener
     supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'PASSWORD_RECOVERY') toggleAuth('newpass');
     });
 
-    // Check page
+    // Check if on Dashboard
     if(document.getElementById('customerListContainer')) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
@@ -24,6 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     
+    // Check if on Archive Page
     if(document.getElementById('fullCustomerTableBody')) {
         const { data: { session } } = await supabase.auth.getSession();
         if(!session) window.location.href = 'dashboard_msc.html';
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// --- AUTH ---
+// --- AUTH LOGIC ---
 function toggleAuth(view) {
     document.querySelectorAll('#loginForm, #regForm, #resetForm, #newPassForm').forEach(el => el.classList.add('hidden'));
     if(view === 'login') document.getElementById('loginForm').classList.remove('hidden');
@@ -41,11 +41,18 @@ function toggleAuth(view) {
 }
 
 async function login() {
-    const user = document.getElementById('loginUser').value;
-    const pass = document.getElementById('loginPass').value;
+    const user = document.getElementById('loginUser').value.trim();
+    const pass = document.getElementById('loginPass').value.trim();
+    
+    // 1. Get Email (Requires RLS Policy for SELECT on admin_profiles)
     const { data, error } = await supabase.from('admin_profiles').select('email').eq('username', user).single();
     
-    if(error || !data) return alert("User not found.");
+    if(error || !data) {
+        console.error("Login Lookup Error:", error);
+        return alert("User not found. Check username or RLS policies.");
+    }
+    
+    // 2. Auth
     const { error: signInError } = await supabase.auth.signInWithPassword({ email: data.email, password: pass });
     if(signInError) return alert("Wrong Password");
 
@@ -63,13 +70,29 @@ async function register() {
     const { data: authData, error } = await supabase.auth.signUp({ email, password: pass });
     if(error) return alert(error.message);
 
+    // Insert Profile (Requires RLS Policy for INSERT on admin_profiles)
     await supabase.from('admin_profiles').insert([{ id: authData.user.id, username: user, email: email }]);
     alert("Registered!"); toggleAuth('login');
 }
 
+async function sendResetLink() {
+    const email = document.getElementById('resetEmail').value;
+    const redirectUrl = window.location.origin + '/dashboard_msc.html';
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl });
+    if (error) alert(error.message); else alert("Link sent!");
+}
+
+async function updatePassword() {
+    const newPass = document.getElementById('newPasswordInput').value;
+    if(!newPass) return alert("Enter new password");
+    const { error } = await supabase.auth.updateUser({ password: newPass });
+    if (error) alert(error.message);
+    else { alert("Password updated!"); history.replaceState(null, null, 'dashboard_msc.html'); toggleAuth('login'); }
+}
+
 async function logout() { await supabase.auth.signOut(); window.location.reload(); }
 
-// --- DASHBOARD ---
+// --- DASHBOARD NAVIGATION ---
 function switchTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     if(tab === 'list') {
@@ -85,25 +108,36 @@ function switchTab(tab) {
     }
 }
 
-// --- DATA ---
+// --- DATA FETCHING (ACTIVE ONLY) ---
 async function loadCustomers() {
     const container = document.getElementById('customerListContainer');
     if(!container) return;
     
-    container.innerHTML = '<p class="text-center">Loading...</p>';
-    const { data } = await supabase.from('customers').select('*').eq('is_deleted', false).order('created_at', { ascending: false });
+    container.innerHTML = '<p class="text-center">Loading Data...</p>';
+    const { data, error } = await supabase.from('customers')
+        .select('*')
+        .eq('is_deleted', false) // Soft Delete Check
+        .order('created_at', { ascending: false });
     
+    if(error) {
+        container.innerHTML = `<p class="text-center" style="color:red">Error: ${error.message}</p>`;
+        return;
+    }
+
     if(data) {
         allCustomers = data;
         renderList(data);
     }
 }
 
-function renderList(data) {
+function renderList(dataArray) {
     const container = document.getElementById('customerListContainer');
     container.innerHTML = '';
-    if(data.length === 0) { container.innerHTML = '<p class="text-center" style="color:#777; margin-top:20px;">No customers found.</p>'; return; }
-    data.forEach(cust => container.appendChild(createCustomerRow(cust)));
+    if (dataArray.length === 0) {
+        container.innerHTML = '<p class="text-center" style="color:#777; margin-top:20px;">No customers found.</p>';
+        return;
+    }
+    dataArray.forEach(cust => container.appendChild(createCustomerRow(cust)));
 }
 
 function createCustomerRow(cust) {
@@ -117,7 +151,7 @@ function createCustomerRow(cust) {
         ? `<button id="btn-${cust.id}" class="btn-redeem" onclick="redeemGift(${cust.id})">Redeem 🎁</button>`
         : `<button id="btn-${cust.id}" class="ctrl-btn btn-plus" onclick="updateStampOptimistic(${cust.id}, 1)">+</button>`;
 
-    let lastVisit = cust.last_visited ? new Date(cust.last_visited).toLocaleDateString() : 'Never';
+    let lastVisitStr = cust.last_visited ? new Date(cust.last_visited).toLocaleDateString() : "Never";
 
     const div = document.createElement('div');
     div.className = 'customer-item';
@@ -130,7 +164,8 @@ function createCustomerRow(cust) {
                     <i class="fas fa-pencil-alt" style="font-size:0.8rem; margin-left:5px; color:#aaa; cursor:pointer;" onclick="editNamePrompt(${cust.id}, '${cust.name}')"></i>
                 </div>
                 <div class="cust-meta">${cust.mobile} | ${cust.customer_id_code}</div>
-                <div class="last-visit">Last: ${lastVisit}</div>
+                <div class="last-visit"><i class="far fa-clock"></i> Last: <span id="visit-${cust.id}">${lastVisitStr}</span></div>
+                <div class="redeem-badge">Redeems: <span id="redeem-count-${cust.id}">${cust.redeems || 0}</span></div>
             </div>
             <div>
                 <button class="btn-secondary" onclick="openModal('${cust.name}', '${cust.mobile}', '${cust.customer_id_code}')">ID</button>
@@ -146,7 +181,7 @@ function createCustomerRow(cust) {
     return div;
 }
 
-// --- ACTIONS ---
+// --- ADMIN ACTIONS ---
 async function editNamePrompt(id, oldName) {
     const newName = prompt("Edit Customer Name:", oldName);
     if(newName && newName !== oldName) {
@@ -156,49 +191,83 @@ async function editNamePrompt(id, oldName) {
 }
 
 async function softDeleteCust(id) {
-    if(confirm("Move to Archive?")) {
+    if(confirm("Archive this customer?")) {
         document.getElementById(`cust-row-${id}`).remove();
         await supabase.from('customers').update({ is_deleted: true }).eq('id', id);
     }
 }
 
 async function updateStampOptimistic(id, change) {
-    const cust = allCustomers.find(c => c.id === id);
-    if(!cust) return;
+    const customer = allCustomers.find(c => c.id === id);
+    if (!customer) return;
+
+    let newStamps = customer.stamps + change;
+    if (newStamps < 0) newStamps = 0; if (newStamps > 4) newStamps = 4;
+    customer.stamps = newStamps;
     
-    let newS = cust.stamps + change;
-    if(newS < 0) newS = 0; if(newS > 4) newS = 4;
-    cust.stamps = newS;
+    let visitTime = customer.last_visited;
+    if(change > 0) {
+        visitTime = new Date().toISOString();
+        customer.last_visited = visitTime;
+        document.getElementById(`visit-${id}`).innerText = new Date(visitTime).toLocaleDateString();
+    }
 
-    let visit = cust.last_visited;
-    if(change > 0) visit = new Date().toISOString();
-
-    // UI Update
     for(let i=1; i<=4; i++) {
         const circle = document.getElementById(`circle-${id}-${i}`);
-        if(circle) i <= newS ? circle.classList.add('filled') : circle.classList.remove('filled');
+        if(circle) i <= newStamps ? circle.classList.add('filled') : circle.classList.remove('filled');
     }
-    const wrapper = document.getElementById(`action-wrapper-${id}`);
-    if(newS >= 4) wrapper.innerHTML = `<button class="btn-redeem" onclick="redeemGift(${id})">Redeem 🎁</button>`;
-    else wrapper.innerHTML = `<button class="ctrl-btn btn-plus" onclick="updateStampOptimistic(${id}, 1)">+</button>`;
 
-    await supabase.from('customers').update({ stamps: newS, last_visited: visit }).eq('id', id);
+    const actionWrapper = document.getElementById(`action-wrapper-${id}`);
+    if (newStamps >= 4) actionWrapper.innerHTML = `<button class="btn-redeem" onclick="redeemGift(${id})">Redeem 🎁</button>`;
+    else actionWrapper.innerHTML = `<button class="ctrl-btn btn-plus" onclick="updateStampOptimistic(${id}, 1)">+</button>`;
+
+    await supabase.from('customers').update({ stamps: newStamps, last_visited: visitTime }).eq('id', id);
 }
 
 async function redeemGift(id) {
-    if(!confirm("Redeem Gift?")) return;
-    const cust = allCustomers.find(c => c.id === id);
-    
-    // UI Reset
+    if(!confirm("Redeem Free Snack?")) return;
+    const customer = allCustomers.find(c => c.id === id);
+    customer.stamps = 0;
+    customer.redeems = (customer.redeems || 0) + 1;
+    customer.last_visited = new Date().toISOString();
+
     for(let i=1; i<=4; i++) document.getElementById(`circle-${id}-${i}`).classList.remove('filled');
+    document.getElementById(`redeem-count-${id}`).innerText = customer.redeems;
     document.getElementById(`action-wrapper-${id}`).innerHTML = `<button class="ctrl-btn btn-plus" onclick="updateStampOptimistic(${id}, 1)">+</button>`;
     
-    await supabase.from('customers').update({ stamps: 0, redeems: (cust.redeems || 0) + 1, last_visited: new Date().toISOString() }).eq('id', id);
+    await supabase.from('customers').update({ stamps: 0, redeems: customer.redeems, last_visited: customer.last_visited }).eq('id', id);
 }
 
-// --- CSV IMPORT / EXPORT (RESTORED) ---
+// --- ADD CUSTOMER ---
+async function saveCustomer() {
+    const name = document.getElementById('newName').value;
+    const mobile = document.getElementById('newMobile').value;
+    if(!name || !mobile) return alert("Fill all fields");
+
+    const idCode = 'MSC' + Math.floor(1000 + Math.random() * 9000);
+    const now = new Date().toISOString();
+
+    const { data, error } = await supabase.from('customers')
+        .insert([{ name, mobile, customer_id_code: idCode, redeems: 0, stamps: 0, last_visited: now, is_deleted: false }])
+        .select().single();
+
+    if(error) alert(error.message);
+    else {
+        allCustomers.unshift(data);
+        const container = document.getElementById('customerListContainer');
+        const newRow = createCustomerRow(data);
+        if (container.querySelector('p')) container.innerHTML = '';
+        container.insertBefore(newRow, container.firstChild);
+        alert("Customer Added!");
+        openModal(name, mobile, idCode);
+        document.getElementById('newName').value = '';
+        document.getElementById('newMobile').value = '';
+    }
+}
+
+// --- CSV IMPORT/EXPORT ---
 function exportData() {
-    if(allCustomers.length === 0) return alert("No data to export");
+    if(allCustomers.length === 0) return alert("No data");
     const csv = Papa.unparse(allCustomers);
     const link = document.createElement('a');
     link.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv'}));
@@ -218,18 +287,18 @@ function importData(input) {
                     name: r.name, mobile: r.mobile, customer_id_code: r.customer_id_code, 
                     stamps: r.stamps || 0, redeems: r.redeems || 0, last_visited: r.last_visited || now, is_deleted: false
                 })), { onConflict: 'customer_id_code'});
-                if(!error) { alert("Imported Successfully!"); loadCustomers(); }
-                else alert("Error importing: " + error.message);
+                if(!error) { alert("Imported!"); loadCustomers(); }
             }
         }
     });
 }
 
-// --- ARCHIVE PAGE (PDF DOWNLOAD) ---
+// --- ARCHIVE PAGE (all_customers.html) ---
 async function loadAllCustomersTable() {
     const tbody = document.getElementById('fullCustomerTableBody');
     tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
     
+    // Fetch ALL customers (Active + Deleted)
     const { data } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
     
     if(data) {
@@ -263,15 +332,8 @@ function downloadArchivePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.text("Mithran Snacks - Customer Archive", 14, 15);
-    
-    doc.autoTable({
-        html: '.data-table',
-        startY: 20,
-        theme: 'striped',
-        headStyles: { fillColor: [0, 86, 179] }
-    });
-    
-    doc.save('mithran_customers_archive.pdf');
+    doc.autoTable({ html: '.data-table', startY: 20, theme: 'striped', headStyles: { fillColor: [0, 86, 179] } });
+    doc.save('mithran_archive.pdf');
 }
 
 // --- MODALS & SHARE ---
@@ -301,32 +363,83 @@ async function shareIdCard() {
     try {
         const canvas = await html2canvas(document.querySelector("#modalIdCard"), { scale: 3 });
         canvas.toBlob(async (blob) => {
-            const file = new File([blob], "id_card.jpg", { type: "image/jpeg" });
-            if(navigator.share) {
-                await navigator.share({ files: [file], title: 'ID Card' });
-            } else {
-                downloadModalCard();
-            }
+            const file = new File([blob], "id.jpg", { type: "image/jpeg" });
+            if(navigator.share) await navigator.share({ files: [file], title: 'ID' });
+            else downloadModalCard();
             btn.innerHTML = '<i class="fas fa-share-alt"></i> Share';
         }, 'image/jpeg');
     } catch(e) { btn.innerHTML = 'Error'; }
 }
 
-// --- CUSTOMER PAGE SEARCH ---
+// --- CUSTOMER PAGE LOGIC ---
 async function checkStatus() {
     const input = document.getElementById('checkID').value.trim();
     if(!input) return alert("Enter ID or Mobile");
-    
     const { data } = await supabase.from('customers').select('*').or(`customer_id_code.eq.${input},mobile.eq.${input}`).single();
     
-    if(!data) alert("Not found");
+    if(!data) alert("Not Found");
     else {
         document.getElementById('resultBox').classList.remove('hidden');
         document.getElementById('resName').innerText = data.name;
         document.getElementById('resStamps').innerText = data.stamps;
-        document.getElementById('pubCardName').innerText = data.name;
+        document.getElementById('pubRedeems').innerText = data.redeems || 0;
+        
+        if(data.stamps >= 4) {
+            document.getElementById('resMsg').innerHTML = "<span style='color:green'>🎉 FREE SNACK READY!</span>";
+            document.getElementById('flyerOverlay').classList.remove('hidden');
+        } else {
+            document.getElementById('resMsg').innerText = `Buy ${4 - data.stamps} more to get free snack!`;
+        }
+        document.getElementById('pubCardName').innerText = data.name.toUpperCase();
         document.getElementById('pubCardMobile').innerText = data.mobile;
         document.getElementById('pubCardID').innerText = data.customer_id_code;
         generateQR(data.customer_id_code, 'pubCardQR');
     }
+}
+
+// --- CUSTOMER DOWNLOAD ---
+function openCustomerModal() {
+    const name = document.getElementById('pubCardName').innerText;
+    const mobile = document.getElementById('pubCardMobile').innerText;
+    const id = document.getElementById('pubCardID').innerText;
+    document.getElementById('custModalName').innerText = name;
+    document.getElementById('custModalMobile').innerText = mobile;
+    document.getElementById('custModalID').innerText = id;
+    generateQR(id, 'custModalQR');
+    document.getElementById('customerModalOverlay').classList.remove('hidden');
+}
+function closeCustomerModal() { document.getElementById('customerModalOverlay').classList.add('hidden'); }
+function downloadCustomerCard() {
+    html2canvas(document.querySelector("#custModalIdCard"), { scale: 5 }).then(c => {
+        const a = document.createElement('a'); a.download = 'MY_ID.jpg'; a.href = c.toDataURL('image/jpeg', 1.0); a.click();
+    });
+}
+
+// --- ADMIN SCANNER ---
+function initScanner() {
+    document.getElementById('scannerModal').classList.remove('hidden');
+    html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+    html5QrcodeScanner.render(onScanSuccess);
+}
+function onScanSuccess(decodedText) {
+    document.getElementById('searchBar').value = decodedText;
+    filterList();
+    closeScanner();
+}
+function closeScanner() {
+    if(html5QrcodeScanner) html5QrcodeScanner.clear();
+    document.getElementById('scannerModal').classList.add('hidden');
+}
+
+function filterList() {
+    const input = document.getElementById('searchBar');
+    if (!input) return;
+    const term = input.value.toLowerCase().trim();
+    const filtered = allCustomers.filter(c => {
+        const name = (c.name || '').toLowerCase();
+        const mobile = (c.mobile || '').toString();
+        const id = (c.customer_id_code || '').toLowerCase();
+        return name.includes(term) || mobile.includes(term) || id.includes(term);
+    });
+    renderList(filtered);
 }
