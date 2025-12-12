@@ -6,8 +6,11 @@
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -23,6 +26,14 @@
                 <input type="text" id="loginUser" placeholder="Username">
                 <input type="password" id="loginPass" placeholder="Password">
                 <button class="btn-primary" onclick="login()">Log In</button>
+            </div>
+            <div id="regForm" class="hidden">
+                <h2>New Admin</h2>
+                <input type="email" id="regEmail" placeholder="Email">
+                <input type="text" id="regUser" placeholder="Username">
+                <input type="password" id="regPass" placeholder="Password">
+                <button class="btn-primary" onclick="register()">Register</button>
+                <div class="link" style="cursor:pointer; color:blue; margin-top:10px;" onclick="toggleAuth('login')">Back</div>
             </div>
         </div>
     </div>
@@ -48,10 +59,7 @@
             
             <div class="tools-row">
                 <button class="tool-btn" onclick="exportData()"><i class="fas fa-file-export"></i> Export CSV</button>
-                <label class="tool-btn">
-                    <i class="fas fa-file-import"></i> Import CSV
-                    <input type="file" hidden onchange="importData(this)">
-                </label>
+                <label class="tool-btn"><i class="fas fa-file-import"></i> Import CSV <input type="file" hidden onchange="importData(this)"></label>
             </div>
 
             <div id="customerListContainer">Loading...</div>
@@ -67,6 +75,15 @@
         </div>
     </div>
 
+    <div id="scannerModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeScanner()">&times;</span>
+            <h3>Scan QR</h3>
+            <div id="reader" style="width: 100%; min-height: 250px; background: #000;"></div>
+            <p style="font-size:0.8rem; color:red; margin-top:10px;" id="scanErrorMsg"></p>
+        </div>
+    </div>
+    
     <div id="modalOverlay" class="modal-overlay hidden">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
