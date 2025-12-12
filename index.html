@@ -20,8 +20,8 @@
 
         <div class="card-box" style="margin-top: 20px;">
             <h3>Check Stamps</h3>
-            <p style="font-size: 0.9rem; color: #888; margin-bottom: 20px;">Enter Member ID</p>
-            <input type="text" id="checkID" placeholder="MSC ID (e.g. MSC4492)">
+            <p style="font-size: 0.9rem; color: #888; margin-bottom: 20px;">Enter Mobile Number or ID</p>
+            <input type="text" id="checkID" placeholder="Mobile Number or MSC ID">
             <button class="btn-primary" onclick="checkStatus()">Check Rewards</button>
         </div>
 
@@ -55,7 +55,6 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeCustomerModal()">&times;</span>
             <h3 style="margin-top:0;">Your ID Card</h3>
-            
             <div id="custModalIdCard" class="id-card-container" style="cursor: default;">
                 <img src="assets/images/logo.png" class="card-logo-img">
                 <div class="card-shop-title">Mithran Snacks</div>
@@ -64,15 +63,14 @@
                 <div class="card-label">MOBILE</div>
                 <div class="card-value" id="custModalMobile"></div>
                 <div class="card-id-badge" id="custModalID"></div>
-                 <div id="custModalQR" class="card-qr"></div>
+                <div id="custModalQR" class="card-qr"></div>
             </div>
-
             <button class="btn-primary" style="background: var(--success); margin-top: 15px;" onclick="downloadCustomerCard()">
                 <i class="fas fa-download"></i> Download JPG
             </button>
         </div>
     </div>
-
+    
     <div id="flyerOverlay" class="modal-overlay hidden" onclick="document.getElementById('flyerOverlay').classList.add('hidden')">
         <div class="modal-content" style="border: 4px solid var(--gold);">
             <div style="font-size: 2rem; color: var(--primary); font-weight: 800; text-transform: uppercase;">Congratulations!</div>
