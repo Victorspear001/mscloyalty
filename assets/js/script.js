@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (event === 'PASSWORD_RECOVERY') toggleAuth('newpass');
     });
 
-    // Check if on Dashboard
     if(document.getElementById('customerListContainer')) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     
-    // Check if on Archive Page
     if(document.getElementById('fullCustomerTableBody')) {
         const { data: { session } } = await supabase.auth.getSession();
         if(!session) window.location.href = 'dashboard_msc.html';
@@ -31,44 +29,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// --- SCANNER LOGIC (FIXED) ---
+// --- FIXED SCANNER LOGIC ---
 function initScanner() {
-    // 1. Show Modal First
+    // 1. Open Modal FIRST
     document.getElementById('scannerModal').classList.remove('hidden');
+    document.getElementById('scanErrorMsg').innerText = "Starting Camera...";
 
-    // 2. Clear previous instance if exists to prevent errors
-    if (html5QrcodeScanner) {
-        html5QrcodeScanner.clear().catch(err => console.error("Failed to clear", err));
-    }
-
-    // 3. Initialize New Scanner
-    // Use a slight delay to ensure Modal is rendered
+    // 2. Wait for Modal Animation (Crucial fix for mobile browsers)
     setTimeout(() => {
+        // If scanner exists, clear it
+        if(html5QrcodeScanner) {
+            html5QrcodeScanner.clear().catch(err => console.log(err));
+        }
+
+        // 3. Initialize Scanner
         html5QrcodeScanner = new Html5QrcodeScanner(
             "reader", 
-            { fps: 10, qrbox: { width: 250, height: 250 } },
+            { 
+                fps: 10, 
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0
+            },
             /* verbose= */ false
         );
+
+        // 4. Render
         html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-    }, 300);
+        document.getElementById('scanErrorMsg').innerText = "";
+    }, 400); 
 }
 
-function onScanSuccess(decodedText, decodedResult) {
+function onScanSuccess(decodedText) {
     // Stop scanning
     closeScanner();
     
-    // Fill Search and Trigger
+    // Fill Search
     const searchBar = document.getElementById('searchBar');
     if(searchBar) {
         searchBar.value = decodedText;
-        filterList(); // Trigger search in list
+        filterList(); // Trigger List Filter
     }
-    alert("Scanned: " + decodedText);
+    // Vibration feedback
+    if (navigator.vibrate) navigator.vibrate(200);
 }
 
 function onScanFailure(error) {
-    // console.warn(`Code scan error = ${error}`);
-    // You can ignore frame errors, they happen when no QR is in front of camera
+    // Keep this empty to avoid spamming console
 }
 
 function closeScanner() {
@@ -92,16 +98,9 @@ function toggleAuth(view) {
 async function login() {
     const user = document.getElementById('loginUser').value.trim();
     const pass = document.getElementById('loginPass').value.trim();
-    
-    // 1. Get Email
     const { data, error } = await supabase.from('admin_profiles').select('email').eq('username', user).single();
     
-    if(error || !data) {
-        console.error("Login Lookup Error:", error);
-        return alert("User not found. Check username.");
-    }
-    
-    // 2. Auth
+    if(error || !data) return alert("User not found.");
     const { error: signInError } = await supabase.auth.signInWithPassword({ email: data.email, password: pass });
     if(signInError) return alert("Wrong Password");
 
@@ -156,26 +155,17 @@ function switchTab(tab) {
     }
 }
 
-// --- DATA FETCHING ---
+// --- DATA ---
 async function loadCustomers() {
     const container = document.getElementById('customerListContainer');
     if(!container) return;
     
-    container.innerHTML = '<p class="text-center">Loading Data...</p>';
-    const { data, error } = await supabase.from('customers')
-        .select('*')
-        .eq('is_deleted', false)
-        .order('created_at', { ascending: false });
+    container.innerHTML = '<p class="text-center">Loading...</p>';
+    const { data, error } = await supabase.from('customers').select('*').eq('is_deleted', false).order('created_at', { ascending: false });
     
-    if(error) {
-        container.innerHTML = `<p class="text-center" style="color:red">Error: ${error.message}</p>`;
-        return;
-    }
-
-    if(data) {
-        allCustomers = data;
-        renderList(data);
-    }
+    if(error) { container.innerHTML = 'Error loading'; return; }
+    allCustomers = data || [];
+    renderList(allCustomers);
 }
 
 function renderList(dataArray) {
@@ -261,7 +251,6 @@ async function updateStampOptimistic(id, change) {
         document.getElementById(`visit-${id}`).innerText = new Date(visitTime).toLocaleDateString();
     }
 
-    // UI Update
     for(let i=1; i<=4; i++) {
         const circle = document.getElementById(`circle-${id}-${i}`);
         if(circle) i <= newStamps ? circle.classList.add('filled') : circle.classList.remove('filled');
@@ -306,10 +295,7 @@ async function saveCustomer() {
         allCustomers.unshift(data);
         const container = document.getElementById('customerListContainer');
         const newRow = createCustomerRow(data);
-        
-        // Remove empty message if present
-        if(container.querySelector('p')) container.innerHTML = '';
-        
+        if (container.querySelector('p')) container.innerHTML = '';
         container.insertBefore(newRow, container.firstChild);
         alert("Customer Added!");
         openModal(name, mobile, idCode);
@@ -318,13 +304,13 @@ async function saveCustomer() {
     }
 }
 
-// --- CSV IMPORT/EXPORT ---
+// --- EXPORT/IMPORT ---
 function exportData() {
     if(allCustomers.length === 0) return alert("No data");
     const csv = Papa.unparse(allCustomers);
     const link = document.createElement('a');
     link.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv'}));
-    link.download = 'customers_backup.csv';
+    link.download = 'customers.csv';
     link.click();
 }
 
@@ -383,32 +369,9 @@ async function softDeleteFromTable(id) { await supabase.from('customers').update
 function downloadArchivePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    doc.text("Mithran Snacks - Customer Archive", 14, 15);
+    doc.text("Mithran Snacks - Archive", 14, 15);
     doc.autoTable({ html: '.data-table', startY: 20, theme: 'striped', headStyles: { fillColor: [0, 86, 179] } });
-    doc.save('mithran_archive.pdf');
-}
-
-// --- SEARCH & QR ---
-function generateQRCode(text, elementId) {
-    const container = document.getElementById(elementId);
-    if(container) {
-        container.innerHTML = '';
-        new QRCode(container, { text: text, width: 64, height: 64, correctLevel : QRCode.CorrectLevel.H });
-    }
-}
-
-function filterList() {
-    const input = document.getElementById('searchBar');
-    if (!input) return;
-    const term = input.value.toLowerCase().trim();
-    
-    const filtered = allCustomers.filter(c => {
-        const name = (c.name || '').toLowerCase();
-        const mobile = (c.mobile || '').toString();
-        const id = (c.customer_id_code || '').toLowerCase();
-        return name.includes(term) || mobile.includes(term) || id.includes(term);
-    });
-    renderList(filtered);
+    doc.save('archive.pdf');
 }
 
 // --- MODALS & SHARE ---
@@ -416,20 +379,25 @@ function openModal(name, mobile, id) {
     document.getElementById('modalName').innerText = name.toUpperCase();
     document.getElementById('modalMobile').innerText = mobile;
     document.getElementById('modalID').innerText = id;
-    generateQRCode(id, 'modalQR');
+    generateQR(id, 'modalQR');
     document.getElementById('modalOverlay').classList.remove('hidden');
 }
 function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); }
 
+function generateQR(text, elId) {
+    const el = document.getElementById(elId);
+    if(el) { el.innerHTML = ''; new QRCode(el, { text: text, width: 64, height: 64 }); }
+}
+
 function downloadModalCard() {
     html2canvas(document.querySelector("#modalIdCard"), { scale: 5 }).then(c => {
-        const a = document.createElement('a'); a.download = 'ID_Card.jpg'; a.href = c.toDataURL('image/jpeg', 1.0); a.click();
+        const a = document.createElement('a'); a.download = 'ID.jpg'; a.href = c.toDataURL('image/jpeg', 1.0); a.click();
     });
 }
 
 async function shareIdCard() {
     const btn = document.getElementById('shareBtn');
-    btn.innerHTML = '...';
+    btn.innerHTML = 'Generating...';
     try {
         const canvas = await html2canvas(document.querySelector("#modalIdCard"), { scale: 3 });
         canvas.toBlob(async (blob) => {
@@ -441,7 +409,7 @@ async function shareIdCard() {
     } catch(e) { btn.innerHTML = 'Error'; }
 }
 
-// --- CUSTOMER PAGE SEARCH (index.html) ---
+// --- CUSTOMER PAGE SEARCH ---
 async function checkStatus() {
     const input = document.getElementById('checkID').value.trim();
     if(!input) return alert("Enter ID or Mobile");
@@ -463,7 +431,7 @@ async function checkStatus() {
         document.getElementById('pubCardName').innerText = data.name.toUpperCase();
         document.getElementById('pubCardMobile').innerText = data.mobile;
         document.getElementById('pubCardID').innerText = data.customer_id_code;
-        generateQRCode(data.customer_id_code, 'pubCardQR');
+        generateQR(data.customer_id_code, 'pubCardQR');
     }
 }
 
@@ -475,7 +443,7 @@ function openCustomerModal() {
     document.getElementById('custModalName').innerText = name;
     document.getElementById('custModalMobile').innerText = mobile;
     document.getElementById('custModalID').innerText = id;
-    generateQRCode(id, 'custModalQR');
+    generateQR(id, 'custModalQR');
     document.getElementById('customerModalOverlay').classList.remove('hidden');
 }
 function closeCustomerModal() { document.getElementById('customerModalOverlay').classList.add('hidden'); }
@@ -483,4 +451,14 @@ function downloadCustomerCard() {
     html2canvas(document.querySelector("#custModalIdCard"), { scale: 5 }).then(c => {
         const a = document.createElement('a'); a.download = 'MY_ID.jpg'; a.href = c.toDataURL('image/jpeg', 1.0); a.click();
     });
+}
+
+function filterList() {
+    const input = document.getElementById('searchBar');
+    if (!input) return;
+    const term = input.value.toLowerCase().trim();
+    const filtered = allCustomers.filter(c => {
+        return (c.name || '').toLowerCase().includes(term) || (c.mobile || '').toString().includes(term) || (c.customer_id_code || '').toLowerCase().includes(term);
+    });
+    renderList(filtered);
 }
