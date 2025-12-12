@@ -13,8 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
 <body>
-
-    <a href="index.html" class="home-btn" title="Home"><i class="fas fa-home"></i></a>
+    <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
 
     <div id="authSection" class="container">
         <div class="card-box text-center" style="margin-top:60px;">
@@ -30,14 +29,11 @@
 
     <div id="dashboardSection" class="container hidden">
         <div class="dashboard-header">
-            <div class="brand-wrapper">
-                <img src="assets/images/logo.png" class="header-logo">
-                <h3 class="brand-name">Mithran Admin</h3>
-            </div>
+            <div class="brand-wrapper"><img src="assets/images/logo.png" class="header-logo"><h3 class="brand-name">Mithran Admin</h3></div>
             <button class="btn-secondary" onclick="logout()">Logout</button>
         </div>
 
-        <a href="all_customers.html" class="admin-nav-link">View All Customers / Archive <i class="fas fa-arrow-right"></i></a>
+        <a href="all_customers.html" class="admin-nav-link">View Archive <i class="fas fa-arrow-right"></i></a>
 
         <div class="tab-nav">
             <button class="tab-btn active" onclick="switchTab('list')">Customer List</button>
@@ -46,27 +42,28 @@
 
         <div id="viewList">
             <div class="search-container">
-                <input type="text" id="searchBar" placeholder="Search Name, Mobile or ID..." onkeyup="filterList()">
+                <input type="text" id="searchBar" placeholder="Search..." onkeyup="filterList()">
                 <button class="btn-scan" onclick="initScanner()"><i class="fas fa-camera"></i></button>
             </div>
+            
+            <div class="tools-row">
+                <button class="tool-btn" onclick="exportData()"><i class="fas fa-file-export"></i> Export CSV</button>
+                <label class="tool-btn">
+                    <i class="fas fa-file-import"></i> Import CSV
+                    <input type="file" hidden onchange="importData(this)">
+                </label>
+            </div>
+
             <div id="customerListContainer">Loading...</div>
         </div>
 
         <div id="viewAdd" class="hidden">
             <div class="card-box">
-                <h3>New Registration</h3>
+                <h3>New Customer</h3>
                 <input type="text" id="newName" placeholder="Name">
                 <input type="number" id="newMobile" placeholder="Mobile">
                 <button class="btn-primary" onclick="saveCustomer()">Register</button>
             </div>
-        </div>
-    </div>
-
-    <div id="scannerModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeScanner()">&times;</span>
-            <h3>Scan QR</h3>
-            <div id="reader"></div>
         </div>
     </div>
 
@@ -84,7 +81,6 @@
                 <div class="card-id-badge" id="modalID"></div>
                 <div id="modalQR" class="card-qr"></div>
             </div>
-            
             <div class="share-options">
                 <button class="btn-primary" onclick="downloadModalCard()">Download</button>
                 <button id="shareBtn" class="btn-share" onclick="shareIdCard()"><i class="fas fa-share-alt"></i> Share</button>
