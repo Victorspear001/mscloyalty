@@ -9,42 +9,38 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
-
     <div class="container">
         <div class="dashboard-header">
             <h3 class="brand-name">Mithran Archive</h3>
-            <a href="dashboard_msc.html" class="btn-secondary" style="text-decoration:none;">Back to Dashboard</a>
+            <a href="dashboard_msc.html" class="btn-secondary" style="text-decoration:none;">Back</a>
         </div>
 
         <div class="card-box">
-            <h3>All Customer Records</h3>
-            <p style="font-size:0.8rem; color:#666; margin-bottom:15px;">Includes active and soft-deleted customers.</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0;">All Records</h3>
+                <button class="btn-primary" style="width:auto; padding:8px 15px; font-size:0.8rem;" onclick="downloadArchivePDF()">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </button>
+            </div>
             
             <div class="data-table-wrapper">
                 <table class="data-table">
                     <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Mobile</th>
-                            <th>ID</th>
-                            <th>Status</th>
-                            <th>View ID</th>
-                            <th>Actions</th>
-                        </tr>
+                        <tr><th>Name</th><th>Mobile</th><th>ID</th><th>Status</th><th>Action</th><th>Manage</th></tr>
                     </thead>
-                    <tbody id="fullCustomerTableBody">
-                        </tbody>
+                    <tbody id="fullCustomerTableBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
-
     <div id="modalOverlay" class="modal-overlay hidden">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h3>Customer ID</h3>
+            <h3>ID Card</h3>
             <div id="modalIdCard" class="id-card-container">
                 <img src="assets/images/logo.png" class="card-logo-img">
                 <div class="card-shop-title">Mithran Snacks</div>
@@ -57,11 +53,9 @@
             </div>
             <div class="share-options">
                 <button class="btn-primary" onclick="downloadModalCard()">Download</button>
-                <button id="shareBtn" class="btn-share" onclick="shareIdCard()"><i class="fas fa-share-alt"></i> Share</button>
             </div>
         </div>
     </div>
-
     <script src="assets/js/script.js"></script>
 </body>
 </html>
