@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -14,37 +14,16 @@
 </head>
 <body>
 
-    <a href="index.html" class="home-btn" title="Back to Customer Home">
-        <i class="fas fa-home"></i>
-    </a>
+    <a href="index.html" class="home-btn" title="Home"><i class="fas fa-home"></i></a>
 
     <div id="authSection" class="container">
-        <div class="card-box text-center" style="margin-top: 60px;">
+        <div class="card-box text-center" style="margin-top:60px;">
             <img src="assets/images/logo.png" class="logo-login">
             <div id="loginForm">
                 <h2>Admin Login</h2>
                 <input type="text" id="loginUser" placeholder="Username">
                 <input type="password" id="loginPass" placeholder="Password">
                 <button class="btn-primary" onclick="login()">Log In</button>
-            </div>
-            <div id="regForm" class="hidden">
-                <h2>New Admin</h2>
-                <input type="email" id="regEmail" placeholder="Email">
-                <input type="text" id="regUser" placeholder="Username">
-                <input type="password" id="regPass" placeholder="Password">
-                <button class="btn-primary" onclick="register()">Register</button>
-                <div class="link" onclick="toggleAuth('login')">Back</div>
-            </div>
-            <div id="resetForm" class="hidden">
-                <h2>Reset Password</h2>
-                <input type="email" id="resetEmail" placeholder="Email">
-                <button class="btn-primary" onclick="sendResetLink()">Send Link</button>
-                <div class="link" onclick="toggleAuth('login')">Back</div>
-            </div>
-            <div id="newPassForm" class="hidden">
-                <h2>New Password</h2>
-                <input type="password" id="newPasswordInput" placeholder="New Password">
-                <button class="btn-primary" onclick="updatePassword()">Update</button>
             </div>
         </div>
     </div>
@@ -58,6 +37,8 @@
             <button class="btn-secondary" onclick="logout()">Logout</button>
         </div>
 
+        <a href="all_customers.html" class="admin-nav-link">View All Customers / Archive <i class="fas fa-arrow-right"></i></a>
+
         <div class="tab-nav">
             <button class="tab-btn active" onclick="switchTab('list')">Customer List</button>
             <button class="tab-btn" onclick="switchTab('add')">Add New</button>
@@ -65,15 +46,8 @@
 
         <div id="viewList">
             <div class="search-container">
-                <input type="text" id="searchBar" placeholder="Search by Name, Mobile or ID..." onkeyup="filterList()">
+                <input type="text" id="searchBar" placeholder="Search Name, Mobile or ID..." onkeyup="filterList()">
                 <button class="btn-scan" onclick="initScanner()"><i class="fas fa-camera"></i></button>
-            </div>
-
-            <div style="display:flex; gap:10px; margin-bottom: 20px;">
-                <button class="btn-secondary" style="background: var(--success);" onclick="exportData()">Export CSV</button>
-                <label class="btn-secondary" style="background: var(--primary); cursor:pointer; flex:1; text-align:center;">
-                    Import CSV <input type="file" hidden onchange="importData(this)">
-                </label>
             </div>
             <div id="customerListContainer">Loading...</div>
         </div>
@@ -81,9 +55,9 @@
         <div id="viewAdd" class="hidden">
             <div class="card-box">
                 <h3>New Registration</h3>
-                <input type="text" id="newName" placeholder="Full Name">
-                <input type="number" id="newMobile" placeholder="Mobile Number">
-                <button class="btn-primary" onclick="saveCustomer()">Register Customer</button>
+                <input type="text" id="newName" placeholder="Name">
+                <input type="number" id="newMobile" placeholder="Mobile">
+                <button class="btn-primary" onclick="saveCustomer()">Register</button>
             </div>
         </div>
     </div>
@@ -91,7 +65,7 @@
     <div id="scannerModal" class="modal-overlay hidden">
         <div class="modal-content">
             <span class="close-btn" onclick="closeScanner()">&times;</span>
-            <h3 style="margin-top:0;">Scan Customer QR</h3>
+            <h3>Scan QR</h3>
             <div id="reader"></div>
         </div>
     </div>
@@ -99,8 +73,7 @@
     <div id="modalOverlay" class="modal-overlay hidden">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h3 style="margin-top:0;">Customer ID Card</h3>
-            
+            <h3>Customer ID</h3>
             <div id="modalIdCard" class="id-card-container">
                 <img src="assets/images/logo.png" class="card-logo-img">
                 <div class="card-shop-title">Mithran Snacks</div>
@@ -111,8 +84,11 @@
                 <div class="card-id-badge" id="modalID"></div>
                 <div id="modalQR" class="card-qr"></div>
             </div>
-
-            <button class="btn-primary" style="background: var(--success); margin-top: 15px;" onclick="downloadModalCard()">Download JPG</button>
+            
+            <div class="share-options">
+                <button class="btn-primary" onclick="downloadModalCard()">Download</button>
+                <button id="shareBtn" class="btn-share" onclick="shareIdCard()"><i class="fas fa-share-alt"></i> Share</button>
+            </div>
         </div>
     </div>
 
