@@ -5,7 +5,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- GLOBAL ---
 let allCustomers = [];
-let html5QrcodeScanner;
+let html5QrcodeScanner = null; // Scanner instance
 
 // --- INIT ---
 document.addEventListener('DOMContentLoaded', async () => {
@@ -31,6 +31,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+// --- SCANNER LOGIC (FIXED) ---
+function initScanner() {
+    // 1. Show Modal First
+    document.getElementById('scannerModal').classList.remove('hidden');
+
+    // 2. Clear previous instance if exists to prevent errors
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear().catch(err => console.error("Failed to clear", err));
+    }
+
+    // 3. Initialize New Scanner
+    // Use a slight delay to ensure Modal is rendered
+    setTimeout(() => {
+        html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", 
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            /* verbose= */ false
+        );
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    }, 300);
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+    // Stop scanning
+    closeScanner();
+    
+    // Fill Search and Trigger
+    const searchBar = document.getElementById('searchBar');
+    if(searchBar) {
+        searchBar.value = decodedText;
+        filterList(); // Trigger search in list
+    }
+    alert("Scanned: " + decodedText);
+}
+
+function onScanFailure(error) {
+    // console.warn(`Code scan error = ${error}`);
+    // You can ignore frame errors, they happen when no QR is in front of camera
+}
+
+function closeScanner() {
+    document.getElementById('scannerModal').classList.add('hidden');
+    if(html5QrcodeScanner) {
+        html5QrcodeScanner.clear().then(() => {
+            html5QrcodeScanner = null;
+        }).catch(err => console.error("Failed to clear scanner", err));
+    }
+}
+
 // --- AUTH LOGIC ---
 function toggleAuth(view) {
     document.querySelectorAll('#loginForm, #regForm, #resetForm, #newPassForm').forEach(el => el.classList.add('hidden'));
@@ -44,12 +93,12 @@ async function login() {
     const user = document.getElementById('loginUser').value.trim();
     const pass = document.getElementById('loginPass').value.trim();
     
-    // 1. Get Email (Requires RLS Policy for SELECT on admin_profiles)
+    // 1. Get Email
     const { data, error } = await supabase.from('admin_profiles').select('email').eq('username', user).single();
     
     if(error || !data) {
         console.error("Login Lookup Error:", error);
-        return alert("User not found. Check username or RLS policies.");
+        return alert("User not found. Check username.");
     }
     
     // 2. Auth
@@ -70,7 +119,6 @@ async function register() {
     const { data: authData, error } = await supabase.auth.signUp({ email, password: pass });
     if(error) return alert(error.message);
 
-    // Insert Profile (Requires RLS Policy for INSERT on admin_profiles)
     await supabase.from('admin_profiles').insert([{ id: authData.user.id, username: user, email: email }]);
     alert("Registered!"); toggleAuth('login');
 }
@@ -108,7 +156,7 @@ function switchTab(tab) {
     }
 }
 
-// --- DATA FETCHING (ACTIVE ONLY) ---
+// --- DATA FETCHING ---
 async function loadCustomers() {
     const container = document.getElementById('customerListContainer');
     if(!container) return;
@@ -116,7 +164,7 @@ async function loadCustomers() {
     container.innerHTML = '<p class="text-center">Loading Data...</p>';
     const { data, error } = await supabase.from('customers')
         .select('*')
-        .eq('is_deleted', false) // Soft Delete Check
+        .eq('is_deleted', false)
         .order('created_at', { ascending: false });
     
     if(error) {
@@ -181,7 +229,7 @@ function createCustomerRow(cust) {
     return div;
 }
 
-// --- ADMIN ACTIONS ---
+// --- ACTIONS ---
 async function editNamePrompt(id, oldName) {
     const newName = prompt("Edit Customer Name:", oldName);
     if(newName && newName !== oldName) {
@@ -194,6 +242,7 @@ async function softDeleteCust(id) {
     if(confirm("Archive this customer?")) {
         document.getElementById(`cust-row-${id}`).remove();
         await supabase.from('customers').update({ is_deleted: true }).eq('id', id);
+        allCustomers = allCustomers.filter(c => c.id !== id);
     }
 }
 
@@ -212,6 +261,7 @@ async function updateStampOptimistic(id, change) {
         document.getElementById(`visit-${id}`).innerText = new Date(visitTime).toLocaleDateString();
     }
 
+    // UI Update
     for(let i=1; i<=4; i++) {
         const circle = document.getElementById(`circle-${id}-${i}`);
         if(circle) i <= newStamps ? circle.classList.add('filled') : circle.classList.remove('filled');
@@ -240,8 +290,8 @@ async function redeemGift(id) {
 
 // --- ADD CUSTOMER ---
 async function saveCustomer() {
-    const name = document.getElementById('newName').value;
-    const mobile = document.getElementById('newMobile').value;
+    const name = document.getElementById('newName').value.trim();
+    const mobile = document.getElementById('newMobile').value.trim();
     if(!name || !mobile) return alert("Fill all fields");
 
     const idCode = 'MSC' + Math.floor(1000 + Math.random() * 9000);
@@ -256,7 +306,10 @@ async function saveCustomer() {
         allCustomers.unshift(data);
         const container = document.getElementById('customerListContainer');
         const newRow = createCustomerRow(data);
-        if (container.querySelector('p')) container.innerHTML = '';
+        
+        // Remove empty message if present
+        if(container.querySelector('p')) container.innerHTML = '';
+        
         container.insertBefore(newRow, container.firstChild);
         alert("Customer Added!");
         openModal(name, mobile, idCode);
@@ -293,12 +346,11 @@ function importData(input) {
     });
 }
 
-// --- ARCHIVE PAGE (all_customers.html) ---
+// --- ARCHIVE PAGE ---
 async function loadAllCustomersTable() {
     const tbody = document.getElementById('fullCustomerTableBody');
     tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
     
-    // Fetch ALL customers (Active + Deleted)
     const { data } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
     
     if(data) {
@@ -312,7 +364,7 @@ async function loadAllCustomersTable() {
                 <td>${cust.mobile}</td>
                 <td>${cust.customer_id_code}</td>
                 <td>${badge}</td>
-                <td><button class="btn-secondary" style="padding:4px 8px; font-size:0.7rem;" onclick="openModal('${cust.name}', '${cust.mobile}', '${cust.customer_id_code}')">View</button></td>
+                <td><button class="btn-secondary" style="padding:4px;" onclick="openModal('${cust.name}', '${cust.mobile}', '${cust.customer_id_code}')">ID</button></td>
                 <td>
                     ${cust.is_deleted ? 
                         `<button class="btn-restore" onclick="restore(${cust.id})">Restore</button> <button class="btn-danger" onclick="permDelete(${cust.id})">X</button>` : 
@@ -336,20 +388,38 @@ function downloadArchivePDF() {
     doc.save('mithran_archive.pdf');
 }
 
+// --- SEARCH & QR ---
+function generateQRCode(text, elementId) {
+    const container = document.getElementById(elementId);
+    if(container) {
+        container.innerHTML = '';
+        new QRCode(container, { text: text, width: 64, height: 64, correctLevel : QRCode.CorrectLevel.H });
+    }
+}
+
+function filterList() {
+    const input = document.getElementById('searchBar');
+    if (!input) return;
+    const term = input.value.toLowerCase().trim();
+    
+    const filtered = allCustomers.filter(c => {
+        const name = (c.name || '').toLowerCase();
+        const mobile = (c.mobile || '').toString();
+        const id = (c.customer_id_code || '').toLowerCase();
+        return name.includes(term) || mobile.includes(term) || id.includes(term);
+    });
+    renderList(filtered);
+}
+
 // --- MODALS & SHARE ---
 function openModal(name, mobile, id) {
     document.getElementById('modalName').innerText = name.toUpperCase();
     document.getElementById('modalMobile').innerText = mobile;
     document.getElementById('modalID').innerText = id;
-    generateQR(id, 'modalQR');
+    generateQRCode(id, 'modalQR');
     document.getElementById('modalOverlay').classList.remove('hidden');
 }
 function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); }
-
-function generateQR(text, elId) {
-    const el = document.getElementById(elId);
-    if(el) { el.innerHTML = ''; new QRCode(el, { text: text, width: 64, height: 64 }); }
-}
 
 function downloadModalCard() {
     html2canvas(document.querySelector("#modalIdCard"), { scale: 5 }).then(c => {
@@ -359,19 +429,19 @@ function downloadModalCard() {
 
 async function shareIdCard() {
     const btn = document.getElementById('shareBtn');
-    btn.innerHTML = 'Generating...';
+    btn.innerHTML = '...';
     try {
         const canvas = await html2canvas(document.querySelector("#modalIdCard"), { scale: 3 });
         canvas.toBlob(async (blob) => {
             const file = new File([blob], "id.jpg", { type: "image/jpeg" });
             if(navigator.share) await navigator.share({ files: [file], title: 'ID' });
             else downloadModalCard();
-            btn.innerHTML = '<i class="fas fa-share-alt"></i> Share';
+            btn.innerHTML = 'Share';
         }, 'image/jpeg');
     } catch(e) { btn.innerHTML = 'Error'; }
 }
 
-// --- CUSTOMER PAGE LOGIC ---
+// --- CUSTOMER PAGE SEARCH (index.html) ---
 async function checkStatus() {
     const input = document.getElementById('checkID').value.trim();
     if(!input) return alert("Enter ID or Mobile");
@@ -393,7 +463,7 @@ async function checkStatus() {
         document.getElementById('pubCardName').innerText = data.name.toUpperCase();
         document.getElementById('pubCardMobile').innerText = data.mobile;
         document.getElementById('pubCardID').innerText = data.customer_id_code;
-        generateQR(data.customer_id_code, 'pubCardQR');
+        generateQRCode(data.customer_id_code, 'pubCardQR');
     }
 }
 
@@ -405,7 +475,7 @@ function openCustomerModal() {
     document.getElementById('custModalName').innerText = name;
     document.getElementById('custModalMobile').innerText = mobile;
     document.getElementById('custModalID').innerText = id;
-    generateQR(id, 'custModalQR');
+    generateQRCode(id, 'custModalQR');
     document.getElementById('customerModalOverlay').classList.remove('hidden');
 }
 function closeCustomerModal() { document.getElementById('customerModalOverlay').classList.add('hidden'); }
@@ -413,33 +483,4 @@ function downloadCustomerCard() {
     html2canvas(document.querySelector("#custModalIdCard"), { scale: 5 }).then(c => {
         const a = document.createElement('a'); a.download = 'MY_ID.jpg'; a.href = c.toDataURL('image/jpeg', 1.0); a.click();
     });
-}
-
-// --- ADMIN SCANNER ---
-function initScanner() {
-    document.getElementById('scannerModal').classList.remove('hidden');
-    html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-    html5QrcodeScanner.render(onScanSuccess);
-}
-function onScanSuccess(decodedText) {
-    document.getElementById('searchBar').value = decodedText;
-    filterList();
-    closeScanner();
-}
-function closeScanner() {
-    if(html5QrcodeScanner) html5QrcodeScanner.clear();
-    document.getElementById('scannerModal').classList.add('hidden');
-}
-
-function filterList() {
-    const input = document.getElementById('searchBar');
-    if (!input) return;
-    const term = input.value.toLowerCase().trim();
-    const filtered = allCustomers.filter(c => {
-        const name = (c.name || '').toLowerCase();
-        const mobile = (c.mobile || '').toString();
-        const id = (c.customer_id_code || '').toLowerCase();
-        return name.includes(term) || mobile.includes(term) || id.includes(term);
-    });
-    renderList(filtered);
 }
