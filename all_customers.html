@@ -22,21 +22,19 @@
         <div class="card-box">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <h3 style="margin:0;">All Records</h3>
-                <button class="btn-primary" style="width:auto; padding:8px 15px; font-size:0.8rem;" onclick="downloadArchivePDF()">
+                <button class="btn-primary" style="font-size:0.8rem; padding:8px 12px;" onclick="downloadArchivePDF()">
                     <i class="fas fa-file-pdf"></i> Download PDF
                 </button>
             </div>
-            
             <div class="data-table-wrapper">
                 <table class="data-table">
-                    <thead>
-                        <tr><th>Name</th><th>Mobile</th><th>ID</th><th>Status</th><th>Action</th><th>Manage</th></tr>
-                    </thead>
+                    <thead><tr><th>Name</th><th>Mobile</th><th>ID</th><th>Status</th><th>View</th><th>Action</th></tr></thead>
                     <tbody id="fullCustomerTableBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
+    
     <div id="modalOverlay" class="modal-overlay hidden">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
