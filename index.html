@@ -20,8 +20,8 @@
 
         <div class="card-box" style="margin-top: 20px;">
             <h3>Check Stamps</h3>
-            <p style="font-size: 0.9rem; color: #888; margin-bottom: 20px;">Enter Mobile Number or ID</p>
-            <input type="text" id="checkID" placeholder="Mobile Number or MSC ID">
+            <p style="font-size: 0.9rem; color: #888; margin-bottom: 20px;">Enter ID or Mobile</p>
+            <input type="text" id="checkID" placeholder="MSC ID or Mobile Number">
             <button class="btn-primary" onclick="checkStatus()">Check Rewards</button>
         </div>
 
@@ -36,7 +36,6 @@
                 </div>
                 <p id="resMsg" style="font-weight: 600; margin-top: 10px;"></p>
             </div>
-            
             <div id="publicIdCard" class="id-card-container" onclick="openCustomerModal()" title="Click to Download">
                 <img src="assets/images/logo.png" class="card-logo-img">
                 <div class="card-shop-title">Mithran Snacks</div>
@@ -47,15 +46,15 @@
                 <div class="card-id-badge" id="pubCardID"></div>
                 <div id="pubCardQR" class="card-qr"></div>
             </div>
-            <p class="tap-hint">Tap card to download</p>
+            <p style="font-size:0.7rem; color:#aaa; text-align:center; margin-top:5px;">Tap card to download</p>
         </div>
     </div>
 
     <div id="customerModalOverlay" class="modal-overlay hidden">
         <div class="modal-content">
             <span class="close-btn" onclick="closeCustomerModal()">&times;</span>
-            <h3 style="margin-top:0;">Your ID Card</h3>
-            <div id="custModalIdCard" class="id-card-container" style="cursor: default;">
+            <h3>Your ID Card</h3>
+            <div id="custModalIdCard" class="id-card-container" style="cursor:default;">
                 <img src="assets/images/logo.png" class="card-logo-img">
                 <div class="card-shop-title">Mithran Snacks</div>
                 <div class="card-label">MEMBER NAME</div>
@@ -65,9 +64,7 @@
                 <div class="card-id-badge" id="custModalID"></div>
                 <div id="custModalQR" class="card-qr"></div>
             </div>
-            <button class="btn-primary" style="background: var(--success); margin-top: 15px;" onclick="downloadCustomerCard()">
-                <i class="fas fa-download"></i> Download JPG
-            </button>
+            <button class="btn-primary" onclick="downloadCustomerCard()"><i class="fas fa-download"></i> Download JPG</button>
         </div>
     </div>
     
@@ -86,9 +83,7 @@
     <script>
         let clicks = 0;
         document.getElementById('secretLogo').addEventListener('click', () => {
-            clicks++;
-            if(clicks === 5) window.location.href = 'dashboard_msc.html';
-            setTimeout(() => clicks = 0, 1000);
+            clicks++; if(clicks===5) window.location.href='dashboard_msc.html'; setTimeout(()=>clicks=0, 1000);
         });
     </script>
 </body>
