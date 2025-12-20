@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mithran Snacks Corner - Loyalty</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f9ff;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(202,100%,91%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(188,100%,93%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(204,100%,90%,1) 0, transparent 50%);
+            min-height: 100vh;
+        }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .dragon-ball {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .dragon-ball.filled {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.5);
+            transform: scale(1.1);
+        }
+
+        .star {
+            color: rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+        }
+
+        .dragon-ball.filled .star {
+            color: #fff;
+            text-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        @keyframes sparkle {
+            0% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.5; transform: scale(1); }
+        }
+
+        .sparkle-effect {
+            animation: sparkle 3s infinite ease-in-out;
+        }
+
+        .fairy-border {
+            border: 2px solid transparent;
+            background-image: linear-gradient(white, white), linear-gradient(to right, #60a5fa, #a78bfa);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>

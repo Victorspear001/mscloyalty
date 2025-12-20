@@ -1,0 +1,7 @@
+{
+  "name": "mscloyalty",
+  "description": "A luxury Blue Fantasy themed loyalty app for Mithran Snacks Corner featuring Dragon Ball stamps and rank titles.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
