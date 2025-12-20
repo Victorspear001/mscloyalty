@@ -39,7 +39,7 @@ import MembershipCard from './components/MembershipCard';
  * 4. Copy that URL (it should start with 'https://raw.githubusercontent.com/...')
  * 5. Replace the URL below with your new link.
  */
-const COMPANY_LOGO = "https://img.freepik.com/premium-vector/chef-boy-cartoon-mascot-logo-design_188253-3801.jpg";
+const COMPANY_LOGO = "https://github.com/Victorspear001/mscloyalty/blob/ae02fee5949e40df3cdc2ed04e1a1e7fa7df33b3/logo.png";
 
 const App: React.FC = () => {
     const [view, setView] = useState<AppView>('LOGIN');
