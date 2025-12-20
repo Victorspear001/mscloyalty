@@ -1,105 +1,142 @@
 
+import { createClient } from '@supabase/supabase-js';
 import { Customer, Admin } from '../types';
 
-const CUSTOMER_STORAGE_KEY = 'msc_customers_v1';
-const ADMIN_STORAGE_KEY = 'msc_admins_v1';
-const METADATA_KEY = 'msc_metadata_v1';
+/**
+ * PASTE YOUR SUPABASE CREDENTIALS HERE
+ * 1. Go to your Supabase Project Settings > API
+ * 2. Copy the "Project URL" and "anon public" Key
+ */
+const supabaseUrl = (process.env.SUPABASE_URL || 'https://your-project-url.supabase.co') as string;
+const supabaseAnonKey = (process.env.SUPABASE_ANON_KEY || 'your-anon-key-here') as string;
 
-// Simulate network latency for that "backend" feel
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+let cachedCustomers: Customer[] = [];
 
 export const storageService = {
-  // --- Metadata / ID Logic ---
-  getMetadata: () => {
-    const data = localStorage.getItem(METADATA_KEY);
-    return data ? JSON.parse(data) : { lastIdCount: 0 };
-  },
-
-  saveMetadata: (metadata: { lastIdCount: number }) => {
-    localStorage.setItem(METADATA_KEY, JSON.stringify(metadata));
-  },
-
-  generateUniqueId: (): string => {
-    const metadata = storageService.getMetadata();
-    const newCount = metadata.lastIdCount + 1;
-    storageService.saveMetadata({ lastIdCount: newCount });
-    const padded = newCount.toString().padStart(4, '0');
-    return `MSC${padded}`;
-  },
-
   // --- Customer Methods ---
   getCustomers: (): Customer[] => {
-    const data = localStorage.getItem(CUSTOMER_STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    return cachedCustomers;
   },
 
-  saveCustomers: (customers: Customer[]) => {
-    localStorage.setItem(CUSTOMER_STORAGE_KEY, JSON.stringify(customers));
+  fetchCustomers: async (): Promise<Customer[]> => {
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('is_deleted', false)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching customers:', error);
+      return [];
+    }
+
+    cachedCustomers = data as Customer[];
+    return cachedCustomers;
   },
 
   addCustomer: async (name: string, mobile: string): Promise<Customer> => {
-    await delay(600); // Simulate database write
-    const customers = storageService.getCustomers();
-    const newCustomer: Customer = {
-      id: Date.now(),
-      name,
-      mobile,
-      customer_id: storageService.generateUniqueId(),
-      stamps: 0,
-      redeems: 0,
-      lifetime_stamps: 0,
-      tier_1_claimed: false,
-      is_deleted: false,
-      created_at: new Date().toISOString()
-    };
-    storageService.saveCustomers([...customers, newCustomer]);
-    return newCustomer;
+    // Generate MSC ID based on current count
+    const { count } = await supabase
+      .from('customers')
+      .select('*', { count: 'exact', head: true });
+    
+    const nextCount = (count || 0) + 1;
+    const customerId = `MSC${nextCount.toString().padStart(4, '0')}`;
+
+    const { data, error } = await supabase
+      .from('customers')
+      .insert([
+        {
+          name,
+          mobile,
+          customer_id: customerId,
+          stamps: 0,
+          redeems: 0,
+          lifetime_stamps: 0,
+          tier_1_claimed: false,
+          is_deleted: false,
+        }
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to enlist magician: ${error.message}`);
+    }
+
+    return data as Customer;
   },
 
   updateCustomer: async (id: number, updates: Partial<Customer>) => {
-    await delay(300);
-    const customers = storageService.getCustomers();
-    const updated = customers.map(c => c.id === id ? { ...c, ...updates } : c);
-    storageService.saveCustomers(updated);
+    const { error } = await supabase
+      .from('customers')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) {
+      throw new Error(`Failed to update scroll: ${error.message}`);
+    }
   },
 
   deleteCustomerSoft: async (id: number) => {
     await storageService.updateCustomer(id, { is_deleted: true });
   },
 
-  findCustomer: (query: string): Customer | undefined => {
-    const customers = storageService.getCustomers();
-    return customers.find(c => 
-      !c.is_deleted && (c.customer_id.toUpperCase() === query.toUpperCase() || c.mobile === query)
-    );
+  findCustomer: async (query: string): Promise<Customer | undefined> => {
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .or(`customer_id.ilike.${query},mobile.eq.${query}`)
+      .eq('is_deleted', false)
+      .maybeSingle();
+
+    if (error) return undefined;
+    return data as Customer;
   },
 
   // --- Admin Methods ---
-  getAdmins: (): Admin[] => {
-    const data = localStorage.getItem(ADMIN_STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  },
-
-  saveAdmins: (admins: Admin[]) => {
-    localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(admins));
-  },
-
   addAdmin: async (admin: Admin): Promise<boolean> => {
-    await delay(800);
-    const admins = storageService.getAdmins();
-    if (admins.find(a => a.username === admin.username)) return false;
-    storageService.saveAdmins([...admins, admin]);
-    return true;
+    const { error } = await supabase
+      .from('admins')
+      .insert([
+        {
+          username: admin.username,
+          password: admin.password,
+          security_question: admin.securityQuestion,
+          security_answer: admin.securityAnswer,
+        }
+      ]);
+
+    return !error;
   },
 
-  findAdmin: (username: string) => {
-    return storageService.getAdmins().find(a => a.username === username);
+  findAdmin: async (username: string): Promise<Admin | undefined> => {
+    const { data, error } = await supabase
+      .from('admins')
+      .select('*')
+      .eq('username', username)
+      .maybeSingle();
+
+    if (error || !data) return undefined;
+    
+    return {
+      username: data.username,
+      password: data.password,
+      securityQuestion: data.security_question,
+      securityAnswer: data.security_answer
+    } as Admin;
   },
 
   updateAdminPassword: async (username: string, newPassword: string) => {
-    await delay(500);
-    const admins = storageService.getAdmins();
-    const updated = admins.map(a => a.username === username ? { ...a, password: newPassword } : a);
-    storageService.saveAdmins(updated);
+    const { error } = await supabase
+      .from('admins')
+      .update({ password: newPassword })
+      .eq('username', username);
+
+    if (error) {
+      throw new Error(`Failed to reforge key: ${error.message}`);
+    }
   }
 };
