@@ -4,74 +4,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mithran Snacks Corner - Loyalty</title>
+    <title>Mithran Snacks Corner - Magic Loyalty</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;600;800&family=Bubblegum+Sans&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f0f9ff;
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(202,100%,91%,1) 0, transparent 50%), 
-                radial-gradient(at 50% 0%, hsla(188,100%,93%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, hsla(204,100%,90%,1) 0, transparent 50%);
-            min-height: 100vh;
-        }
-        .font-cinzel { font-family: 'Cinzel', serif; }
-        
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        :root {
+            --magic-gold: #fbbf24;
+            --magic-purple: #a78bfa;
+            --magic-pink: #f472b6;
         }
 
-        .dragon-ball {
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fdf2f8;
+            background-image: 
+                radial-gradient(at 0% 0%, #fae8ff 0, transparent 50%), 
+                radial-gradient(at 100% 0%, #e0f2fe 0, transparent 50%),
+                radial-gradient(at 50% 100%, #fff1f2 0, transparent 50%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-magic { font-family: 'Bubblegum Sans', cursive; }
+        
+        /* Floating Clouds Animation */
+        .cloud {
+            position: fixed;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.4;
+            filter: blur(20px);
+            z-index: -1;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            from { transform: translateX(-100vw); }
+            to { transform: translateX(100vw); }
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Magic Orb Styling */
+        .magic-orb {
             position: relative;
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
-            background: #e2e8f0;
+            background: rgba(255, 255, 255, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            animation: bob 3s infinite ease-in-out;
         }
 
-        .dragon-ball.filled {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.5);
-            transform: scale(1.1);
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
 
-        .star {
-            color: rgba(0, 0, 0, 0.1);
-            font-size: 1.2rem;
+        .magic-orb.filled {
+            background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
+            box-shadow: 
+                0 0 20px rgba(251, 191, 36, 0.6),
+                inset 0 0 15px rgba(255, 255, 255, 0.8);
+            border-color: #fff;
+            transform: scale(1.15) rotate(5deg);
         }
 
-        .dragon-ball.filled .star {
-            color: #fff;
-            text-shadow: 0 0 5px rgba(0,0,0,0.2);
+        .orb-swirl {
+            position: absolute;
+            inset: 2px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: spin 4s infinite linear;
+            opacity: 0;
         }
 
-        @keyframes sparkle {
-            0% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.1); }
-            100% { opacity: 0.5; transform: scale(1); }
+        .filled .orb-swirl { opacity: 1; }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        .sparkle-effect {
-            animation: sparkle 3s infinite ease-in-out;
+        .fairy-dust {
+            position: absolute;
+            pointer-events: none;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px white;
+            animation: glitter 2s infinite;
         }
 
-        .fairy-border {
-            border: 2px solid transparent;
-            background-image: linear-gradient(white, white), linear-gradient(to right, #60a5fa, #a78bfa);
-            background-origin: border-box;
-            background-clip: padding-box, border-box;
+        @keyframes glitter {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Holographic Effect */
+        .holographic {
+            position: relative;
+            overflow: hidden;
+        }
+        .holographic::after {
+            content: '';
+            position: absolute;
+            top: -150%;
+            left: -150%;
+            width: 300%;
+            height: 300%;
+            background: linear-gradient(
+                45deg,
+                transparent 45%,
+                rgba(255, 255, 255, 0.1) 48%,
+                rgba(255, 255, 255, 0.4) 50%,
+                rgba(255, 255, 255, 0.1) 52%,
+                transparent 55%
+            );
+            transform: rotate(25deg);
+            animation: shine 6s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(25deg); }
+            20%, 100% { transform: translateX(100%) translateY(100%) rotate(25deg); }
         }
     </style>
 <script type="importmap">
@@ -86,6 +156,10 @@
 </script>
 </head>
 <body>
+    <div class="cloud w-64 h-32" style="top: 10%; left: -10%; animation-delay: 0s;"></div>
+    <div class="cloud w-96 h-48" style="top: 40%; left: -20%; animation-delay: -5s;"></div>
+    <div class="cloud w-80 h-40" style="top: 70%; left: -15%; animation-delay: -12s;"></div>
+    
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
 </body>
