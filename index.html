@@ -4,68 +4,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mithran Snacks Corner - Magic Loyalty</title>
+    <title>Mithran Snacks Corner - Blue Fantasy Loyalty</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;600;800&family=Bubblegum+Sans&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
+            --magic-blue: #3b82f6;
+            --magic-cyan: #06b6d4;
             --magic-gold: #fbbf24;
-            --magic-purple: #a78bfa;
-            --magic-pink: #f472b6;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #fdf2f8;
+            background: #0f172a; /* Midnight Blue */
             background-image: 
-                radial-gradient(at 0% 0%, #fae8ff 0, transparent 50%), 
-                radial-gradient(at 100% 0%, #e0f2fe 0, transparent 50%),
-                radial-gradient(at 50% 100%, #fff1f2 0, transparent 50%);
+                radial-gradient(at 0% 0%, #1e3a8a 0, transparent 50%), 
+                radial-gradient(at 100% 0%, #0c4a6e 0, transparent 50%),
+                radial-gradient(at 50% 100%, #172554 0, transparent 50%);
             min-height: 100vh;
             overflow-x: hidden;
+            color: #f1f5f9;
         }
 
         .font-cinzel { font-family: 'Cinzel', serif; }
         .font-magic { font-family: 'Bubblegum Sans', cursive; }
         
-        /* Floating Clouds Animation */
-        .cloud {
+        /* Floating Stars Animation */
+        .star-particle {
             position: fixed;
             background: white;
-            border-radius: 50px;
-            opacity: 0.4;
-            filter: blur(20px);
+            border-radius: 50%;
+            opacity: 0.3;
+            filter: blur(1px);
             z-index: -1;
-            animation: float 20s infinite linear;
+            animation: twinkle var(--duration) infinite ease-in-out;
         }
 
-        @keyframes float {
-            from { transform: translateX(-100vw); }
-            to { transform: translateX(100vw); }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.5); }
         }
 
         .glass-panel {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
 
-        /* Magic Orb Styling */
+        /* Blue Magic Orb Styling */
         .magic-orb {
             position: relative;
             width: 55px;
             height: 55px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            border: 2px solid rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(59, 130, 246, 0.3);
             animation: bob 3s infinite ease-in-out;
         }
 
@@ -75,19 +76,19 @@
         }
 
         .magic-orb.filled {
-            background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             box-shadow: 
-                0 0 20px rgba(251, 191, 36, 0.6),
-                inset 0 0 15px rgba(255, 255, 255, 0.8);
-            border-color: #fff;
-            transform: scale(1.15) rotate(5deg);
+                0 0 25px rgba(59, 130, 246, 0.6),
+                inset 0 0 15px rgba(255, 255, 255, 0.4);
+            border-color: #60a5fa;
+            transform: scale(1.1) rotate(5deg);
         }
 
         .orb-swirl {
             position: absolute;
             inset: 2px;
             border-radius: 50%;
-            background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.4), transparent);
+            background: conic-gradient(from 0deg, transparent, rgba(59,130,246,0.3), transparent);
             animation: spin 4s infinite linear;
             opacity: 0;
         }
@@ -104,9 +105,9 @@
             pointer-events: none;
             width: 4px;
             height: 4px;
-            background: white;
+            background: #60a5fa;
             border-radius: 50%;
-            box-shadow: 0 0 10px white;
+            box-shadow: 0 0 10px #3b82f6;
             animation: glitter 2s infinite;
         }
 
@@ -115,7 +116,7 @@
             50% { opacity: 1; transform: scale(1); }
         }
 
-        /* Holographic Effect */
+        /* Holographic Blue Effect */
         .holographic {
             position: relative;
             overflow: hidden;
@@ -130,13 +131,13 @@
             background: linear-gradient(
                 45deg,
                 transparent 45%,
-                rgba(255, 255, 255, 0.1) 48%,
-                rgba(255, 255, 255, 0.4) 50%,
-                rgba(255, 255, 255, 0.1) 52%,
+                rgba(96, 165, 250, 0.1) 48%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(96, 165, 250, 0.1) 52%,
                 transparent 55%
             );
             transform: rotate(25deg);
-            animation: shine 6s infinite;
+            animation: shine 8s infinite;
         }
 
         @keyframes shine {
@@ -156,9 +157,12 @@
 </script>
 </head>
 <body>
-    <div class="cloud w-64 h-32" style="top: 10%; left: -10%; animation-delay: 0s;"></div>
-    <div class="cloud w-96 h-48" style="top: 40%; left: -20%; animation-delay: -5s;"></div>
-    <div class="cloud w-80 h-40" style="top: 70%; left: -15%; animation-delay: -12s;"></div>
+    <!-- Animated background stars -->
+    <div class="star-particle w-1 h-1" style="top: 15%; left: 25%; --duration: 3s;"></div>
+    <div class="star-particle w-1 h-1" style="top: 45%; left: 75%; --duration: 5s;"></div>
+    <div class="star-particle w-2 h-2" style="top: 75%; left: 15%; --duration: 4s;"></div>
+    <div class="star-particle w-1 h-1" style="top: 85%; left: 85%; --duration: 6s;"></div>
+    <div class="star-particle w-2 h-2" style="top: 10%; left: 65%; --duration: 3.5s;"></div>
     
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
