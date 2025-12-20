@@ -21,4 +21,18 @@ export interface Customer {
   created_at: string;
 }
 
-export type AppView = 'LOGIN' | 'CUSTOMER_DASHBOARD' | 'ADMIN_LOGIN' | 'ADMIN_DASHBOARD' | 'ADMIN_HISTORY';
+export interface Admin {
+  username: string;
+  password: string;
+  securityQuestion: string;
+  securityAnswer: string;
+}
+
+export type AppView = 
+  | 'LOGIN' 
+  | 'CUSTOMER_DASHBOARD' 
+  | 'ADMIN_LOGIN' 
+  | 'ADMIN_REGISTER' 
+  | 'ADMIN_RESET' 
+  | 'ADMIN_DASHBOARD' 
+  | 'ADMIN_HISTORY';

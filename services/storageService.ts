@@ -1,17 +1,19 @@
 
-import { Customer } from '../types';
+import { Customer, Admin } from '../types';
 import { generateCustomerId } from '../constants';
 
-const STORAGE_KEY = 'msc_customers_v1';
+const CUSTOMER_STORAGE_KEY = 'msc_customers_v1';
+const ADMIN_STORAGE_KEY = 'msc_admins_v1';
 
 export const storageService = {
+  // --- Customer Methods ---
   getCustomers: (): Customer[] => {
-    const data = localStorage.getItem(STORAGE_KEY);
+    const data = localStorage.getItem(CUSTOMER_STORAGE_KEY);
     return data ? JSON.parse(data) : [];
   },
 
   saveCustomers: (customers: Customer[]) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(customers));
+    localStorage.setItem(CUSTOMER_STORAGE_KEY, JSON.stringify(customers));
   },
 
   addCustomer: (name: string, mobile: string): Customer => {
@@ -50,7 +52,34 @@ export const storageService = {
   findCustomer: (query: string): Customer | undefined => {
     const customers = storageService.getCustomers();
     return customers.find(c => 
-      !c.is_deleted && (c.customer_id === query || c.mobile === query)
+      !c.is_deleted && (c.customer_id.toUpperCase() === query.toUpperCase() || c.mobile === query)
     );
+  },
+
+  // --- Admin Methods ---
+  getAdmins: (): Admin[] => {
+    const data = localStorage.getItem(ADMIN_STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  },
+
+  saveAdmins: (admins: Admin[]) => {
+    localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(admins));
+  },
+
+  addAdmin: (admin: Admin) => {
+    const admins = storageService.getAdmins();
+    if (admins.find(a => a.username === admin.username)) return false;
+    storageService.saveAdmins([...admins, admin]);
+    return true;
+  },
+
+  findAdmin: (username: string) => {
+    return storageService.getAdmins().find(a => a.username === username);
+  },
+
+  updateAdminPassword: (username: string, newPassword: string) => {
+    const admins = storageService.getAdmins();
+    const updated = admins.map(a => a.username === username ? { ...a, password: newPassword } : a);
+    storageService.saveAdmins(updated);
   }
 };
