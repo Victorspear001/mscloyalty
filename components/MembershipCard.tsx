@@ -4,7 +4,7 @@ import { Shield, Sparkles } from 'lucide-react';
 import { Customer } from '../types';
 import { getRankInfo } from '../constants';
 
-const COMPANY_LOGO = "https://img.freepik.com/premium-vector/chef-boy-cartoon-mascot-logo-design_188253-3801.jpg"; // Placeholder for the attached mascot logo
+const COMPANY_LOGO = "https://img.freepik.com/premium-vector/chef-boy-cartoon-mascot-logo-design_188253-3801.jpg";
 
 interface MembershipCardProps {
   customer: Customer;
@@ -12,6 +12,10 @@ interface MembershipCardProps {
 
 const MembershipCard: React.FC<MembershipCardProps> = ({ customer }) => {
   const rankInfo = getRankInfo(customer.redeems);
+  
+  // Generate a QR code URL that encodes the customer's ID for easy login
+  const loginUrl = `${window.location.origin}?id=${customer.customer_id}`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(loginUrl)}&bgcolor=ffffff&color=1e3a8a`;
 
   return (
     <div id="membership-card" className="relative w-full aspect-[1.6/1] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/50 bg-gradient-to-br from-[#ff9a9e] via-[#fecfef] to-[#feada6] text-blue-900 p-6 holographic group transition-all duration-700 hover:rotate-1">
@@ -61,13 +65,16 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ customer }) => {
           </div>
         </div>
         
+        {/* QR Code Section */}
         <div className="flex flex-col items-center gap-2">
-            <div className="w-14 h-14 bg-white/80 backdrop-blur-md rounded-2xl flex items-center justify-center border-2 border-white shadow-xl transition-transform group-hover:scale-110">
-                <div className="w-10 h-10 border-2 border-blue-900/10 rounded-lg flex items-center justify-center opacity-40">
-                    <Shield className="w-6 h-6 text-blue-900" />
-                </div>
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border-2 border-white shadow-xl transition-transform group-hover:scale-110 overflow-hidden p-1">
+                <img 
+                    src={qrCodeUrl} 
+                    alt="Scan for Magic" 
+                    className="w-full h-full object-contain"
+                />
             </div>
-            <p className="text-[8px] text-blue-900 font-black uppercase tracking-tighter bg-white/50 px-2 rounded">Scan for Joy</p>
+            <p className="text-[8px] text-blue-900 font-black uppercase tracking-tighter bg-white/50 px-2 rounded">Magic Key</p>
         </div>
       </div>
 
