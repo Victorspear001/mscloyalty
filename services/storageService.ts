@@ -7,8 +7,8 @@ import { Customer, Admin } from '../types';
  * 1. Go to your Supabase Project Settings > API
  * 2. Copy the "Project URL" and "anon public" Key
  */
-const supabaseUrl = (process.env.SUPABASE_URL || 'https://your-project-url.supabase.co') as string;
-const supabaseAnonKey = (process.env.SUPABASE_ANON_KEY || 'your-anon-key-here') as string;
+const supabaseUrl = (process.env.SUPABASE_URL || 'https://teyzbkdywrwukpbrwfti.supabase.co') as string;
+const supabaseAnonKey = (process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRleXpia2R5d3J3dWtwYnJ3ZnRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMzc1OTcsImV4cCI6MjA4MTgxMzU5N30.ok3r9DstEcMuoxbgfjEHlP3O6EA-UIgHXR4Wbkn6l4A') as string;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
