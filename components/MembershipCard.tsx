@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { Shield, Sparkles } from 'lucide-react';
+import { Shield, Sparkles, Zap, Crown } from 'lucide-react';
 import { Customer } from '../types';
 import { getRankInfo } from '../constants';
 
-const COMPANY_LOGO = "logo.png";
+const COMPANY_LOGO = "./logo.png";
 
 interface MembershipCardProps {
   customer: Customer;
@@ -12,61 +12,82 @@ interface MembershipCardProps {
 
 const MembershipCard: React.FC<MembershipCardProps> = ({ customer }) => {
   const rankInfo = getRankInfo(customer.redeems);
-  const loginUrl = `${window.location.origin}?id=${customer.customer_id}`;
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(loginUrl)}&bgcolor=ffffff&color=020617&margin=1`;
+  const qrData = customer.customer_id;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}&bgcolor=ffffff&color=020617&margin=2`;
 
   return (
-    <div id="membership-card" className="relative w-full aspect-[1.58/1] rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8)] border-2 sm:border-4 border-blue-500/30 bg-gradient-to-br from-[#0f172a] via-[#1e3a8a] to-[#020617] text-white p-4 sm:p-7 holographic-glow group select-none">
-      {/* Background Effects */}
-      <div className="absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 bg-cyan-500/10 rounded-full blur-[60px] sm:blur-[80px] -mr-8 sm:-mr-16 -mt-8 sm:-mt-16 animate-pulse"></div>
-      
-      {/* Card Header */}
-      <div className="flex justify-between items-start relative z-10">
-        <div className="flex items-center gap-2 sm:gap-4">
-          <div className="w-10 h-10 sm:w-16 sm:h-16 bg-slate-900/80 backdrop-blur-md rounded-xl sm:rounded-2xl p-1 shadow-xl border border-blue-400/20">
-            <img src={COMPANY_LOGO} alt="Mithran" className="w-full h-full object-cover rounded-lg sm:rounded-xl" />
+    <div 
+      id="membership-card" 
+      className="relative w-full aspect-[1.58/1] rounded-[1.2rem] sm:rounded-[2rem] overflow-hidden shadow-[0_35px_70px_-15px_rgba(0,0,0,0.95)] border border-white/10 bg-[#020617] text-white p-6 sm:p-9 holographic-glow select-none"
+      style={{
+        background: `linear-gradient(145deg, #020617 0%, #080c14 30%, #1e3a8a 100%)`
+      }}
+    >
+      {/* Premium Texture Overlays */}
+      <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')]"></div>
+      <div className="absolute -top-32 -left-32 w-80 h-80 bg-blue-600/10 rounded-full blur-[100px]"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-[0.03] pointer-events-none">
+         <img src={COMPANY_LOGO} className="w-full h-full object-contain grayscale brightness-200" alt="" />
+      </div>
+
+      <div className="relative z-10 h-full flex flex-col justify-between">
+        
+        {/* Top Header */}
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/5 backdrop-blur-2xl rounded-2xl border border-white/10 p-2 shadow-inner">
+              <img src={COMPANY_LOGO} alt="M" className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <h2 className="font-cinzel text-xl sm:text-2xl font-black tracking-widest text-white leading-none">MITHRAN</h2>
+              <p className="text-[7px] sm:text-[9px] font-black tracking-[0.4em] text-cyan-400 mt-1.5 uppercase opacity-90">Elite Lounge Member</p>
+            </div>
           </div>
-          <div className="flex flex-col">
-            <h2 className="font-magic text-lg sm:text-3xl font-bold tracking-tight text-white leading-none">MITHRAN</h2>
-            <p className="font-magic text-[8px] sm:text-[10px] tracking-[0.2em] sm:tracking-[0.4em] text-cyan-400 uppercase font-black opacity-90">Elite Member</p>
+          
+          <div className={`flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full backdrop-blur-2xl border border-white/10 shadow-2xl bg-white/5`}>
+            {customer.redeems >= 21 ? <Crown className={`w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 ${rankInfo.color}`} /> : <Shield className={`w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 ${rankInfo.color}`} />}
+            <span className={`text-[9px] sm:text-[11px] font-black uppercase tracking-[0.25em] ${rankInfo.color}`}>{rankInfo.rank}</span>
           </div>
         </div>
-        <div className="flex flex-col items-end">
-            <div className={`px-2 py-1 sm:px-5 sm:py-2 rounded-full flex items-center gap-1 sm:gap-2 shadow-2xl backdrop-blur-md border border-white/10 ${rankInfo.bg.replace('bg-', 'bg-white/')} bg-opacity-10`}>
-                <Shield className={`w-3 h-3 sm:w-4 sm:h-4 ${rankInfo.color}`} />
-                <span className={`text-[8px] sm:text-[11px] font-black uppercase tracking-widest ${rankInfo.color}`}>{rankInfo.rank}</span>
+
+        {/* Name Area */}
+        <div className="mt-4 sm:mt-0 px-2">
+            <p className="text-[7px] sm:text-[9px] font-black uppercase tracking-[0.5em] text-blue-400/60 mb-2">Authenticated Magician</p>
+            <h3 className="font-cinzel text-2xl sm:text-4xl font-black text-white tracking-tight uppercase truncate">
+              {customer.name}
+            </h3>
+        </div>
+
+        {/* Footer Info & QR */}
+        <div className="flex justify-between items-end">
+          <div className="flex gap-8 sm:gap-14 pb-1">
+            <div className="space-y-1.5">
+              <p className="text-[7px] sm:text-[9px] font-black uppercase tracking-[0.4em] text-blue-400/40">Member ID</p>
+              <p className="font-mono text-sm sm:text-xl font-black text-blue-100 tracking-widest">
+                {customer.customer_id}
+              </p>
             </div>
+            <div className="space-y-1.5">
+              <p className="text-[7px] sm:text-[9px] font-black uppercase tracking-[0.4em] text-blue-400/40">Points</p>
+              <div className="flex items-center gap-1.5">
+                <p className="font-mono text-sm sm:text-xl font-black text-white">{customer.redeems}</p>
+                <Zap className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-cyan-400 fill-cyan-400 animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          <div className="group relative">
+            <div className="absolute -inset-3 bg-gradient-to-tr from-blue-600 via-cyan-400 to-blue-500 rounded-2xl opacity-10 blur-md"></div>
+            <div className="relative bg-white p-1.5 rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-white/20">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center overflow-hidden rounded-lg">
+                <img crossOrigin="anonymous" src={qrCodeUrl} alt="QR" className="w-full h-full object-contain" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Card Body */}
-      <div className="flex justify-between items-end relative z-10 mt-2 sm:mt-6">
-        <div className="space-y-2 sm:space-y-5 flex-1 overflow-hidden">
-          <div className="bg-slate-900/60 px-3 py-1 sm:px-5 sm:py-2 rounded-lg sm:rounded-2xl backdrop-blur-md border border-white/5 inline-block">
-             <p className="text-[7px] sm:text-[9px] font-black uppercase tracking-widest text-cyan-500/80 mb-0.5 sm:mb-1">Pass-Holder</p>
-             <h3 className="font-cinzel text-base sm:text-2xl font-black text-white leading-none tracking-tight truncate max-w-[150px] sm:max-w-none">{customer.name}</h3>
-          </div>
-          
-          <div className="flex items-center gap-4 sm:gap-8 pl-1">
-            <div>
-              <p className="text-[7px] sm:text-[9px] font-black text-blue-400/60 uppercase tracking-widest leading-none mb-1 sm:mb-2">Digital ID</p>
-              <p className="font-mono text-[10px] sm:text-sm font-black text-white bg-slate-950/60 px-2 py-0.5 sm:px-3 sm:py-1 rounded-md border border-white/5">{customer.customer_id}</p>
-            </div>
-            <div>
-              <p className="text-[7px] sm:text-[9px] font-black text-blue-400/60 uppercase tracking-widest leading-none mb-1 sm:mb-2">Stars</p>
-              <p className="font-mono text-[10px] sm:text-sm font-black text-white bg-slate-950/60 px-2 py-0.5 sm:px-3 sm:py-1 rounded-md border border-white/5">{customer.redeems}</p>
-            </div>
-          </div>
-        </div>
-        
-        {/* QR Access Key */}
-        <div className="flex flex-col items-center gap-1 sm:gap-3 shrink-0 ml-2">
-            <div className="w-16 h-16 sm:w-24 sm:h-24 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center border-[3px] sm:border-[5px] border-white shadow-xl overflow-hidden">
-                <img crossOrigin="anonymous" src={qrCodeUrl} alt="QR" className="w-full h-full object-contain" />
-            </div>
-            <p className="text-[7px] sm:text-[9px] text-cyan-400 font-black uppercase tracking-widest">Portal Key</p>
-        </div>
-      </div>
+      <div className="absolute inset-0 pointer-events-none opacity-20 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[sweep_4s_infinite_linear]"></div>
     </div>
   );
 };

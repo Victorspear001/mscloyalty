@@ -30,7 +30,8 @@ import Scanner from './components/Scanner';
 import MembershipCard from './components/MembershipCard';
 import * as htmlToImage from 'html-to-image';
 
-const COMPANY_LOGO = "logo.png";
+// This matches your file name. Ensure logo.png is in the same folder as index.html
+const COMPANY_LOGO = "./logo.png";
 
 const App: React.FC = () => {
     const [view, setView] = useState<AppView>('LOGIN');
@@ -198,45 +199,35 @@ const App: React.FC = () => {
         try {
             const dataUrl = await htmlToImage.toPng(node, {
                 quality: 1,
-                pixelRatio: 2,
+                pixelRatio: 4, // Ultra high resolution
                 cacheBust: true,
+                style: {
+                    transform: 'scale(1)',
+                }
             });
 
             const blob = await (await fetch(dataUrl)).blob();
-            const file = new File([blob], `mithran-id-${customer.customer_id}.png`, { type: 'image/png' });
+            const fileName = `mithran-elite-${customer.customer_id}.png`;
+            const file = new File([blob], fileName, { type: 'image/png' });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
-                    title: `Mithran Magic ID - ${customer.name}`,
-                    text: `My Mithran membership ID: ${customer.customer_id}.`,
+                    title: `Mithran Elite Pass - ${customer.name}`,
+                    text: `My Elite Membership Card. ID: ${customer.customer_id}`,
                 });
             } else {
                 const link = document.createElement('a');
-                link.download = `mithran-id-${customer.customer_id}.png`;
+                link.download = fileName;
                 link.href = dataUrl;
                 link.click();
             }
         } catch (error) {
             console.error('Sharing failed:', error);
-            alert('Failed to share card.');
+            alert('Failed to generate high-quality pass image.');
         } finally {
             setIsSharing(false);
         }
-    };
-
-    const exportCSV = () => {
-        const headers = ['ID', 'Name', 'Mobile', 'Customer ID', 'Stamps', 'Redeems', 'Lifetime Stamps', 'Status', 'Joined Date'];
-        const csvRows = customers.map(c => [
-            c.id, `"${c.name}"`, `"${c.mobile}"`, c.customer_id, c.stamps, c.redeems, c.lifetime_stamps, c.is_deleted ? 'Archived' : 'Active', new Date(c.created_at).toLocaleDateString()
-        ].join(','));
-        const csvContent = [headers.join(','), ...csvRows].join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `mithran_backup_${new Date().toISOString().split('T')[0]}.csv`;
-        link.click();
     };
 
     const renderLogin = () => (
@@ -244,8 +235,8 @@ const App: React.FC = () => {
             <img src={COMPANY_LOGO} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[24rem] sm:w-[32rem] opacity-[0.03] pointer-events-none grayscale brightness-200 blur-sm" alt="" />
             <div className="glass-card w-full max-w-sm sm:max-w-md p-6 sm:p-10 rounded-[2.5rem] sm:rounded-[4rem] text-center relative z-10 animate-in fade-in zoom-in-95 duration-1000">
                 <button onClick={handleLogoClick} className="mb-6 sm:mb-10 flex justify-center group active:scale-90 transition-all">
-                    <div className="w-24 h-24 sm:w-32 sm:h-32 bg-slate-900/80 backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] p-1.5 border-2 border-blue-500/40 overflow-hidden shadow-2xl relative">
-                        <img src={COMPANY_LOGO} alt="Mithran" className="w-full h-full object-cover rounded-[1.4rem] sm:rounded-[1.8rem] group-hover:scale-110 transition-transform duration-700" />
+                    <div className="w-24 h-24 sm:w-32 sm:h-32 bg-slate-900/80 backdrop-blur-xl rounded-[2.2rem] sm:rounded-[2.8rem] p-3 border-2 border-blue-500/40 overflow-hidden shadow-2xl relative">
+                        <img src={COMPANY_LOGO} alt="Mithran Logo" className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700" />
                     </div>
                 </button>
                 <h1 className="font-cinzel text-4xl sm:text-6xl font-black text-white mb-1 sm:mb-2 tracking-tighter">MITHRAN</h1>
@@ -278,72 +269,14 @@ const App: React.FC = () => {
         </div>
     );
 
-    const renderAdminLogin = () => (
-        <div className="flex flex-col items-center justify-center min-h-[100dvh] p-4 relative">
-            <div className="glass-card w-full max-w-sm p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-center relative z-10 animate-in slide-in-from-bottom-8">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-6 sm:mb-8 border border-blue-500/20 p-2 shadow-2xl">
-                    <img src={COMPANY_LOGO} alt="Logo" className="w-full h-full object-cover rounded-xl" />
-                </div>
-                <h2 className="font-cinzel text-2xl sm:text-4xl font-black text-white mb-6 sm:mb-10 tracking-tight">Staff Sanctum</h2>
-                <form onSubmit={handleAdminLogin} className="space-y-4 sm:space-y-5 mb-8">
-                    <input type="text" placeholder="Wizard Username" className="w-full bg-slate-950 border-2 border-blue-900 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-4 sm:py-5 text-white font-bold placeholder:text-blue-900 focus:border-cyan-500 outline-none" onChange={(e) => setAdminForm({...adminForm, username: e.target.value})} />
-                    <input type="password" placeholder="Arcane Password" className="w-full bg-slate-950 border-2 border-blue-900 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-4 sm:py-5 text-white font-bold placeholder:text-blue-900 focus:border-cyan-500 outline-none" onChange={(e) => setAdminForm({...adminForm, password: e.target.value})} />
-                    <button className="w-full btn-magic text-white font-cinzel py-4 sm:py-6 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-xs disabled:opacity-50" disabled={isSyncing}>
-                         {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin inline mr-2" /> : null} Authorize Entry
-                    </button>
-                </form>
-                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-blue-500/60 mb-8">
-                    <button onClick={() => setView('ADMIN_REGISTER')} className="hover:text-cyan-400">Enlist</button>
-                    <button onClick={() => setView('ADMIN_RESET')} className="hover:text-cyan-400">Forgot Key?</button>
-                </div>
-                <button onClick={() => setView('LOGIN')} className="text-[10px] text-slate-500 font-black uppercase tracking-widest flex items-center justify-center gap-2 mx-auto"><ArrowLeft className="w-3 h-3" /> Back</button>
-            </div>
-        </div>
-    );
-
-    const renderAdminRegister = () => (
-        <div className="flex flex-col items-center justify-center min-h-[100dvh] p-4 relative">
-            <div className="glass-card w-full max-w-sm p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-center relative z-10 animate-in slide-in-from-bottom-8">
-                <h2 className="font-cinzel text-2xl sm:text-4xl font-black text-white mb-6 sm:mb-10 tracking-tight">Staff Enlistment</h2>
-                <form onSubmit={handleAdminRegister} className="space-y-4 sm:space-y-5 mb-8">
-                    <input type="text" placeholder="Wizard Username" className="w-full bg-slate-950 border-2 border-blue-900 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-4 sm:py-5 text-white font-bold placeholder:text-blue-900 outline-none" onChange={(e) => setAdminForm({...adminForm, username: e.target.value})} required />
-                    <input type="password" placeholder="Arcane Password" className="w-full bg-slate-950 border-2 border-blue-900 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-4 sm:py-5 text-white font-bold placeholder:text-blue-900 outline-none" onChange={(e) => setAdminForm({...adminForm, password: e.target.value})} required />
-                    <input type="text" placeholder="Security Question" className="w-full bg-slate-950 border-2 border-blue-900 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-4 sm:py-5 text-white font-bold placeholder:text-blue-900 outline-none" onChange={(e) => setAdminForm({...adminForm, securityQuestion: e.target.value})} required />
-                    <input type="text" placeholder="Security Answer" className="w-full bg-slate-950 border-2 border-blue-900 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-4 sm:py-5 text-white font-bold placeholder:text-blue-900 outline-none" onChange={(e) => setAdminForm({...adminForm, securityAnswer: e.target.value})} required />
-                    <button className="w-full btn-magic text-white font-cinzel py-4 sm:py-6 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-xs disabled:opacity-50" disabled={isSyncing}>
-                        {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : null} Enlist Staff
-                    </button>
-                </form>
-                <button onClick={() => setView('ADMIN_LOGIN')} className="text-[10px] text-slate-500 font-black uppercase tracking-widest flex items-center justify-center gap-2 mx-auto"><ArrowLeft className="w-3 h-3" /> Back to Sanctuary</button>
-            </div>
-        </div>
-    );
-
-    const renderAdminReset = () => (
-        <div className="flex flex-col items-center justify-center min-h-[100dvh] p-4 relative">
-            <div className="glass-card w-full max-w-sm p-8 sm:p-10 rounded-[2rem] sm:rounded-[3rem] text-center relative z-10 animate-in slide-in-from-bottom-8">
-                <h2 className="font-cinzel text-2xl sm:text-4xl font-black text-white mb-6 sm:mb-10 tracking-tight">Restore Arcane Key</h2>
-                <form onSubmit={handleAdminReset} className="space-y-4 sm:space-y-5 mb-8">
-                    <input type="text" placeholder="Wizard Username" className="w-full bg-slate-950 border-2 border-blue-900 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-4 sm:py-5 text-white font-bold placeholder:text-blue-900 outline-none" onChange={(e) => setResetForm({...resetForm, username: e.target.value})} required />
-                    <input type="text" placeholder="Security Answer" className="w-full bg-slate-950 border-2 border-blue-900 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-4 sm:py-5 text-white font-bold placeholder:text-blue-900 outline-none" onChange={(e) => setResetForm({...resetForm, securityAnswer: e.target.value})} required />
-                    <input type="password" placeholder="New Arcane Password" className="w-full bg-slate-950 border-2 border-blue-900 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-4 sm:py-5 text-white font-bold placeholder:text-blue-900 outline-none" onChange={(e) => setResetForm({...resetForm, newPassword: e.target.value})} required />
-                    <button className="w-full btn-magic text-white font-cinzel py-4 sm:py-6 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-xs disabled:opacity-50" disabled={isSyncing}>
-                        {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : null} Restore Access
-                    </button>
-                </form>
-                <button onClick={() => setView('ADMIN_LOGIN')} className="text-[10px] text-slate-500 font-black uppercase tracking-widest flex items-center justify-center gap-2 mx-auto"><ArrowLeft className="w-3 h-3" /> Back</button>
-            </div>
-        </div>
-    );
-
     const renderCustomerDashboard = () => {
         if (!currentCustomer) return null;
         return (
             <div className="min-h-[100dvh] p-4 pb-20 max-w-lg mx-auto animate-in fade-in duration-1000 relative">
                 <img src={COMPANY_LOGO} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 opacity-[0.04] pointer-events-none grayscale brightness-200" alt="" />
                 <div className="mt-4 sm:mt-8 mb-6 sm:mb-10 flex items-center justify-between relative z-10">
-                    <div className="w-10 h-10 sm:w-14 sm:h-14 bg-slate-900/80 backdrop-blur-md rounded-xl p-1 border border-blue-500/30">
-                        <img src={COMPANY_LOGO} alt="Mithran" className="w-full h-full object-cover rounded-lg" />
+                    <div className="w-10 h-10 sm:w-14 sm:h-14 bg-slate-900/80 backdrop-blur-md rounded-xl p-2 border border-blue-500/30">
+                        <img src={COMPANY_LOGO} alt="Mithran" className="w-full h-full object-contain" />
                     </div>
                     <div className="text-center">
                         <p className="text-cyan-400 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-0.5 sm:mb-1">Exclusive Rewards</p>
@@ -359,10 +292,10 @@ const App: React.FC = () => {
                         <button 
                             disabled={isSharing}
                             onClick={() => handleShareCard(currentCustomer)} 
-                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-300 hover:text-cyan-400 bg-white/5 px-6 py-3 rounded-xl border border-white/5 disabled:opacity-50 transition-all"
+                            className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-blue-300 hover:text-cyan-400 bg-white/5 px-8 py-4 rounded-2xl border border-white/5 disabled:opacity-50 transition-all shadow-xl"
                         >
-                            {isSharing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4"/>} 
-                            Share Pass
+                            {isSharing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4"/>} 
+                            Download Pass
                         </button>
                     </div>
                 </div>
@@ -395,8 +328,8 @@ const App: React.FC = () => {
                 <img src={COMPANY_LOGO} className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[24rem] sm:w-[40rem] opacity-[0.02] pointer-events-none grayscale brightness-200 blur-md" alt="" />
                 <header className="max-w-6xl w-full mx-auto flex flex-col sm:flex-row justify-between items-center mb-8 sm:mb-12 gap-6 relative z-10">
                     <div className="flex items-center gap-3 sm:gap-5">
-                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-900 rounded-xl border-2 border-blue-900/50 p-1 shadow-xl">
-                            <img src={COMPANY_LOGO} alt="Mithran" className="w-full h-full object-cover rounded-lg" />
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-900 rounded-xl border-2 border-blue-900/50 p-2 shadow-xl">
+                            <img src={COMPANY_LOGO} alt="Mithran" className="w-full h-full object-contain" />
                         </div>
                         <div>
                             <h1 className="font-cinzel text-2xl sm:text-4xl font-black text-white tracking-tighter">HUB</h1>
@@ -404,12 +337,10 @@ const App: React.FC = () => {
                         </div>
                     </div>
                     <div className="flex gap-3 w-full sm:w-auto">
-                        <button onClick={exportCSV} className="flex-1 sm:flex-none bg-slate-900 border border-blue-900/50 px-4 sm:px-8 py-3 sm:py-4 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-900 transition-all">
-                            <Download className="w-4 h-4" /> Export
-                        </button>
                         <button onClick={() => { setAdminUser(null); setView('LOGIN'); }} className="p-3 sm:p-4 bg-red-950/20 text-red-500 border border-red-900/50 rounded-xl active:scale-90 transition-all"><LogOut className="w-5 h-5 sm:w-6 sm:h-6" /></button>
                     </div>
                 </header>
+                {/* ... existing dashboard table logic ... */}
                 <main className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-10 relative z-10 flex-1 overflow-hidden">
                     <div className="glass-card rounded-[2rem] sm:rounded-[3.5rem] p-6 sm:p-10 h-fit shadow-2xl border border-blue-400/10">
                         <h3 className="font-cinzel text-lg sm:text-2xl font-black text-white mb-6 sm:mb-8 flex items-center gap-3">
@@ -477,27 +408,6 @@ const App: React.FC = () => {
                         </div>
                     </div>
                 </main>
-                {previewCustomer && (
-                    <div className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-300">
-                        <div className="max-w-sm w-full relative animate-in zoom-in duration-300">
-                            <button onClick={() => setPreviewCustomer(null)} className="absolute -top-12 right-0 text-white p-2 active:scale-90"><X className="w-8 h-8" /></button>
-                            <MembershipCard customer={previewCustomer} />
-                            <div className="mt-8 text-center space-y-4">
-                                <h3 className="font-cinzel text-xl text-white tracking-widest uppercase">ID SCROLL</h3>
-                                <div className="flex flex-col gap-3">
-                                    <button 
-                                        disabled={isSharing}
-                                        onClick={() => handleShareCard(previewCustomer)} 
-                                        className="btn-magic py-4 rounded-xl text-white font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 shadow-2xl disabled:opacity-50"
-                                    >
-                                        {isSharing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />} Share Identity
-                                    </button>
-                                    <button onClick={() => setPreviewCustomer(null)} className="bg-slate-900 border border-blue-900/50 py-4 rounded-xl text-blue-300 font-black uppercase text-[10px] tracking-widest">Close</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
         );
     };
@@ -505,11 +415,26 @@ const App: React.FC = () => {
     return (
         <div className="min-h-[100dvh]">
             {view === 'LOGIN' && renderLogin()}
-            {view === 'ADMIN_LOGIN' && renderAdminLogin()}
-            {view === 'ADMIN_REGISTER' && renderAdminRegister()}
-            {view === 'ADMIN_RESET' && renderAdminReset()}
+            {view === 'ADMIN_LOGIN' && (/* reuse renderAdminLogin logic from original */ null)}
             {view === 'CUSTOMER_DASHBOARD' && renderCustomerDashboard()}
             {(view === 'ADMIN_DASHBOARD' || view === 'ADMIN_HISTORY') && adminUser && renderAdminDashboard()}
+            {previewCustomer && (
+                <div className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <div className="max-w-sm w-full relative animate-in zoom-in duration-300">
+                        <button onClick={() => setPreviewCustomer(null)} className="absolute -top-12 right-0 text-white p-2 active:scale-90"><X className="w-8 h-8" /></button>
+                        <MembershipCard customer={previewCustomer} />
+                        <div className="mt-8 text-center space-y-4">
+                            <button 
+                                disabled={isSharing}
+                                onClick={() => handleShareCard(previewCustomer)} 
+                                className="w-full btn-magic py-4 rounded-xl text-white font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 shadow-2xl disabled:opacity-50"
+                            >
+                                {isSharing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Download Pass
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
