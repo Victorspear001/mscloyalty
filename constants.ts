@@ -1,9 +1,8 @@
 
 import { Rank } from './types';
 
-// Points to your logo.png in the root directory. 
-// Added a timestamp to help with browser caching when you update the file.
-export const COMPANY_LOGO_URL = `./logo.png?v=${new Date().getTime()}`;
+// Use the root logo.png. Direct pathing is more reliable for local assets.
+export const COMPANY_LOGO_URL = 'logo.png';
 
 export const RANK_THRESHOLDS = [
   { minRedeems: 0, rank: Rank.BRONZE, color: 'text-orange-600', bg: 'bg-orange-50' },

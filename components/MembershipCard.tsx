@@ -21,26 +21,23 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ customer }) => {
         background: `linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)`
       }}
     >
-      {/* Decorative Overlays */}
+      {/* Visual Depth Overlays */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-black/15 pointer-events-none"></div>
       <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/cubes.png')` }}></div>
-      <div className="absolute -top-1/4 -right-1/4 w-full h-full bg-white/10 blur-[100px] rounded-full"></div>
 
       <div className="relative z-10 h-full flex flex-col justify-between">
         
-        {/* Top Branding Bar */}
+        {/* Header Bar */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-5">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-2xl p-2.5 shadow-2xl flex items-center justify-center overflow-hidden border border-white/40">
+            {/* Contrasting dark background for the logo box ensures white logos are visible on the card */}
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-950 rounded-2xl p-2.5 shadow-2xl flex items-center justify-center overflow-hidden border border-white/20">
               <img 
                 src={COMPANY_LOGO_URL} 
                 alt="Logo" 
                 className="w-full h-full object-contain" 
                 onError={(e) => {
-                   (e.target as HTMLImageElement).src = 'logo.png';
-                   (e.target as HTMLImageElement).onerror = () => {
-                     (e.target as HTMLImageElement).src = 'https://img.icons8.com/fluency/96/sparkling.png';
-                   };
+                   (e.target as HTMLImageElement).src = 'https://img.icons8.com/fluency/96/sparkling.png';
                 }}
               />
             </div>
@@ -60,7 +57,7 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ customer }) => {
           </div>
         </div>
 
-        {/* Identity Section - Centered Vertically in available space */}
+        {/* Name Section */}
         <div className="mt-auto mb-12">
             <p className="text-[9px] font-black uppercase tracking-[0.6em] text-white/60 mb-2 leading-none">Magic Identity</p>
             <h3 className="font-cinzel text-3xl sm:text-5xl font-black text-white tracking-tighter uppercase truncate drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)]">
@@ -68,23 +65,23 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ customer }) => {
             </h3>
         </div>
 
-        {/* Bottom Data Bar */}
+        {/* Footer Data */}
         <div className="flex justify-between items-end">
           <div className="flex gap-14 items-end">
             <div>
               <p className="text-[8px] font-black uppercase tracking-[0.5em] text-white/50 mb-2">Portal ID</p>
-              <p className="font-mono text-lg sm:text-2xl font-black text-white tracking-[0.2em] leading-none drop-shadow-sm">{customer.customer_id}</p>
+              <p className="font-mono text-lg sm:text-2xl font-black text-white tracking-[0.2em] leading-none">{customer.customer_id}</p>
             </div>
             <div>
               <p className="text-[8px] font-black uppercase tracking-[0.5em] text-white/50 mb-2">Rewards</p>
               <div className="flex items-center gap-2.5">
-                <p className="font-mono text-lg sm:text-2xl font-black text-white leading-none drop-shadow-sm">{customer.redeems}</p>
+                <p className="font-mono text-lg sm:text-2xl font-black text-white leading-none">{customer.redeems}</p>
                 <Zap className="w-5 h-5 text-yellow-300 fill-yellow-300 animate-pulse" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-2.5 rounded-[1.8rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] group transition-all hover:scale-105 hover:-rotate-1">
+          <div className="bg-white p-2.5 rounded-[1.8rem] shadow-2xl group transition-all hover:scale-110">
             <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-xl overflow-hidden">
               <img src={qrCodeUrl} alt="QR Code" className="w-full h-full" />
             </div>
@@ -92,7 +89,6 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ customer }) => {
         </div>
       </div>
 
-      {/* Glossy Sweep Shine */}
       <div className="absolute inset-0 pointer-events-none opacity-40 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[sweep_5s_infinite_linear]"></div>
     </div>
   );
