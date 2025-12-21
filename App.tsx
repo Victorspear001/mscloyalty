@@ -199,7 +199,7 @@ const App: React.FC = () => {
                 backgroundColor: '#ffffff' 
             });
             const link = document.createElement('a');
-            link.download = `MSC-CARD-${previewCustomer?.customer_id}.jpg`;
+            link.download = `MSC-CARD-${previewCustomer?.customer_id || 'MEMBER'}.jpg`;
             link.href = dataUrl;
             link.click();
         } catch (error) {
@@ -214,22 +214,31 @@ const App: React.FC = () => {
         if (!node) return;
         setIsSyncing(true);
         try {
-            const dataUrl = await htmlToImage.toPng(node, { pixelRatio: 3 });
+            // Using JPEG for better compatibility with messaging apps like WhatsApp
+            const dataUrl = await htmlToImage.toJpeg(node, { 
+                quality: 0.95, 
+                pixelRatio: 3,
+                backgroundColor: '#1e293b' // Ensure dark background for the card
+            });
             const response = await fetch(dataUrl);
             const blob = await response.blob();
-            const file = new File([blob], `MSC-CARD-${previewCustomer?.customer_id}.png`, { type: 'image/png' });
+            // WhatsApp often requires a file object for sharing images via Web Share API
+            const file = new File([blob], `MSC-CARD.jpg`, { type: 'image/jpeg' });
 
-            if (navigator.share) {
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
                     title: 'Mithran Member Card',
-                    text: `Elite Card for ${previewCustomer?.name}`
+                    text: `My Elite Membership at Mithran Snacks Corner! 🍿`
                 });
             } else {
-                handleDownloadCard();
+                throw new Error("Web Share API not supported for files");
             }
         } catch (error) {
-            alert('Share not supported.');
+            console.log("Sharing failed or not supported, falling back to download.", error);
+            handleDownloadCard();
+            // Provide a clear message to the user
+            setTimeout(() => alert("Image saved to gallery! You can now share it on WhatsApp manually."), 500);
         } finally {
             setIsSyncing(false);
         }
@@ -513,20 +522,24 @@ const App: React.FC = () => {
 
             {view === 'CUSTOMER_DASHBOARD' && currentCustomer && (
                 <div className="min-h-screen bg-white p-6 pb-24 max-w-lg w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <header className="flex items-center justify-between mb-16 mt-8 w-full">
-                        <div onClick={handleCustomerHeaderClick} className="flex flex-col items-start cursor-pointer select-none">
-                            <div className="flex gap-2 text-xl mb-1">🍿 🥤 🥨</div>
-                            <h1 className="font-cinzel text-xl font-black text-slate-900 tracking-tight leading-none">
+                    <header className="relative flex items-center justify-center mb-12 mt-8 w-full">
+                        <div onClick={handleCustomerHeaderClick} className="flex flex-col items-center cursor-pointer select-none animate-in fade-in duration-700">
+                            <div className="flex gap-2 text-lg mb-1 animate-bounce">🍿 🥤 🥨</div>
+                            <h1 className="font-cinzel text-lg font-black text-slate-900 tracking-tight leading-none text-center">
                                 MITHRAN<br/>
-                                <span className="text-sm text-blue-600 tracking-widest">SNACKS CORNER</span>
+                                <span className="text-[10px] text-blue-600 tracking-[0.3em] font-bold">SNACKS CORNER</span>
                             </h1>
                         </div>
-                        <button onClick={() => { setView('LOGIN'); setCurrentCustomer(null); }} className="p-4 bg-white text-slate-900 rounded-2xl border border-slate-100 hover:bg-slate-900 hover:text-white transition-all shadow-lg active:scale-90 flex-shrink-0"><LogOut className="w-6 h-6" /></button>
+                        <button onClick={() => { setView('LOGIN'); setCurrentCustomer(null); }} className="absolute right-0 p-3 bg-white text-slate-900 rounded-xl border border-slate-100 hover:bg-slate-900 hover:text-white transition-all shadow-md active:scale-90 flex-shrink-0"><LogOut className="w-5 h-5" /></button>
                     </header>
                     
-                    <div className="w-full max-w-[380px] flex justify-center drop-shadow-[0_40px_80px_rgba(37,99,235,0.3)] hover:scale-[1.02] transition-transform duration-500">
+                    <div 
+                        onClick={() => setPreviewCustomer(currentCustomer)}
+                        className="w-full max-w-[380px] flex justify-center drop-shadow-[0_40px_80px_rgba(37,99,235,0.3)] hover:scale-[1.02] transition-transform duration-500 cursor-pointer"
+                    >
                         <MembershipCard customer={currentCustomer} />
                     </div>
+                    <p className="mt-4 text-[10px] text-slate-400 font-bold uppercase tracking-widest animate-pulse">Tap Card to Share</p>
 
                     <div className="bg-white rounded-[4rem] p-12 mt-16 border-2 border-slate-50 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] text-center w-full flex flex-col items-center relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500"></div>

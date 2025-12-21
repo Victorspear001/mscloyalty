@@ -38,10 +38,10 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ customer }) => {
         <div className="flex justify-between items-start w-full">
           <div className="flex items-center gap-2">
             <div className="flex flex-col">
-              <h2 className="font-cinzel text-sm sm:text-base font-black tracking-[0.1em] text-white leading-none drop-shadow-2xl flex gap-2">
-                🍿 MITHRAN SNACKS CORNER 🥤
+              <h2 className="font-cinzel text-[9px] sm:text-[10px] font-black tracking-[0.1em] text-white leading-tight drop-shadow-2xl flex items-center gap-1.5 whitespace-nowrap">
+                <span>🍿</span> MITHRAN SNACKS CORNER <span>🥤</span>
               </h2>
-              <p className="text-[7px] sm:text-[8px] font-black tracking-[0.4em] text-cyan-300 mt-1.5 uppercase leading-none drop-shadow-lg opacity-90">Platinum Member</p>
+              <p className="text-[6px] sm:text-[7px] font-black tracking-[0.4em] text-cyan-300 mt-1 uppercase leading-none drop-shadow-lg opacity-90">Platinum Member</p>
             </div>
           </div>
           
