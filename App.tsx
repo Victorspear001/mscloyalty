@@ -15,13 +15,14 @@ import Scanner from './components/Scanner';
 import MembershipCard from './components/MembershipCard';
 import * as htmlToImage from 'html-to-image';
 
-// Premium MSC Logo Component - Vibrant, Large Text, Polished Texture
+// Premium MSC Logo Component - Image Based
 export const MSCLogo = ({ className = "w-16 h-16" }: { className?: string }) => (
-  <div className={`${className} bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 rounded-[24%] flex items-center justify-center border-2 border-white/30 shadow-[0_10px_30px_-5px_rgba(37,99,235,0.5)] overflow-hidden flex-shrink-0 relative group transition-all duration-300 hover:scale-105`}>
-    <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')]"></div>
-    <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent"></div>
-    <span className="relative z-10 text-white font-cinzel font-black text-[55%] leading-none tracking-tight select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">MSC</span>
-  </div>
+  <img 
+    src="logo.png" 
+    alt="Mithran Snacks Corner" 
+    className={`${className} object-contain drop-shadow-md hover:scale-105 transition-transform duration-300 select-none`} 
+    draggable={false}
+  />
 );
 
 const App: React.FC = () => {
@@ -373,9 +374,12 @@ const App: React.FC = () => {
                                                     <div className="flex justify-end gap-3">
                                                         <button onClick={() => setPreviewCustomer(c)} className="p-2.5 text-blue-700 bg-blue-50 rounded-xl hover:bg-blue-700 hover:text-white transition-all shadow-sm" title="Preview Card"><CreditCard className="w-5 h-5"/></button>
                                                         {c.is_deleted ? (
-                                                            <button onClick={async () => { await storageService.updateCustomer(c.id, { is_deleted: false }); refreshCustomerList(); }} className="p-2.5 text-green-700 bg-green-50 rounded-xl hover:bg-green-700 hover:text-white transition-all shadow-sm"><RotateCcw className="w-5 h-5"/></button>
+                                                            <>
+                                                                <button onClick={async () => { await storageService.updateCustomer(c.id, { is_deleted: false }); refreshCustomerList(); }} className="p-2.5 text-green-700 bg-green-50 rounded-xl hover:bg-green-700 hover:text-white transition-all shadow-sm" title="Restore Member"><RotateCcw className="w-5 h-5"/></button>
+                                                                <button onClick={() => handlePermanentDelete(c.id, c.name)} className="p-2.5 text-red-700 bg-red-50 rounded-xl hover:bg-red-700 hover:text-white transition-all shadow-sm" title="Delete Permanently"><Trash2 className="w-5 h-5"/></button>
+                                                            </>
                                                         ) : (
-                                                            <button onClick={async () => { if(confirm(`Archive ${c.name}?`)) { await storageService.deleteCustomerSoft(c.id); refreshCustomerList(); } }} className="p-2.5 text-slate-400 bg-slate-100 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm"><Archive className="w-5 h-5"/></button>
+                                                            <button onClick={async () => { if(confirm(`Archive ${c.name}?`)) { await storageService.deleteCustomerSoft(c.id); refreshCustomerList(); } }} className="p-2.5 text-slate-400 bg-slate-100 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm" title="Archive Member"><Archive className="w-5 h-5"/></button>
                                                         )}
                                                     </div>
                                                 </td>
@@ -494,7 +498,7 @@ const App: React.FC = () => {
             {view === 'CUSTOMER_DASHBOARD' && currentCustomer && (
                 <div className="min-h-screen bg-white p-6 pb-24 max-w-lg w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <header className="flex items-center justify-between mb-16 mt-8 w-full">
-                        <MSCLogo className="w-16 h-16 shadow-2xl" />
+                        <MSCLogo className="w-16 h-16" />
                         <div className="text-center">
                             <p className="text-blue-700 text-[10px] font-black uppercase tracking-[0.5em] mb-1.5 leading-none">ELITE MEMBER</p>
                             <h1 className="font-cinzel text-3xl font-black text-slate-900 tracking-tighter leading-none">Portal</h1>
