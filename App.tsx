@@ -15,16 +15,6 @@ import Scanner from './components/Scanner';
 import MembershipCard from './components/MembershipCard';
 import * as htmlToImage from 'html-to-image';
 
-// Premium MSC Logo Component - Image Based
-export const MSCLogo = ({ className = "h-16 w-auto" }: { className?: string }) => (
-  <img 
-    src="logo.png" 
-    alt="Mithran Snacks Corner" 
-    className={`${className} object-contain drop-shadow-md hover:scale-105 transition-transform duration-300 select-none`} 
-    draggable={false}
-  />
-);
-
 const App: React.FC = () => {
     const [view, setView] = useState<AppView>('LOGIN');
     const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null);
@@ -36,7 +26,8 @@ const App: React.FC = () => {
     const [previewCustomer, setPreviewCustomer] = useState<Customer | null>(null);
     const [isSyncing, setIsSyncing] = useState(false);
     const [showArchive, setShowArchive] = useState(false);
-    const [logoClicks, setLogoClicks] = useState(0);
+    const [loginLogoClicks, setLoginLogoClicks] = useState(0);
+    const [customerHeaderClicks, setCustomerHeaderClicks] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [adminLoginData, setAdminLoginData] = useState({ username: '', password: '' });
@@ -61,13 +52,28 @@ const App: React.FC = () => {
         if (view === 'ADMIN_DASHBOARD') refreshCustomerList();
     }, [view]);
 
-    const handleLogoClick = () => {
-        const next = logoClicks + 1;
+    // Secret Door logic for Login Page
+    const handleLoginHeaderClick = () => {
+        const next = loginLogoClicks + 1;
         if (next >= 5) {
             setView('ADMIN_LOGIN');
-            setLogoClicks(0);
+            setLoginLogoClicks(0);
         } else {
-            setLogoClicks(next);
+            setLoginLogoClicks(next);
+        }
+    };
+
+    // Secret Door logic for Customer Page
+    const handleCustomerHeaderClick = () => {
+        const next = customerHeaderClicks + 1;
+        if (next >= 7) {
+            if (confirm("🛡️ Staff Access Protocol Initiated. Proceed?")) {
+                setView('ADMIN_LOGIN');
+                setCurrentCustomer(null);
+            }
+            setCustomerHeaderClicks(0);
+        } else {
+            setCustomerHeaderClicks(next);
         }
     };
 
@@ -80,6 +86,7 @@ const App: React.FC = () => {
             if (customer) {
                 setCurrentCustomer(customer);
                 setView('CUSTOMER_DASHBOARD');
+                setCustomerHeaderClicks(0); // Reset clicks on login
             } else {
                 alert('Access Denied: Member not found.');
             }
@@ -249,7 +256,11 @@ const App: React.FC = () => {
                             >
                                 <Home className="w-5 h-5" />
                             </button>
-                            <MSCLogo className="h-10 w-auto" />
+                            <div className="flex flex-col leading-none select-none">
+                                <span className="font-cinzel font-black text-sm text-blue-900 tracking-tight">MITHRAN 🍿</span>
+                                <span className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase">Snacks Corner</span>
+                            </div>
+                            <div className="h-6 w-px bg-slate-200 mx-2"></div>
                             <h1 className="font-cinzel text-lg font-black text-slate-900 tracking-tight">ADMIN</h1>
                         </div>
                         <div className="flex items-center gap-3">
@@ -401,11 +412,16 @@ const App: React.FC = () => {
                 <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center w-full max-w-lg">
                     <div className="w-full p-14 sm:p-20 rounded-[4rem] bg-white border border-slate-100 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] relative overflow-hidden flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
                         <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
-                        <button onClick={handleLogoClick} className="mb-8 active:scale-95 transition-transform duration-300 flex items-center justify-center cursor-default max-w-[80%]">
-                            <MSCLogo className="w-56 h-auto" />
-                        </button>
-                        <h1 className="font-cinzel text-5xl font-black text-slate-900 mb-2 tracking-tighter drop-shadow-sm">MITHRAN</h1>
-                        <p className="font-magic text-sm tracking-[0.5em] text-blue-700 mb-16 uppercase font-black opacity-90">Exclusive Rewards</p>
+                        
+                        <div onClick={handleLoginHeaderClick} className="mb-10 cursor-pointer select-none active:scale-95 transition-transform duration-300">
+                             <div className="flex justify-center gap-4 mb-2 text-4xl animate-bounce">🍿 🥤</div>
+                             <h1 className="font-cinzel text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter leading-tight drop-shadow-sm">
+                                MITHRAN<br/>
+                                <span className="text-xl sm:text-2xl text-blue-600 tracking-widest">SNACKS CORNER</span>
+                             </h1>
+                        </div>
+
+                        <p className="font-magic text-sm tracking-[0.5em] text-slate-400 mb-16 uppercase font-black opacity-90">Exclusive Rewards</p>
                         
                         <div className="space-y-8 w-full">
                             <div className="space-y-3 flex flex-col items-center">
@@ -439,8 +455,8 @@ const App: React.FC = () => {
 
                     <div className="w-full max-w-sm p-12 sm:p-14 rounded-[4rem] glass-panel flex flex-col items-center animate-in zoom-in-95 duration-700 relative z-10">
                         <div className="absolute -top-12 flex justify-center w-full">
-                             <div className="p-3 bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl">
-                                <MSCLogo className="h-20 w-auto" />
+                             <div className="p-4 bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl text-4xl">
+                                🛡️
                              </div>
                         </div>
 
@@ -498,10 +514,12 @@ const App: React.FC = () => {
             {view === 'CUSTOMER_DASHBOARD' && currentCustomer && (
                 <div className="min-h-screen bg-white p-6 pb-24 max-w-lg w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <header className="flex items-center justify-between mb-16 mt-8 w-full">
-                        <MSCLogo className="h-24 w-auto" />
-                        <div className="text-center">
-                            <p className="text-blue-700 text-[10px] font-black uppercase tracking-[0.5em] mb-1.5 leading-none">ELITE MEMBER</p>
-                            <h1 className="font-cinzel text-3xl font-black text-slate-900 tracking-tighter leading-none">Portal</h1>
+                        <div onClick={handleCustomerHeaderClick} className="flex flex-col items-start cursor-pointer select-none">
+                            <div className="flex gap-2 text-xl mb-1">🍿 🥤 🥨</div>
+                            <h1 className="font-cinzel text-xl font-black text-slate-900 tracking-tight leading-none">
+                                MITHRAN<br/>
+                                <span className="text-sm text-blue-600 tracking-widest">SNACKS CORNER</span>
+                            </h1>
                         </div>
                         <button onClick={() => { setView('LOGIN'); setCurrentCustomer(null); }} className="p-4 bg-white text-slate-900 rounded-2xl border border-slate-100 hover:bg-slate-900 hover:text-white transition-all shadow-lg active:scale-90 flex-shrink-0"><LogOut className="w-6 h-6" /></button>
                     </header>
