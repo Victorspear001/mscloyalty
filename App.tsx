@@ -16,7 +16,7 @@ import MembershipCard from './components/MembershipCard';
 import * as htmlToImage from 'html-to-image';
 
 // Premium MSC Logo Component - Image Based
-export const MSCLogo = ({ className = "w-16 h-16" }: { className?: string }) => (
+export const MSCLogo = ({ className = "h-16 w-auto" }: { className?: string }) => (
   <img 
     src="logo.png" 
     alt="Mithran Snacks Corner" 
@@ -249,7 +249,7 @@ const App: React.FC = () => {
                             >
                                 <Home className="w-5 h-5" />
                             </button>
-                            <MSCLogo className="w-10 h-10" />
+                            <MSCLogo className="h-10 w-auto" />
                             <h1 className="font-cinzel text-lg font-black text-slate-900 tracking-tight">ADMIN</h1>
                         </div>
                         <div className="flex items-center gap-3">
@@ -401,8 +401,8 @@ const App: React.FC = () => {
                 <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center w-full max-w-lg">
                     <div className="w-full p-14 sm:p-20 rounded-[4rem] bg-white border border-slate-100 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] relative overflow-hidden flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
                         <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
-                        <button onClick={handleLogoClick} className="mb-14 w-36 h-36 active:scale-90 transition-transform duration-500 flex items-center justify-center cursor-default">
-                            <MSCLogo className="w-full h-full" />
+                        <button onClick={handleLogoClick} className="mb-8 active:scale-95 transition-transform duration-300 flex items-center justify-center cursor-default max-w-[80%]">
+                            <MSCLogo className="w-56 h-auto" />
                         </button>
                         <h1 className="font-cinzel text-5xl font-black text-slate-900 mb-2 tracking-tighter drop-shadow-sm">MITHRAN</h1>
                         <p className="font-magic text-sm tracking-[0.5em] text-blue-700 mb-16 uppercase font-black opacity-90">Exclusive Rewards</p>
@@ -440,7 +440,7 @@ const App: React.FC = () => {
                     <div className="w-full max-w-sm p-12 sm:p-14 rounded-[4rem] glass-panel flex flex-col items-center animate-in zoom-in-95 duration-700 relative z-10">
                         <div className="absolute -top-12 flex justify-center w-full">
                              <div className="p-3 bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl">
-                                <MSCLogo className="w-20 h-20" />
+                                <MSCLogo className="h-20 w-auto" />
                              </div>
                         </div>
 
@@ -498,7 +498,7 @@ const App: React.FC = () => {
             {view === 'CUSTOMER_DASHBOARD' && currentCustomer && (
                 <div className="min-h-screen bg-white p-6 pb-24 max-w-lg w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <header className="flex items-center justify-between mb-16 mt-8 w-full">
-                        <MSCLogo className="w-16 h-16" />
+                        <MSCLogo className="h-24 w-auto" />
                         <div className="text-center">
                             <p className="text-blue-700 text-[10px] font-black uppercase tracking-[0.5em] mb-1.5 leading-none">ELITE MEMBER</p>
                             <h1 className="font-cinzel text-3xl font-black text-slate-900 tracking-tighter leading-none">Portal</h1>

@@ -38,7 +38,7 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ customer }) => {
         {/* Header Section */}
         <div className="flex justify-between items-start w-full">
           <div className="flex items-center gap-3 sm:gap-4">
-            <MSCLogo className="w-10 h-10 sm:w-12 sm:h-12" />
+            <MSCLogo className="h-10 w-auto sm:h-12" />
             <div className="flex flex-col">
               <h2 className="font-cinzel text-lg sm:text-xl font-black tracking-[0.2em] text-white leading-none drop-shadow-2xl">MITHRAN</h2>
               <p className="text-[7px] sm:text-[8px] font-black tracking-[0.4em] text-cyan-300 mt-1.5 uppercase leading-none drop-shadow-lg opacity-90">Platinum Member</p>
