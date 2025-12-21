@@ -1,16 +1,17 @@
 
 import { Rank } from './types';
 
-// The path to your PNG logo file in the root directory
-export const COMPANY_LOGO_URL = 'logo.png';
+// Points to your logo.png in the root directory. 
+// Added a timestamp to help with browser caching when you update the file.
+export const COMPANY_LOGO_URL = `./logo.png?v=${new Date().getTime()}`;
 
 export const RANK_THRESHOLDS = [
-  { minRedeems: 0, rank: Rank.BRONZE, color: 'text-orange-700', bg: 'bg-orange-100' },
-  { minRedeems: 3, rank: Rank.SILVER, color: 'text-slate-500', bg: 'bg-slate-100' },
-  { minRedeems: 6, rank: Rank.GOLD, color: 'text-yellow-600', bg: 'bg-yellow-100' },
-  { minRedeems: 11, rank: Rank.PLATINUM, color: 'text-indigo-600', bg: 'bg-indigo-100' },
-  { minRedeems: 21, rank: Rank.DIAMOND, color: 'text-blue-600', bg: 'bg-blue-100' },
-  { minRedeems: 51, rank: Rank.TITAN, color: 'text-purple-700', bg: 'bg-purple-100' },
+  { minRedeems: 0, rank: Rank.BRONZE, color: 'text-orange-600', bg: 'bg-orange-50' },
+  { minRedeems: 3, rank: Rank.SILVER, color: 'text-slate-500', bg: 'bg-slate-50' },
+  { minRedeems: 6, rank: Rank.GOLD, color: 'text-yellow-600', bg: 'bg-yellow-50' },
+  { minRedeems: 11, rank: Rank.PLATINUM, color: 'text-blue-600', bg: 'bg-blue-50' },
+  { minRedeems: 21, rank: Rank.DIAMOND, color: 'text-cyan-600', bg: 'bg-cyan-50' },
+  { minRedeems: 51, rank: Rank.TITAN, color: 'text-purple-600', bg: 'bg-purple-50' },
 ];
 
 export const getRankInfo = (redeems: number) => {
