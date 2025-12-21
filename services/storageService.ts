@@ -102,6 +102,21 @@ export const storageService = {
     } as Admin;
   },
 
+  registerAdmin: async (admin: Admin): Promise<void> => {
+    const { error } = await supabase.from('admins').insert([{
+      username: admin.username.toLowerCase().trim(),
+      password: admin.password,
+      email: admin.email,
+      security_question: admin.securityQuestion,
+      security_answer: admin.securityAnswer
+    }]);
+
+    if (error) {
+        if (error.code === '23505') throw new Error('Username or Email already exists.');
+        throw new Error(error.message);
+    }
+  },
+
   updateAdminPassword: async (email: string, newPassword: string) => {
     const { error } = await supabase
       .from('admins')

@@ -6,7 +6,8 @@ import {
     RefreshCw, Sparkles, CreditCard, X, 
     Archive, RotateCcw, Monitor, Smartphone, 
     LayoutDashboard, Share2, FileDown, FileUp,
-    Home, Gift, PartyPopper, ShieldCheck, Lock
+    Home, Gift, PartyPopper, ShieldCheck, Lock,
+    Mail, Key, FileText
 } from 'lucide-react';
 import { AppView, Customer, Admin } from './types';
 import { storageService } from './services/storageService';
@@ -31,6 +32,14 @@ const App: React.FC = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [adminLoginData, setAdminLoginData] = useState({ username: '', password: '' });
+    const [registerData, setRegisterData] = useState<Admin>({ 
+        username: '', 
+        password: '', 
+        email: '', 
+        securityQuestion: '', 
+        securityAnswer: '' 
+    });
+    
     const [newName, setNewName] = useState('');
     const [newMobile, setNewMobile] = useState('');
 
@@ -110,6 +119,25 @@ const App: React.FC = () => {
             }
         } catch (error) {
             alert('Vault Access Error.');
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
+    const handleAdminRegister = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSyncing(true);
+        try {
+            if (!registerData.username || !registerData.password || !registerData.email) {
+                alert("Please fill in required fields.");
+                return;
+            }
+            await storageService.registerAdmin(registerData);
+            alert("Staff Registered Successfully! Please Login.");
+            setView('ADMIN_LOGIN');
+            setRegisterData({ username: '', password: '', email: '', securityQuestion: '', securityAnswer: '' });
+        } catch (error: any) {
+            alert("Registration Failed: " + error.message);
         } finally {
             setIsSyncing(false);
         }
@@ -507,7 +535,14 @@ const App: React.FC = () => {
                             </button>
                         </form>
 
-                        <button onClick={() => setView('LOGIN')} className="mt-12 text-[11px] text-white/50 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-3 group">
+                        <button 
+                            onClick={() => setView('ADMIN_REGISTER')}
+                            className="mt-6 text-[10px] text-blue-400 font-bold uppercase tracking-widest hover:text-blue-300 transition-colors"
+                        >
+                            Register New Staff
+                        </button>
+
+                        <button onClick={() => setView('LOGIN')} className="mt-8 text-[11px] text-white/50 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-3 group">
                             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> Return to Portal
                         </button>
                     </div>
@@ -516,6 +551,101 @@ const App: React.FC = () => {
                         <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                         <div className="w-2 h-2 bg-white rounded-full animate-pulse [animation-delay:0.2s]"></div>
                         <div className="w-2 h-2 bg-white rounded-full animate-pulse [animation-delay:0.4s]"></div>
+                    </div>
+                </div>
+            )}
+
+            {view === 'ADMIN_REGISTER' && (
+                <div className="fantasy-admin-bg flex flex-col items-center justify-center min-h-screen p-6 w-full">
+                    <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-500/20 rounded-full blur-[60px] animate-[float_8s_infinite_ease-in-out]"></div>
+                    <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-purple-500/20 rounded-full blur-[80px] animate-[float_12s_infinite_ease-in-out_reverse]"></div>
+
+                    <div className="w-full max-w-sm p-12 rounded-[4rem] glass-panel flex flex-col items-center animate-in zoom-in-95 duration-700 relative z-10">
+                        <div className="mt-4 w-full text-center">
+                            <h2 className="font-cinzel text-2xl font-black text-white mb-2 tracking-[0.2em] drop-shadow-lg">NEW STAFF</h2>
+                            <p className="text-[9px] font-black text-blue-400 uppercase tracking-[0.3em] mb-8">Registration Protocol</p>
+                        </div>
+
+                        <form onSubmit={handleAdminRegister} className="space-y-4 w-full">
+                            <div className="space-y-1 relative">
+                                <label className="text-[8px] font-black text-white/40 uppercase tracking-[0.4em] ml-4">Identity</label>
+                                <div className="relative">
+                                    <ShieldCheck className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400 opacity-50" />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Username" 
+                                        className="w-full magic-input rounded-2xl pl-14 pr-6 py-4 text-white font-bold outline-none text-center tracking-widest text-sm" 
+                                        value={registerData.username}
+                                        onChange={(e) => setRegisterData({...registerData, username: e.target.value})} 
+                                        required 
+                                    />
+                                </div>
+                            </div>
+                             <div className="space-y-1 relative">
+                                <label className="text-[8px] font-black text-white/40 uppercase tracking-[0.4em] ml-4">Communication</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400 opacity-50" />
+                                    <input 
+                                        type="email" 
+                                        placeholder="Email Address" 
+                                        className="w-full magic-input rounded-2xl pl-14 pr-6 py-4 text-white font-bold outline-none text-center tracking-widest text-sm" 
+                                        value={registerData.email}
+                                        onChange={(e) => setRegisterData({...registerData, email: e.target.value})} 
+                                        required 
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-1 relative">
+                                <label className="text-[8px] font-black text-white/40 uppercase tracking-[0.4em] ml-4">Access Code</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-400 opacity-50" />
+                                    <input 
+                                        type="password" 
+                                        placeholder="Password" 
+                                        className="w-full magic-input rounded-2xl pl-14 pr-6 py-4 text-white font-bold outline-none text-center tracking-widest text-sm" 
+                                        value={registerData.password}
+                                        onChange={(e) => setRegisterData({...registerData, password: e.target.value})} 
+                                        required 
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-1 relative">
+                                <label className="text-[8px] font-black text-white/40 uppercase tracking-[0.4em] ml-4">Security Protocol</label>
+                                <div className="relative">
+                                    <FileText className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-400 opacity-50" />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Security Question" 
+                                        className="w-full magic-input rounded-2xl pl-14 pr-6 py-4 text-white font-bold outline-none text-center tracking-widest text-sm" 
+                                        value={registerData.securityQuestion}
+                                        onChange={(e) => setRegisterData({...registerData, securityQuestion: e.target.value})} 
+                                        required 
+                                    />
+                                </div>
+                            </div>
+                             <div className="space-y-1 relative">
+                                <label className="text-[8px] font-black text-white/40 uppercase tracking-[0.4em] ml-4">Protocol Key</label>
+                                <div className="relative">
+                                    <Key className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-green-400 opacity-50" />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Security Answer" 
+                                        className="w-full magic-input rounded-2xl pl-14 pr-6 py-4 text-white font-bold outline-none text-center tracking-widest text-sm" 
+                                        value={registerData.securityAnswer}
+                                        onChange={(e) => setRegisterData({...registerData, securityAnswer: e.target.value})} 
+                                        required 
+                                    />
+                                </div>
+                            </div>
+                            
+                            <button className="w-full btn-magic py-4 rounded-[2rem] text-white font-black uppercase text-[10px] tracking-[0.4em] shadow-xl mt-4 transition-all active:scale-95" disabled={isSyncing}>
+                                {isSyncing ? <RefreshCw className="w-5 h-5 animate-spin mx-auto"/> : "Initiate Registration"}
+                            </button>
+                        </form>
+
+                        <button onClick={() => setView('ADMIN_LOGIN')} className="mt-8 text-[10px] text-white/50 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-3 group">
+                            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> Back to Login
+                        </button>
                     </div>
                 </div>
             )}
