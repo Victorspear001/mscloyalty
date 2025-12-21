@@ -7,8 +7,6 @@ const supabaseAnonKey = (process.env.SUPABASE_ANON_KEY || 'your-anon-key-here') 
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-let cachedCustomers: Customer[] = [];
-
 export const storageService = {
   // --- Customer Methods ---
   fetchCustomers: async (): Promise<Customer[]> => {
@@ -19,8 +17,7 @@ export const storageService = {
       .order('created_at', { ascending: false });
 
     if (error) return [];
-    cachedCustomers = data as Customer[];
-    return cachedCustomers;
+    return data as Customer[];
   },
 
   addCustomer: async (name: string, mobile: string): Promise<Customer> => {
@@ -63,24 +60,29 @@ export const storageService = {
   },
 
   // --- Admin Methods ---
-  addAdmin: async (admin: Admin): Promise<boolean> => {
+  addAdmin: async (admin: Admin): Promise<{ success: boolean; message: string }> => {
     const { error } = await supabase
       .from('admins')
       .insert([{
-          username: admin.username,
+          username: admin.username.toLowerCase().trim(),
           password: admin.password,
-          email: admin.email,
+          email: admin.email.toLowerCase().trim(),
           security_question: admin.securityQuestion,
-          security_answer: admin.securityAnswer,
+          security_answer: admin.securityAnswer.toLowerCase().trim(),
       }]);
-    return !error;
+    
+    if (error) {
+      if (error.code === '23505') return { success: false, message: "Username or Email already exists in the archives." };
+      return { success: false, message: error.message };
+    }
+    return { success: true, message: "Successfully manifested." };
   },
 
   findAdmin: async (username: string): Promise<Admin | undefined> => {
     const { data, error } = await supabase
       .from('admins')
       .select('*')
-      .eq('username', username)
+      .eq('username', username.toLowerCase().trim())
       .maybeSingle();
 
     if (error || !data) return undefined;
@@ -97,7 +99,7 @@ export const storageService = {
     const { data, error } = await supabase
       .from('admins')
       .select('*')
-      .eq('email', email)
+      .eq('email', email.toLowerCase().trim())
       .maybeSingle();
 
     if (error || !data) return undefined;
@@ -114,7 +116,7 @@ export const storageService = {
     const { error } = await supabase
       .from('admins')
       .update({ password: newPassword })
-      .eq('email', email);
+      .eq('email', email.toLowerCase().trim());
 
     if (error) throw new Error(error.message);
   }
