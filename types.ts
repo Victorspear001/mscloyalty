@@ -13,10 +13,10 @@ export interface Customer {
   name: string;
   mobile: string;
   customer_id: string; // Format "MSCxxxx"
-  stamps: number; // 0-6
+  stamps: number; // 0-5
   redeems: number;
   lifetime_stamps: number;
-  tier_1_claimed: boolean; // Tracking for 3-stamp reward
+  tier_1_claimed: boolean;
   is_deleted: boolean;
   created_at: string;
 }
@@ -24,6 +24,7 @@ export interface Customer {
 export interface Admin {
   username: string;
   password: string;
+  email: string;
   securityQuestion: string;
   securityAnswer: string;
 }
