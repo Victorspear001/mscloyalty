@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>Mithran Snacks - Bright Fantasy Hub</title>
+    <title>Mithran - Membership Hub</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,17 +15,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --magic-blue: #2563eb;
-            --magic-cyan: #06b6d4;
-            --magic-glow: rgba(37, 99, 235, 0.1);
+            --magic-blue: #1e40af;
+            --magic-cyan: #0369a1;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background: #ffffff;
             background-image: 
-                radial-gradient(circle at 0% 0%, #f0f9ff 0%, transparent 40%),
-                radial-gradient(circle at 100% 100%, #e0f2fe 0%, transparent 40%);
+                radial-gradient(circle at 0% 0%, #f8fafc 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, #f1f5f9 0%, transparent 40%);
             min-height: 100dvh;
             color: #0f172a;
             overflow-x: hidden;
@@ -35,57 +34,34 @@
         .font-cinzel { font-family: 'Cinzel', serif; }
         .font-magic { font-family: 'Bubblegum Sans', cursive; }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(37, 99, 235, 0.1);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05);
-        }
-
         .holographic-glow {
             position: relative;
             overflow: hidden;
         }
-        
-        .holographic-glow::after {
-            content: '';
-            position: absolute;
-            top: -100%;
-            left: -100%;
-            width: 300%;
-            height: 300%;
-            background: linear-gradient(
-                45deg,
-                transparent 45%,
-                rgba(255, 255, 255, 0.4) 50%,
-                transparent 55%
-            );
-            animation: sweep 6s infinite;
-            pointer-events: none;
-        }
 
         @keyframes sweep {
-            0% { transform: translate(-50%, -50%) rotate(30deg); }
-            100% { transform: translate(50%, 50%) rotate(30deg); }
+            0% { transform: translateX(-100%) rotate(30deg); }
+            50% { transform: translateX(100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
         }
 
         .btn-magic {
-            background: linear-gradient(135deg, #2563eb, #0891b2);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #1e40af, #0369a1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             color: white;
         }
         .btn-magic:active { transform: scale(0.96); }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(37, 99, 235, 0.2);
+            background: rgba(15, 23, 42, 0.1);
             border-radius: 10px;
         }
 
-        .membership-card-shadow {
-            box-shadow: 0 30px 60px -12px rgba(37, 99, 235, 0.25);
+        /* Prevent overscroll bounce on mobile */
+        body, #root {
+            overscroll-behavior-y: contain;
         }
     </style>
 <script type="importmap">
