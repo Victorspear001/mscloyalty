@@ -15,10 +15,10 @@ import Scanner from './components/Scanner';
 import MembershipCard from './components/MembershipCard';
 import * as htmlToImage from 'html-to-image';
 
-// Custom MSC Logo Component
+// Custom MSC Logo Component - Perfectly centered vector logo
 export const MSCLogo = ({ className = "w-12 h-12" }: { className?: string }) => (
-  <div className={`${className} bg-slate-950 rounded-2xl flex items-center justify-center border-2 border-slate-800 shadow-xl overflow-hidden group`}>
-    <span className="text-white font-cinzel font-black text-[35%] leading-none tracking-tighter">MSC</span>
+  <div className={`${className} bg-slate-950 rounded-[22%] flex items-center justify-center border-2 border-slate-800 shadow-2xl overflow-hidden group flex-shrink-0`}>
+    <span className="text-white font-cinzel font-black text-[32%] leading-none tracking-tighter select-none">MSC</span>
   </div>
 );
 
@@ -140,7 +140,7 @@ const App: React.FC = () => {
                     } catch (err) { console.error(err); }
                 }
             }
-            alert(`Import complete: ${imported} members enrolled.`);
+            alert(`Import finished: ${imported} members enrolled.`);
             refreshCustomerList();
         };
         reader.readAsText(file);
@@ -230,9 +230,9 @@ const App: React.FC = () => {
         });
 
         return (
-            <div className="min-h-screen bg-white text-slate-950 font-bold">
-                <header className="sticky top-0 z-40 bg-white border-b-2 border-slate-100 h-20 shadow-sm">
-                    <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+            <div className="min-h-screen bg-slate-50 text-slate-950 flex flex-col items-center">
+                <header className="sticky top-0 z-40 bg-white border-b-2 border-slate-100 h-20 shadow-sm w-full flex justify-center">
+                    <div className="max-w-7xl w-full px-4 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <MSCLogo className="w-12 h-12" />
                             <div>
@@ -241,8 +241,8 @@ const App: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <button onClick={handleExportCSV} className="p-2.5 text-slate-950 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all" title="Export Database"><FileDown className="w-6 h-6"/></button>
-                            <button onClick={() => fileInputRef.current?.click()} className="p-2.5 text-slate-950 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all" title="Import Members"><FileUp className="w-6 h-6"/></button>
+                            <button onClick={handleExportCSV} className="p-2.5 text-slate-950 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all" title="Export CSV"><FileDown className="w-6 h-6"/></button>
+                            <button onClick={() => fileInputRef.current?.click()} className="p-2.5 text-slate-950 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all" title="Import CSV"><FileUp className="w-6 h-6"/></button>
                             <input type="file" ref={fileInputRef} className="hidden" accept=".csv" onChange={handleImportCSV} />
                             <div className="w-px h-8 bg-slate-200 mx-2"></div>
                             <button onClick={() => { setAdminUser(null); setView('LOGIN'); }} className="flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase hover:bg-red-700 transition-all shadow-md"><LogOut className="w-4 h-4" /> Sign Out</button>
@@ -250,27 +250,27 @@ const App: React.FC = () => {
                     </div>
                 </header>
 
-                <main className="max-w-7xl mx-auto p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    <div className="lg:col-span-4 space-y-6">
-                        <div className="bg-white rounded-[2.5rem] p-10 border-2 border-slate-100 shadow-2xl">
-                            <h3 className="font-cinzel text-lg font-black text-slate-950 mb-8 flex items-center gap-3 border-b-2 border-slate-50 pb-4"><UserPlus className="w-6 h-6 text-blue-700" /> NEW ENROLLMENT</h3>
+                <main className="max-w-7xl w-full p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start justify-center">
+                    <div className="lg:col-span-4 space-y-6 flex flex-col items-center w-full">
+                        <div className="bg-white rounded-[2.5rem] p-10 border-2 border-slate-100 shadow-2xl w-full">
+                            <h3 className="font-cinzel text-lg font-black text-slate-950 mb-8 flex items-center justify-center gap-3 border-b-2 border-slate-50 pb-4"><UserPlus className="w-6 h-6 text-blue-700" /> NEW ENROLLMENT</h3>
                             <form onSubmit={(e) => { 
                                 e.preventDefault(); 
                                 setIsSyncing(true);
                                 storageService.addCustomer(newName, newMobile).then(() => { 
                                     setNewName(''); setNewMobile(''); refreshCustomerList(); 
                                 }).finally(() => setIsSyncing(false)); 
-                            }} className="space-y-5">
+                            }} className="space-y-6">
                                 <div className="space-y-1">
-                                    <label className="text-[10px] text-slate-500 font-black tracking-widest ml-1">MEMBER NAME</label>
-                                    <input type="text" placeholder="John Doe" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-slate-950 font-black outline-none focus:border-blue-600 transition-all" value={newName} onChange={(e) => setNewName(e.target.value)} required />
+                                    <label className="text-[10px] text-slate-500 font-black tracking-widest ml-1 uppercase">Member Name</label>
+                                    <input type="text" placeholder="Full Name" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-slate-950 font-black outline-none focus:border-blue-600 transition-all text-center" value={newName} onChange={(e) => setNewName(e.target.value)} required />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[10px] text-slate-500 font-black tracking-widest ml-1">MOBILE NUMBER</label>
-                                    <input type="tel" placeholder="+91 00000 00000" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-slate-950 font-black outline-none focus:border-blue-600 transition-all" value={newMobile} onChange={(e) => setNewMobile(e.target.value)} required />
+                                    <label className="text-[10px] text-slate-500 font-black tracking-widest ml-1 uppercase">Mobile Number</label>
+                                    <input type="tel" placeholder="+91 00000 00000" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-slate-950 font-black outline-none focus:border-blue-600 transition-all text-center" value={newMobile} onChange={(e) => setNewMobile(e.target.value)} required />
                                 </div>
                                 <button className="w-full btn-magic py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95" disabled={isSyncing}>
-                                    {isSyncing ? <RefreshCw className="w-5 h-5 animate-spin"/> : <Plus className="w-5 h-5" />} Add to Database
+                                    {isSyncing ? <RefreshCw className="w-5 h-5 animate-spin"/> : <Plus className="w-5 h-5" />} Add Member
                                 </button>
                             </form>
                         </div>
@@ -281,7 +281,7 @@ const App: React.FC = () => {
                         >
                             <div className="flex items-center gap-4">
                                 <Archive className="w-6 h-6" />
-                                <span className="font-black text-xs uppercase tracking-[0.2em]">{showArchive ? 'Viewing Archive' : 'Open Archive'}</span>
+                                <span className="font-black text-xs uppercase tracking-[0.2em]">{showArchive ? 'Archived Records' : 'Open Archive'}</span>
                             </div>
                             <span className={`${showArchive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-950'} px-4 py-1.5 rounded-full text-[11px] font-black`}>
                                 {customers.filter(c => c.is_deleted).length}
@@ -289,14 +289,14 @@ const App: React.FC = () => {
                         </button>
                     </div>
 
-                    <div className="lg:col-span-8 bg-white rounded-[2.5rem] border-2 border-slate-100 shadow-2xl overflow-hidden flex flex-col min-h-[600px]">
-                        <div className="p-8 border-b-2 border-slate-50 bg-slate-50/50">
-                            <div className="relative w-full">
+                    <div className="lg:col-span-8 bg-white rounded-[2.5rem] border-2 border-slate-100 shadow-2xl overflow-hidden flex flex-col min-h-[600px] w-full">
+                        <div className="p-8 border-b-2 border-slate-50 bg-slate-50/50 flex justify-center">
+                            <div className="relative w-full max-w-2xl">
                                 <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-950" />
                                 <input 
                                     type="text" 
                                     placeholder="Search by ID, Name or Mobile..." 
-                                    className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-16 pr-16 py-5 text-slate-950 font-black outline-none focus:border-blue-600 transition-all shadow-inner" 
+                                    className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-16 pr-16 py-5 text-slate-950 font-black outline-none focus:border-blue-600 transition-all shadow-inner text-center" 
                                     value={searchQuery} 
                                     onChange={(e) => setSearchQuery(e.target.value)} 
                                 />
@@ -308,9 +308,9 @@ const App: React.FC = () => {
                             <table className="w-full text-left">
                                 <thead className="bg-slate-100 text-[11px] text-slate-950 font-black uppercase tracking-[0.2em] border-b-2 border-slate-200">
                                     <tr>
-                                        <th className="px-10 py-5">Member</th>
-                                        <th className="px-10 py-5">Progress</th>
-                                        <th className="px-10 py-5 text-right">Action</th>
+                                        <th className="px-10 py-5">Identity</th>
+                                        <th className="px-10 py-5 text-center">Progression</th>
+                                        <th className="px-10 py-5 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y-2 divide-slate-50">
@@ -329,7 +329,7 @@ const App: React.FC = () => {
                                                 </td>
                                                 <td className="px-10 py-8">
                                                     {!c.is_deleted ? (
-                                                        <div className="flex items-center gap-4">
+                                                        <div className="flex items-center justify-center gap-4">
                                                             <button onClick={() => storageService.updateCustomer(c.id, { stamps: Math.max(0, c.stamps - 1) }).then(refreshCustomerList)} className="p-2 rounded-xl border-2 border-slate-200 text-slate-950 hover:bg-slate-950 hover:text-white transition-all"><Minus className="w-5 h-5"/></button>
                                                             <span className="font-cinzel text-2xl font-black text-slate-950 w-6 text-center">{c.stamps}</span>
                                                             <button onClick={() => storageService.updateCustomer(c.id, { stamps: Math.min(5, c.stamps + 1) }).then(refreshCustomerList)} className="p-2 rounded-xl border-2 border-slate-200 text-slate-950 hover:bg-slate-950 hover:text-white transition-all"><Plus className="w-5 h-5"/></button>
@@ -338,20 +338,22 @@ const App: React.FC = () => {
                                                             )}
                                                         </div>
                                                     ) : (
-                                                        <span className="text-[11px] font-black uppercase text-red-600 bg-red-50 px-4 py-2 rounded-full border-2 border-red-200">DELETED RECORD</span>
+                                                        <div className="flex justify-center">
+                                                            <span className="text-[11px] font-black uppercase text-red-600 bg-red-50 px-4 py-2 rounded-full border-2 border-red-200">DELETED RECORD</span>
+                                                        </div>
                                                     )}
                                                 </td>
                                                 <td className="px-10 py-8 text-right">
                                                     <div className="flex justify-end gap-3">
                                                         {c.is_deleted ? (
                                                             <>
-                                                                <button onClick={async () => { await storageService.updateCustomer(c.id, { is_deleted: false }); refreshCustomerList(); }} className="p-3 text-blue-700 bg-blue-50 rounded-2xl hover:bg-blue-700 hover:text-white transition-all shadow-md" title="Restore Member"><RotateCcw className="w-5 h-5"/></button>
-                                                                <button onClick={() => handlePermanentDelete(c.id, c.name)} className="p-3 text-red-700 bg-red-50 rounded-2xl hover:bg-red-700 hover:text-white transition-all shadow-md" title="Erase Permanently"><Trash2 className="w-5 h-5"/></button>
+                                                                <button onClick={async () => { await storageService.updateCustomer(c.id, { is_deleted: false }); refreshCustomerList(); }} className="p-3 text-blue-700 bg-blue-50 rounded-2xl hover:bg-blue-700 hover:text-white transition-all shadow-md"><RotateCcw className="w-5 h-5"/></button>
+                                                                <button onClick={() => handlePermanentDelete(c.id, c.name)} className="p-3 text-red-700 bg-red-50 rounded-2xl hover:bg-red-700 hover:text-white transition-all shadow-md"><Trash2 className="w-5 h-5"/></button>
                                                             </>
                                                         ) : (
                                                             <>
-                                                                <button onClick={() => setPreviewCustomer(c)} className="p-3 text-blue-700 bg-blue-50 rounded-2xl hover:bg-blue-700 hover:text-white transition-all shadow-md" title="Preview ID Card"><CreditCard className="w-5 h-5"/></button>
-                                                                <button onClick={async () => { if(confirm(`Archive ${c.name}?`)) { await storageService.deleteCustomerSoft(c.id); refreshCustomerList(); } }} className="p-3 text-slate-500 bg-slate-100 rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-md" title="Archive Member"><Archive className="w-5 h-5"/></button>
+                                                                <button onClick={() => setPreviewCustomer(c)} className="p-3 text-blue-700 bg-blue-50 rounded-2xl hover:bg-blue-700 hover:text-white transition-all shadow-md"><CreditCard className="w-5 h-5"/></button>
+                                                                <button onClick={async () => { if(confirm(`Archive ${c.name}?`)) { await storageService.deleteCustomerSoft(c.id); refreshCustomerList(); } }} className="p-3 text-slate-500 bg-slate-100 rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-md"><Archive className="w-5 h-5"/></button>
                                                             </>
                                                         )}
                                                     </div>
@@ -369,21 +371,21 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white text-slate-950">
+        <div className="min-h-screen bg-white text-slate-950 flex flex-col items-center">
             {view === 'LOGIN' && (
-                <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-white">
-                    <div className="w-full max-w-sm p-12 sm:p-16 rounded-[4.5rem] bg-white border-2 border-slate-100 shadow-[0_48px_128px_-16px_rgba(0,0,0,0.1)] relative overflow-hidden">
+                <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center w-full">
+                    <div className="w-full max-w-sm p-12 sm:p-16 rounded-[4.5rem] bg-white border-2 border-slate-100 shadow-[0_48px_128px_-16px_rgba(0,0,0,0.15)] relative overflow-hidden flex flex-col items-center">
                         <div className="absolute top-0 left-0 w-full h-2.5 bg-gradient-to-r from-blue-700 to-cyan-500"></div>
-                        <button onClick={handleLogoClick} className="mb-14 mx-auto w-40 h-40 transition-transform active:scale-90 hover:rotate-3 duration-500">
+                        <button onClick={handleLogoClick} className="mb-14 w-40 h-40 transition-transform active:scale-90 hover:rotate-3 duration-500 flex items-center justify-center">
                             <MSCLogo className="w-full h-full" />
                         </button>
                         <h1 className="font-cinzel text-5xl font-black text-slate-950 mb-3 tracking-tighter">MITHRAN</h1>
-                        <p className="font-magic text-sm tracking-[0.5em] text-blue-700 mb-16 uppercase font-black opacity-90">Elite Membership</p>
+                        <p className="font-magic text-sm tracking-[0.5em] text-blue-700 mb-16 uppercase font-black opacity-95">Elite Membership</p>
                         
-                        <div className="space-y-8 text-left">
-                            <div className="space-y-2.5">
-                                <label className="text-[11px] font-black text-slate-950 uppercase tracking-[0.3em] ml-5">ACCESS KEY</label>
-                                <div className="relative">
+                        <div className="space-y-8 w-full">
+                            <div className="space-y-3 flex flex-col items-center">
+                                <label className="text-[11px] font-black text-slate-950 uppercase tracking-[0.3em]">Access Portal</label>
+                                <div className="relative w-full">
                                     <input 
                                         type="text" 
                                         placeholder="Member ID or Mobile" 
@@ -396,59 +398,59 @@ const App: React.FC = () => {
                                 </div>
                             </div>
                             <button onClick={() => handleCustomerLogin()} disabled={isSyncing} className="w-full btn-magic py-6 rounded-[2rem] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 shadow-2xl active:scale-95 disabled:opacity-50">
-                                {isSyncing ? <RefreshCw className="w-6 h-6 animate-spin" /> : <Sparkles className="w-6 h-6" />} ENTER PORTAL
+                                {isSyncing ? <RefreshCw className="w-6 h-6 animate-spin" /> : <Sparkles className="w-6 h-6" />} ENTER HUB
                             </button>
                         </div>
                     </div>
                     
-                    <div className="mt-20 flex items-center gap-12 opacity-80">
-                        <div className="flex flex-col items-center gap-3"><Smartphone className="w-7 h-7 text-slate-950"/> <span className="text-[10px] font-black uppercase tracking-[0.2em]">MOBILE READY</span></div>
-                        <div className="flex flex-col items-center gap-3"><Monitor className="w-7 h-7 text-slate-950"/> <span className="text-[10px] font-black uppercase tracking-[0.2em]">DESKTOP OPTIMIZED</span></div>
+                    <div className="mt-20 flex items-center gap-12 opacity-90 text-slate-950">
+                        <div className="flex flex-col items-center gap-3"><Smartphone className="w-7 h-7"/> <span className="text-[10px] font-black uppercase tracking-[0.2em]">MOBILE</span></div>
+                        <div className="flex flex-col items-center gap-3"><Monitor className="w-7 h-7"/> <span className="text-[10px] font-black uppercase tracking-[0.2em]">DESKTOP</span></div>
                     </div>
                 </div>
             )}
 
             {view === 'ADMIN_LOGIN' && (
-                <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-slate-50">
-                    <div className="w-full max-w-sm p-14 rounded-[4rem] bg-white border-2 border-slate-100 shadow-2xl">
-                        <div className="w-24 h-24 mx-auto mb-10"><MSCLogo className="w-full h-full" /></div>
-                        <h2 className="font-cinzel text-2xl font-black text-slate-950 mb-12 text-center uppercase tracking-widest border-b-2 border-slate-50 pb-6">STAFF VAULT</h2>
-                        <form onSubmit={handleAdminLogin} className="space-y-6">
-                            <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-950 tracking-widest ml-4">USER IDENTITY</label>
-                                <input type="text" placeholder="Username" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-7 py-5 text-slate-950 font-black outline-none focus:border-blue-600 transition-all shadow-inner" onChange={(e) => setAdminLoginData({...adminLoginData, username: e.target.value})} required />
+                <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-slate-50 w-full">
+                    <div className="w-full max-w-sm p-14 rounded-[4rem] bg-white border-2 border-slate-100 shadow-2xl flex flex-col items-center">
+                        <div className="w-24 h-24 mb-10"><MSCLogo className="w-full h-full" /></div>
+                        <h2 className="font-cinzel text-2xl font-black text-slate-950 mb-12 text-center uppercase tracking-widest border-b-2 border-slate-50 pb-6 w-full">STAFF VAULT</h2>
+                        <form onSubmit={handleAdminLogin} className="space-y-6 w-full">
+                            <div className="space-y-2 flex flex-col items-center">
+                                <label className="text-[10px] font-black text-slate-950 tracking-widest uppercase">Admin Identity</label>
+                                <input type="text" placeholder="Username" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-7 py-5 text-slate-950 font-black outline-none focus:border-blue-600 transition-all shadow-inner text-center" onChange={(e) => setAdminLoginData({...adminLoginData, username: e.target.value})} required />
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-950 tracking-widest ml-4">SECURE PASSKEY</label>
-                                <input type="password" placeholder="••••••••" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-7 py-5 text-slate-950 font-black outline-none focus:border-blue-600 transition-all shadow-inner" onChange={(e) => setAdminLoginData({...adminLoginData, password: e.target.value})} required />
+                            <div className="space-y-2 flex flex-col items-center">
+                                <label className="text-[10px] font-black text-slate-950 tracking-widest uppercase">Secret Passkey</label>
+                                <input type="password" placeholder="••••••••" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-7 py-5 text-slate-950 font-black outline-none focus:border-blue-600 transition-all shadow-inner text-center" onChange={(e) => setAdminLoginData({...adminLoginData, password: e.target.value})} required />
                             </div>
                             <button className="w-full btn-magic py-6 rounded-2xl text-white font-black uppercase text-xs tracking-[0.3em] shadow-xl flex items-center justify-center gap-4 mt-4 active:scale-95" disabled={isSyncing}>
-                                {isSyncing ? <RefreshCw className="w-6 h-6 animate-spin"/> : <LayoutDashboard className="w-6 h-6"/>} AUTHORIZE ACCESS
+                                {isSyncing ? <RefreshCw className="w-6 h-6 animate-spin"/> : <LayoutDashboard className="w-6 h-6"/>} AUTHORIZE
                             </button>
                         </form>
-                        <button onClick={() => setView('LOGIN')} className="mt-12 w-full text-[11px] text-slate-700 font-black uppercase flex items-center justify-center gap-3 hover:text-blue-700 transition-colors tracking-[0.2em]"><ArrowLeft className="w-5 h-5" /> BACK TO PORTAL</button>
+                        <button onClick={() => setView('LOGIN')} className="mt-12 w-full text-[11px] text-slate-800 font-black uppercase flex items-center justify-center gap-3 hover:text-blue-700 transition-colors tracking-[0.2em]"><ArrowLeft className="w-5 h-5" /> BACK TO PORTAL</button>
                     </div>
                 </div>
             )}
 
             {view === 'CUSTOMER_DASHBOARD' && currentCustomer && (
-                <div className="min-h-screen bg-white p-4 pb-24 max-w-lg mx-auto animate-in fade-in duration-700">
-                    <header className="flex items-center justify-between mb-16 mt-10 px-4">
+                <div className="min-h-screen bg-white p-4 pb-24 max-w-lg w-full flex flex-col items-center animate-in fade-in duration-700">
+                    <header className="flex items-center justify-between mb-16 mt-10 px-4 w-full">
                         <MSCLogo className="w-16 h-16 shadow-2xl" />
                         <div className="text-center">
                             <p className="text-blue-700 text-[11px] font-black uppercase tracking-[0.5em] mb-2 leading-none">MITHRAN ELITE</p>
                             <h1 className="font-cinzel text-3xl font-black text-slate-950 tracking-tight leading-none">Member</h1>
                         </div>
-                        <button onClick={() => { setView('LOGIN'); setCurrentCustomer(null); }} className="p-4 bg-white text-slate-950 rounded-2xl border-2 border-slate-100 hover:bg-slate-950 hover:text-white transition-all shadow-lg active:scale-90"><LogOut className="w-6 h-6" /></button>
+                        <button onClick={() => { setView('LOGIN'); setCurrentCustomer(null); }} className="p-4 bg-white text-slate-950 rounded-2xl border-2 border-slate-100 hover:bg-slate-950 hover:text-white transition-all shadow-lg active:scale-90 flex-shrink-0"><LogOut className="w-6 h-6" /></button>
                     </header>
                     
-                    <div className="px-2 drop-shadow-[0_40px_80px_rgba(37,99,235,0.25)]">
+                    <div className="w-full px-2 flex justify-center drop-shadow-[0_40px_80px_rgba(37,99,235,0.25)]">
                         <MembershipCard customer={currentCustomer} />
                     </div>
 
-                    <div className="bg-white rounded-[4.5rem] p-16 mt-16 border-2 border-slate-50 shadow-2xl relative overflow-hidden text-center">
-                        <h3 className="font-cinzel text-base font-black text-slate-950 mb-14 flex justify-center items-center gap-4 tracking-[0.3em]"><Sparkles className="w-6 h-6 text-blue-700" /> COLLECTION STATUS</h3>
-                        <div className="flex justify-between items-center px-4 mb-6">
+                    <div className="bg-white rounded-[4.5rem] p-16 mt-16 border-2 border-slate-50 shadow-2xl relative overflow-hidden text-center w-full flex flex-col items-center">
+                        <h3 className="font-cinzel text-base font-black text-slate-950 mb-14 flex justify-center items-center gap-4 tracking-[0.3em] uppercase"><Sparkles className="w-6 h-6 text-blue-700" /> Collection Status</h3>
+                        <div className="flex justify-between items-center px-4 mb-6 w-full max-w-sm">
                             {[...Array(5)].map((_, i) => (
                                 <DragonBall key={i} index={i} filled={i < currentCustomer.stamps} />
                             ))}
@@ -479,33 +481,33 @@ const App: React.FC = () => {
 
             {previewCustomer && (
                 <div className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-3xl flex items-center justify-center p-6 sm:p-10">
-                    <div className="max-w-[500px] w-full relative animate-in zoom-in-95 duration-500">
+                    <div className="max-w-[520px] w-full relative animate-in zoom-in-95 duration-500 flex flex-col items-center">
                         <button 
                             onClick={() => setPreviewCustomer(null)} 
-                            className="absolute -top-20 right-0 text-white hover:bg-white/10 p-4 rounded-full transition-all active:scale-75"
+                            className="absolute -top-16 sm:-top-20 right-0 text-white hover:bg-white/10 p-4 rounded-full transition-all active:scale-75 z-50"
                         >
-                            <X className="w-10 h-10" />
+                            <X className="w-8 h-8 sm:w-10 sm:h-10" />
                         </button>
                         
                         <div className="w-full flex flex-col items-center">
-                            <div className="w-full shadow-[0_64px_128px_-32px_rgba(0,0,0,1)] rounded-[2.5rem] overflow-hidden">
+                            <div className="w-full shadow-[0_64px_128px_-32px_rgba(0,0,0,1)] rounded-[2.5rem] overflow-hidden flex justify-center">
                                 <MembershipCard customer={previewCustomer} />
                             </div>
 
-                            <div className="mt-20 flex flex-col sm:flex-row gap-6 w-full">
+                            <div className="mt-16 flex flex-col sm:flex-row gap-6 w-full">
                                 <button 
                                     onClick={handleDownloadCard} 
                                     disabled={isSyncing} 
                                     className="flex-1 bg-white text-slate-950 py-6 rounded-[2.5rem] font-black uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-4 shadow-2xl hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-50"
                                 >
-                                    {isSyncing ? <RefreshCw className="w-6 h-6 animate-spin"/> : <Download className="w-6 h-6" />} DOWNLOAD CARD
+                                    {isSyncing ? <RefreshCw className="w-6 h-6 animate-spin"/> : <Download className="w-6 h-6" />} DOWNLOAD
                                 </button>
                                 <button 
                                     onClick={handleShareCard} 
                                     disabled={isSyncing} 
                                     className="flex-1 bg-blue-600 text-white py-6 rounded-[2.5rem] font-black uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-4 shadow-2xl hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
                                 >
-                                    {isSyncing ? <RefreshCw className="w-6 h-6 animate-spin"/> : <Share2 className="w-6 h-6" />} SHARE MEMBER
+                                    {isSyncing ? <RefreshCw className="w-6 h-6 animate-spin"/> : <Share2 className="w-6 h-6" />} SHARE
                                 </button>
                             </div>
                         </div>
