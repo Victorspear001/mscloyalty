@@ -316,7 +316,7 @@ const App: React.FC = () => {
                                     value={searchQuery} 
                                     onChange={(e) => setSearchQuery(e.target.value)} 
                                 />
-                                <button onClick={() => setShowScanner(true)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><QrCode className="w-5 h-5"/></button>
+                                <button onClick={() => setShowScanner(true)} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-2.5 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><QrCode className="w-5 h-5"/></button>
                             </div>
                         </div>
 
@@ -415,7 +415,7 @@ const App: React.FC = () => {
                                         onChange={(e) => setLoginInput(e.target.value)} 
                                         onKeyDown={(e) => e.key === 'Enter' && handleCustomerLogin()} 
                                     />
-                                    <button onClick={() => setShowScanner(true)} className="absolute right-2 top-1/2 -translate-y-1/2 p-3.5 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-md active:scale-95"><QrCode className="w-6 h-6" /></button>
+                                    <button onClick={() => setShowScanner(true)} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-3.5 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-md active:scale-95"><QrCode className="w-6 h-6" /></button>
                                 </div>
                             </div>
                             <button onClick={() => handleCustomerLogin()} disabled={isSyncing} className="w-full btn-magic py-5 rounded-[1.5rem] font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] hover:shadow-blue-500/40 active:scale-95 disabled:opacity-50 transition-all">
@@ -502,7 +502,7 @@ const App: React.FC = () => {
                         <button onClick={() => { setView('LOGIN'); setCurrentCustomer(null); }} className="p-4 bg-white text-slate-900 rounded-2xl border border-slate-100 hover:bg-slate-900 hover:text-white transition-all shadow-lg active:scale-90 flex-shrink-0"><LogOut className="w-6 h-6" /></button>
                     </header>
                     
-                    <div className="w-full flex justify-center drop-shadow-[0_40px_80px_rgba(37,99,235,0.3)] hover:scale-[1.02] transition-transform duration-500">
+                    <div className="w-full max-w-[380px] flex justify-center drop-shadow-[0_40px_80px_rgba(37,99,235,0.3)] hover:scale-[1.02] transition-transform duration-500">
                         <MembershipCard customer={currentCustomer} />
                     </div>
 
@@ -562,7 +562,7 @@ const App: React.FC = () => {
 
             {previewCustomer && (
                 <div className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-3xl flex flex-col items-center justify-center p-6 sm:p-10 overflow-y-auto">
-                    <div className="max-w-[500px] w-full flex flex-col items-center animate-in zoom-in-95 duration-500 relative">
+                    <div className="max-w-md w-full flex flex-col items-center animate-in zoom-in-95 duration-500 relative">
                         <button 
                             onClick={() => setPreviewCustomer(null)} 
                             className="absolute -top-16 right-0 text-white hover:bg-white/20 p-4 rounded-full transition-all z-50 active:scale-90"
@@ -570,8 +570,8 @@ const App: React.FC = () => {
                             <X className="w-10 h-10" />
                         </button>
                         
-                        <div className="w-full flex justify-center mb-16 scale-110 sm:scale-100">
-                            <div className="w-full shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] rounded-[2.2rem] overflow-hidden ring-1 ring-white/10">
+                        <div className="flex justify-center mb-10 w-full">
+                            <div className="w-full max-w-[360px] shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] rounded-[1.5rem] overflow-hidden ring-1 ring-white/10">
                                 <MembershipCard customer={previewCustomer} />
                             </div>
                         </div>
