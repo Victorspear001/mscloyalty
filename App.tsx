@@ -312,11 +312,11 @@ const App: React.FC = () => {
                                 <input 
                                     type="text" 
                                     placeholder="Search by ID, Name or Mobile..." 
-                                    className="w-full bg-white border border-slate-200 rounded-2xl pl-14 pr-14 py-4 text-slate-900 font-bold outline-none focus:border-blue-600 transition-all text-center text-sm shadow-inner" 
+                                    className="w-full bg-white border border-slate-200 rounded-2xl pl-14 pr-16 py-4 text-slate-900 font-bold outline-none focus:border-blue-600 transition-all text-center text-sm shadow-inner" 
                                     value={searchQuery} 
                                     onChange={(e) => setSearchQuery(e.target.value)} 
                                 />
-                                <button onClick={() => setShowScanner(true)} className="absolute right-4 top-1/2 -translate-y-1/2 p-2.5 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><QrCode className="w-5 h-5"/></button>
+                                <button onClick={() => setShowScanner(true)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><QrCode className="w-5 h-5"/></button>
                             </div>
                         </div>
 
@@ -410,12 +410,12 @@ const App: React.FC = () => {
                                     <input 
                                         type="text" 
                                         placeholder="Mobile or Member ID" 
-                                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-8 py-5 outline-none text-slate-900 font-black focus:border-blue-600 focus:bg-white transition-all text-center placeholder:text-slate-300 text-lg shadow-inner" 
+                                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-8 pr-16 py-5 outline-none text-slate-900 font-black focus:border-blue-600 focus:bg-white transition-all text-center placeholder:text-slate-300 text-lg shadow-inner" 
                                         value={loginInput} 
                                         onChange={(e) => setLoginInput(e.target.value)} 
                                         onKeyDown={(e) => e.key === 'Enter' && handleCustomerLogin()} 
                                     />
-                                    <button onClick={() => setShowScanner(true)} className="absolute right-3 top-1/2 -translate-y-1/2 p-3.5 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-md active:scale-95"><QrCode className="w-6 h-6" /></button>
+                                    <button onClick={() => setShowScanner(true)} className="absolute right-2 top-1/2 -translate-y-1/2 p-3.5 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-md active:scale-95"><QrCode className="w-6 h-6" /></button>
                                 </div>
                             </div>
                             <button onClick={() => handleCustomerLogin()} disabled={isSyncing} className="w-full btn-magic py-5 rounded-[1.5rem] font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] hover:shadow-blue-500/40 active:scale-95 disabled:opacity-50 transition-all">
