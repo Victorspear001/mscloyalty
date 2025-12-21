@@ -1,7 +1,7 @@
 
 import { Rank } from './types';
 
-// Use the root logo.png. Direct pathing is more reliable for local assets.
+// The app now uses a vector-based MSC logo component by default.
 export const COMPANY_LOGO_URL = 'logo.png';
 
 export const RANK_THRESHOLDS = [

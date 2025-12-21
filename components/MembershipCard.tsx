@@ -2,7 +2,8 @@
 import React from 'react';
 import { Shield, Zap, Crown } from 'lucide-react';
 import { Customer } from '../types';
-import { getRankInfo, COMPANY_LOGO_URL } from '../constants';
+import { getRankInfo } from '../constants';
+import { MSCLogo } from '../App';
 
 interface MembershipCardProps {
   customer: Customer;
@@ -16,74 +17,64 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ customer }) => {
   return (
     <div 
       id="membership-card" 
-      className="relative w-full aspect-[1.58/1] rounded-[2.5rem] overflow-hidden shadow-[0_40px_100px_-20px_rgba(37,99,235,0.4)] border border-white/20 text-white p-8 sm:p-12 holographic-glow select-none mx-auto"
+      className="relative w-full aspect-[1.58/1] rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/30 text-white p-10 sm:p-14 holographic-glow select-none mx-auto"
       style={{
-        background: `linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)`
+        background: `linear-gradient(135deg, #1d4ed8 0%, #0891b2 100%)`
       }}
     >
-      {/* Visual Depth Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-black/15 pointer-events-none"></div>
-      <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/cubes.png')` }}></div>
+      {/* Texture Layer */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-black/20 pointer-events-none"></div>
+      <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/cubes.png')` }}></div>
 
       <div className="relative z-10 h-full flex flex-col justify-between">
         
-        {/* Header Bar */}
+        {/* Header Section */}
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-5">
-            {/* Contrasting dark background for the logo box ensures white logos are visible on the card */}
-            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-950 rounded-2xl p-2.5 shadow-2xl flex items-center justify-center overflow-hidden border border-white/20">
-              <img 
-                src={COMPANY_LOGO_URL} 
-                alt="Logo" 
-                className="w-full h-full object-contain" 
-                onError={(e) => {
-                   (e.target as HTMLImageElement).src = 'https://img.icons8.com/fluency/96/sparkling.png';
-                }}
-              />
-            </div>
+          <div className="flex items-center gap-6">
+            <MSCLogo className="w-16 h-16 sm:w-20 sm:h-20" />
             <div>
-              <h2 className="font-cinzel text-xl sm:text-2xl font-black tracking-[0.2em] text-white leading-none">MITHRAN</h2>
-              <p className="text-[9px] font-black tracking-[0.5em] text-white/80 mt-2 uppercase leading-none opacity-90">Elite Lounge</p>
+              <h2 className="font-cinzel text-2xl sm:text-3xl font-black tracking-[0.3em] text-white leading-none drop-shadow-lg">MITHRAN</h2>
+              <p className="text-[10px] font-black tracking-[0.6em] text-white/90 mt-2.5 uppercase leading-none drop-shadow-md">Elite Lounge</p>
             </div>
           </div>
           
-          <div className="bg-white/20 backdrop-blur-3xl border border-white/30 px-5 py-2.5 rounded-full flex items-center gap-3 shadow-xl">
+          <div className="bg-white/20 backdrop-blur-3xl border-2 border-white/40 px-6 py-3 rounded-full flex items-center gap-4 shadow-2xl">
             {customer.redeems >= 21 ? (
-                <Crown className="w-5 h-5 text-yellow-300 fill-yellow-300 drop-shadow-sm" />
+                <Crown className="w-6 h-6 text-yellow-300 fill-yellow-300" />
             ) : (
-                <Shield className="w-5 h-5 text-white fill-white drop-shadow-sm" />
+                <Shield className="w-6 h-6 text-white fill-white" />
             )}
-            <span className="text-[11px] font-black uppercase tracking-[0.15em] text-white">{rankInfo.rank}</span>
+            <span className="text-[12px] font-black uppercase tracking-[0.2em] text-white drop-shadow-sm">{rankInfo.rank}</span>
           </div>
         </div>
 
-        {/* Name Section */}
-        <div className="mt-auto mb-12">
-            <p className="text-[9px] font-black uppercase tracking-[0.6em] text-white/60 mb-2 leading-none">Magic Identity</p>
-            <h3 className="font-cinzel text-3xl sm:text-5xl font-black text-white tracking-tighter uppercase truncate drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)]">
+        {/* Identity Section */}
+        <div className="mt-auto mb-14">
+            <p className="text-[10px] font-black uppercase tracking-[0.7em] text-white/60 mb-3 leading-none drop-shadow-sm">Member Identity</p>
+            <h3 className="font-cinzel text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase truncate drop-shadow-[0_12px_24px_rgba(0,0,0,0.4)]">
               {customer.name}
             </h3>
         </div>
 
-        {/* Footer Data */}
+        {/* Footer Info */}
         <div className="flex justify-between items-end">
-          <div className="flex gap-14 items-end">
+          <div className="flex gap-16 items-end">
             <div>
-              <p className="text-[8px] font-black uppercase tracking-[0.5em] text-white/50 mb-2">Portal ID</p>
-              <p className="font-mono text-lg sm:text-2xl font-black text-white tracking-[0.2em] leading-none">{customer.customer_id}</p>
+              <p className="text-[9px] font-black uppercase tracking-[0.6em] text-white/50 mb-3">Portal Code</p>
+              <p className="font-mono text-xl sm:text-3xl font-black text-white tracking-[0.3em] leading-none drop-shadow-lg">{customer.customer_id}</p>
             </div>
             <div>
-              <p className="text-[8px] font-black uppercase tracking-[0.5em] text-white/50 mb-2">Rewards</p>
-              <div className="flex items-center gap-2.5">
-                <p className="font-mono text-lg sm:text-2xl font-black text-white leading-none">{customer.redeems}</p>
-                <Zap className="w-5 h-5 text-yellow-300 fill-yellow-300 animate-pulse" />
+              <p className="text-[9px] font-black uppercase tracking-[0.6em] text-white/50 mb-3">Magic Level</p>
+              <div className="flex items-center gap-3">
+                <p className="font-mono text-xl sm:text-3xl font-black text-white leading-none drop-shadow-lg">{customer.redeems}</p>
+                <Zap className="w-6 h-6 text-yellow-300 fill-yellow-300 animate-pulse drop-shadow-lg" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-2.5 rounded-[1.8rem] shadow-2xl group transition-all hover:scale-110">
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-xl overflow-hidden">
-              <img src={qrCodeUrl} alt="QR Code" className="w-full h-full" />
+          <div className="bg-white p-3 rounded-[2rem] shadow-[0_24px_64px_rgba(0,0,0,0.5)] transition-all hover:scale-110 active:scale-95">
+            <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-xl overflow-hidden">
+              <img src={qrCodeUrl} alt="Portal QR" className="w-full h-full" />
             </div>
           </div>
         </div>
