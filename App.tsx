@@ -5,7 +5,8 @@ import {
     Search, Trash2, ArrowLeft, UserPlus, 
     RefreshCw, Sparkles, CreditCard, X, 
     Archive, RotateCcw, Monitor, Smartphone, 
-    LayoutDashboard, Share2, FileDown, FileUp
+    LayoutDashboard, Share2, FileDown, FileUp,
+    Home, Gift, PartyPopper, ShieldCheck, Lock
 } from 'lucide-react';
 import { AppView, Customer, Admin } from './types';
 import { storageService } from './services/storageService';
@@ -14,11 +15,12 @@ import Scanner from './components/Scanner';
 import MembershipCard from './components/MembershipCard';
 import * as htmlToImage from 'html-to-image';
 
-// Premium MSC Logo Component - Optimized "MSC" text fit and texture
-export const MSCLogo = ({ className = "w-14 h-14" }: { className?: string }) => (
-  <div className={`${className} bg-gradient-to-br from-slate-900 via-slate-800 to-black rounded-[22%] flex items-center justify-center border-2 border-slate-700 shadow-2xl overflow-hidden flex-shrink-0 relative group`}>
-    <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')]"></div>
-    <span className="relative z-10 text-white font-cinzel font-black text-[45%] leading-none tracking-tighter select-none drop-shadow-md">MSC</span>
+// Premium MSC Logo Component - Vibrant, Large Text, Polished Texture
+export const MSCLogo = ({ className = "w-16 h-16" }: { className?: string }) => (
+  <div className={`${className} bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 rounded-[24%] flex items-center justify-center border-2 border-white/30 shadow-[0_10px_30px_-5px_rgba(37,99,235,0.5)] overflow-hidden flex-shrink-0 relative group transition-all duration-300 hover:scale-105`}>
+    <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')]"></div>
+    <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent"></div>
+    <span className="relative z-10 text-white font-cinzel font-black text-[55%] leading-none tracking-tight select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">MSC</span>
   </div>
 );
 
@@ -39,6 +41,8 @@ const App: React.FC = () => {
     const [adminLoginData, setAdminLoginData] = useState({ username: '', password: '' });
     const [newName, setNewName] = useState('');
     const [newMobile, setNewMobile] = useState('');
+
+    const MAX_STAMPS = 4; // After 4 stamps, 5th is free.
 
     const refreshCustomerList = async () => {
         setIsSyncing(true);
@@ -115,7 +119,7 @@ const App: React.FC = () => {
         
         const link = document.createElement("a");
         link.setAttribute("href", encodeURI(csvContent));
-        link.setAttribute("download", `database_${new Date().toISOString().split('T')[0]}.csv`);
+        link.setAttribute("download", `msc_database_${new Date().toISOString().split('T')[0]}.csv`);
         document.body.appendChild(link);
         link.click();
     };
@@ -145,12 +149,42 @@ const App: React.FC = () => {
         reader.readAsText(file);
     };
 
+    const handleRedeem = async (customer: Customer) => {
+        if (!confirm(`Redeem FREE snack for ${customer.name}?`)) return;
+        setIsSyncing(true);
+        try {
+            await storageService.updateCustomer(customer.id, {
+                stamps: 0,
+                redeems: (customer.redeems || 0) + 1,
+                lifetime_stamps: (customer.lifetime_stamps || 0) + (MAX_STAMPS + 1)
+            });
+            await refreshCustomerList();
+        } catch (error) {
+            alert('Redemption failed.');
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
+    const handlePermanentDelete = async (id: number, name: string) => {
+        if (!confirm(`WARNING: Permanent deletion for ${name}. This cannot be undone.`)) return;
+        setIsSyncing(true);
+        try {
+            await storageService.deleteCustomerPermanent(id);
+            alert('Record erased.');
+            await refreshCustomerList();
+        } catch (error) {
+            alert('Deletion failed.');
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
     const handleDownloadCard = async () => {
         const node = document.getElementById('membership-card');
         if (!node) return;
         setIsSyncing(true);
         try {
-            // High quality output
             const dataUrl = await htmlToImage.toJpeg(node, { 
                 quality: 0.95,
                 pixelRatio: 4, 
@@ -203,111 +237,145 @@ const App: React.FC = () => {
         });
 
         return (
-            <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col items-center w-full">
-                <header className="sticky top-0 z-40 bg-white border-b border-slate-200 h-16 shadow-sm w-full flex justify-center">
+            <div className="min-h-screen bg-[#fcfcfd] text-slate-900 flex flex-col items-center w-full animate-in fade-in duration-500">
+                <header className="sticky top-0 z-40 bg-white border-b border-slate-100 h-16 shadow-sm w-full flex justify-center">
                     <div className="max-w-7xl w-full px-6 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
+                            <button 
+                                onClick={() => { setAdminUser(null); setView('LOGIN'); }} 
+                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                title="Back to Customer Portal"
+                            >
+                                <Home className="w-5 h-5" />
+                            </button>
                             <MSCLogo className="w-10 h-10" />
                             <h1 className="font-cinzel text-lg font-black text-slate-900 tracking-tight">ADMIN</h1>
                         </div>
                         <div className="flex items-center gap-3">
-                            {/* Added missing FileDown and FileUp icons to imports and using them here */}
-                            <button onClick={handleExportCSV} className="p-2 text-slate-700 hover:text-blue-700 transition-all"><FileDown className="w-5 h-5"/></button>
-                            <button onClick={() => fileInputRef.current?.click()} className="p-2 text-slate-700 hover:text-blue-700 transition-all"><FileUp className="w-5 h-5"/></button>
+                            <button onClick={handleExportCSV} className="p-2 text-slate-600 hover:text-blue-600 transition-all" title="Export CSV"><FileDown className="w-5 h-5"/></button>
+                            <button onClick={() => fileInputRef.current?.click()} className="p-2 text-slate-600 hover:text-blue-600 transition-all" title="Import CSV"><FileUp className="w-5 h-5"/></button>
                             <input type="file" ref={fileInputRef} className="hidden" accept=".csv" onChange={handleImportCSV} />
-                            <div className="w-px h-6 bg-slate-200 mx-1"></div>
-                            <button onClick={() => { setAdminUser(null); setView('LOGIN'); }} className="px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-[10px] uppercase hover:bg-red-700 transition-all">Sign Out</button>
+                            <div className="w-px h-6 bg-slate-200 mx-2"></div>
+                            <button onClick={() => { setAdminUser(null); setView('LOGIN'); }} className="px-4 py-2 bg-slate-900 text-white rounded-lg font-bold text-[10px] uppercase hover:bg-red-600 transition-all shadow-md">Logout</button>
                         </div>
                     </div>
                 </header>
 
-                <main className="max-w-7xl w-full p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                    <div className="lg:col-span-4 space-y-6 flex flex-col items-center w-full">
-                        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm w-full">
-                            <h3 className="font-cinzel text-md font-black text-slate-900 mb-6 flex items-center justify-center gap-2 uppercase tracking-wider"><UserPlus className="w-5 h-5 text-blue-700" /> New Enrollment</h3>
+                <main className="max-w-7xl w-full p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    {/* Left Column: Forms and Actions */}
+                    <div className="lg:col-span-4 space-y-8 flex flex-col items-center w-full">
+                        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl w-full relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
+                            <h3 className="relative font-cinzel text-md font-black text-slate-900 mb-8 flex items-center justify-center gap-3 uppercase tracking-widest border-b border-slate-50 pb-4">
+                                <UserPlus className="w-5 h-5 text-blue-600" /> New Enrollment
+                            </h3>
                             <form onSubmit={(e) => { 
                                 e.preventDefault(); 
                                 setIsSyncing(true);
                                 storageService.addCustomer(newName, newMobile).then(() => { 
                                     setNewName(''); setNewMobile(''); refreshCustomerList(); 
                                 }).finally(() => setIsSyncing(false)); 
-                            }} className="space-y-4">
-                                <input type="text" placeholder="Full Name" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-blue-600 transition-all text-center" value={newName} onChange={(e) => setNewName(e.target.value)} required />
-                                <input type="tel" placeholder="Mobile" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-blue-600 transition-all text-center" value={newMobile} onChange={(e) => setNewMobile(e.target.value)} required />
-                                <button className="w-full btn-magic py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 active:scale-95" disabled={isSyncing}>
-                                    {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin"/> : <Plus className="w-4 h-4" />} Enroll
+                            }} className="relative space-y-5">
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+                                    <input type="text" placeholder="e.g. Rahul Sharma" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-center" value={newName} onChange={(e) => setNewName(e.target.value)} required />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile</label>
+                                    <input type="tel" placeholder="+91 00000 00000" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-center" value={newMobile} onChange={(e) => setNewMobile(e.target.value)} required />
+                                </div>
+                                <button className="w-full btn-magic py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-2 hover:shadow-blue-500/20 active:scale-95 transition-all" disabled={isSyncing}>
+                                    {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin"/> : <Plus className="w-4 h-4" />} Enroll Member
                                 </button>
                             </form>
                         </div>
 
                         <button 
                             onClick={() => setShowArchive(!showArchive)}
-                            className={`w-full flex items-center justify-between p-6 rounded-3xl border transition-all shadow-sm ${showArchive ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-900 hover:border-blue-600'}`}
+                            className={`w-full flex items-center justify-between p-7 rounded-[2rem] border-2 transition-all shadow-md group ${showArchive ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-100 text-slate-900 hover:border-blue-500'}`}
                         >
-                            <div className="flex items-center gap-3">
-                                <Archive className="w-5 h-5" />
-                                <span className="font-black text-[10px] uppercase tracking-widest">{showArchive ? 'Viewing Archive' : 'Archive'}</span>
+                            <div className="flex items-center gap-4">
+                                <Archive className="w-6 h-6 text-blue-500 group-hover:scale-110 transition-transform" />
+                                <span className="font-black text-xs uppercase tracking-widest">{showArchive ? 'Viewing Archive' : 'Open Archive'}</span>
                             </div>
-                            <span className={`${showArchive ? 'bg-white/20' : 'bg-slate-100'} px-3 py-1 rounded-full text-[10px] font-black`}>
+                            <span className={`${showArchive ? 'bg-white/20' : 'bg-slate-100'} px-4 py-1.5 rounded-full text-[11px] font-black`}>
                                 {customers.filter(c => c.is_deleted).length}
                             </span>
                         </button>
                     </div>
 
-                    <div className="lg:col-span-8 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[500px] w-full">
-                        <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-center">
+                    {/* Right Column: Database Table */}
+                    <div className="lg:col-span-8 bg-white rounded-[2rem] border border-slate-100 shadow-2xl overflow-hidden flex flex-col min-h-[600px] w-full">
+                        <div className="p-8 border-b border-slate-100 bg-slate-50/30 flex justify-center">
                             <div className="relative w-full max-w-xl">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <input 
                                     type="text" 
-                                    placeholder="Search members..." 
-                                    className="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-12 py-3 text-slate-900 font-bold outline-none focus:border-blue-600 transition-all text-center text-sm" 
+                                    placeholder="Search by ID, Name or Mobile..." 
+                                    className="w-full bg-white border border-slate-200 rounded-2xl pl-14 pr-14 py-4 text-slate-900 font-bold outline-none focus:border-blue-600 transition-all text-center text-sm shadow-inner" 
                                     value={searchQuery} 
                                     onChange={(e) => setSearchQuery(e.target.value)} 
                                 />
-                                <button onClick={() => setShowScanner(true)} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-600 hover:text-white transition-all"><QrCode className="w-4 h-4"/></button>
+                                <button onClick={() => setShowScanner(true)} className="absolute right-4 top-1/2 -translate-y-1/2 p-2.5 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><QrCode className="w-5 h-5"/></button>
                             </div>
                         </div>
 
                         <div className="flex-1 overflow-x-auto custom-scrollbar">
                             <table className="w-full text-left">
-                                <thead className="bg-slate-50 text-[10px] text-slate-900 font-black uppercase tracking-widest border-b border-slate-200">
+                                <thead className="bg-slate-100 text-[10px] text-slate-600 font-black uppercase tracking-[0.2em] border-b border-slate-200">
                                     <tr>
-                                        <th className="px-6 py-4">Identity</th>
-                                        <th className="px-6 py-4 text-center">Balls</th>
-                                        <th className="px-6 py-4 text-right">Actions</th>
+                                        <th className="px-8 py-5">Identity</th>
+                                        <th className="px-8 py-5 text-center">Progression</th>
+                                        <th className="px-8 py-5 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {filtered.length === 0 ? (
                                         <tr>
-                                            <td colSpan={3} className="px-6 py-20 text-center text-slate-300 font-cinzel">No records</td>
+                                            <td colSpan={3} className="px-8 py-32 text-center text-slate-300 font-cinzel text-lg tracking-widest uppercase italic opacity-50">Empty Archive</td>
                                         </tr>
                                     ) : (
                                         filtered.map(c => (
-                                            <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
-                                                <td className="px-6 py-4">
-                                                    <div className="text-slate-900 font-bold text-sm leading-none mb-1">{c.name}</div>
-                                                    <div className="text-[10px] text-blue-800 font-black tracking-wider uppercase">{c.customer_id}</div>
+                                            <tr key={c.id} className="hover:bg-blue-50/30 transition-colors">
+                                                <td className="px-8 py-6">
+                                                    <div className="text-slate-900 font-black text-base leading-none mb-1.5">{c.name}</div>
+                                                    <div className="text-[10px] text-blue-700 font-black tracking-widest uppercase flex items-center gap-2">
+                                                        <span className="bg-blue-100 px-2 py-0.5 rounded">{c.customer_id}</span>
+                                                        <span>{c.mobile}</span>
+                                                    </div>
                                                 </td>
-                                                <td className="px-6 py-4 text-center">
+                                                <td className="px-8 py-6 text-center">
                                                     {!c.is_deleted ? (
-                                                        <div className="flex items-center justify-center gap-2">
-                                                            <button onClick={() => storageService.updateCustomer(c.id, { stamps: Math.max(0, c.stamps - 1) }).then(refreshCustomerList)} className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white transition-all"><Minus className="w-3.5 h-3.5"/></button>
-                                                            <span className="font-cinzel text-lg font-black w-6 text-center">{c.stamps}</span>
-                                                            <button onClick={() => storageService.updateCustomer(c.id, { stamps: Math.min(5, c.stamps + 1) }).then(refreshCustomerList)} className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white transition-all"><Plus className="w-3.5 h-3.5"/></button>
+                                                        <div className="flex flex-col items-center gap-3">
+                                                            {c.stamps >= MAX_STAMPS ? (
+                                                                <button 
+                                                                    onClick={() => handleRedeem(c)}
+                                                                    className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest animate-pulse flex items-center gap-2 shadow-lg"
+                                                                >
+                                                                    <Gift className="w-4 h-4" /> Redeem Free
+                                                                </button>
+                                                            ) : (
+                                                                <div className="flex items-center justify-center gap-3">
+                                                                    <button onClick={() => storageService.updateCustomer(c.id, { stamps: Math.max(0, c.stamps - 1) }).then(refreshCustomerList)} className="p-2 rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white transition-all"><Minus className="w-4 h-4"/></button>
+                                                                    <div className="flex flex-col items-center">
+                                                                        <span className="font-cinzel text-2xl font-black w-6 text-center leading-none">{c.stamps}</span>
+                                                                        <span className="text-[8px] font-bold text-slate-400 mt-1 uppercase">of 4</span>
+                                                                    </div>
+                                                                    <button onClick={() => storageService.updateCustomer(c.id, { stamps: Math.min(MAX_STAMPS, c.stamps + 1) }).then(refreshCustomerList)} className="p-2 rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white transition-all"><Plus className="w-4 h-4"/></button>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     ) : (
-                                                        <span className="text-[9px] font-black uppercase text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-100">Deleted</span>
+                                                        <span className="text-[9px] font-black uppercase text-red-600 bg-red-50 px-4 py-1.5 rounded-full border border-red-100">Deleted Record</span>
                                                     )}
                                                 </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <div className="flex justify-end gap-2">
-                                                        <button onClick={() => setPreviewCustomer(c)} className="p-2 text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-600 hover:text-white transition-all" title="Preview Card"><CreditCard className="w-4 h-4"/></button>
+                                                <td className="px-8 py-6 text-right">
+                                                    <div className="flex justify-end gap-3">
+                                                        <button onClick={() => setPreviewCustomer(c)} className="p-2.5 text-blue-700 bg-blue-50 rounded-xl hover:bg-blue-700 hover:text-white transition-all shadow-sm" title="Preview Card"><CreditCard className="w-5 h-5"/></button>
                                                         {c.is_deleted ? (
-                                                            <button onClick={async () => { await storageService.updateCustomer(c.id, { is_deleted: false }); refreshCustomerList(); }} className="p-2 text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-700 hover:text-white transition-all"><RotateCcw className="w-4 h-4"/></button>
+                                                            <button onClick={async () => { await storageService.updateCustomer(c.id, { is_deleted: false }); refreshCustomerList(); }} className="p-2.5 text-green-700 bg-green-50 rounded-xl hover:bg-green-700 hover:text-white transition-all shadow-sm"><RotateCcw className="w-5 h-5"/></button>
                                                         ) : (
-                                                            <button onClick={async () => { if(confirm(`Archive ${c.name}?`)) { await storageService.deleteCustomerSoft(c.id); refreshCustomerList(); } }} className="p-2 text-slate-500 bg-slate-100 rounded-lg hover:bg-red-600 hover:text-white transition-all"><Archive className="w-4 h-4"/></button>
+                                                            <button onClick={async () => { if(confirm(`Archive ${c.name}?`)) { await storageService.deleteCustomerSoft(c.id); refreshCustomerList(); } }} className="p-2.5 text-slate-400 bg-slate-100 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm"><Archive className="w-5 h-5"/></button>
                                                         )}
                                                     </div>
                                                 </td>
@@ -324,34 +392,34 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center overflow-x-hidden">
+        <div className="min-h-screen bg-[#fafbfc] text-slate-900 flex flex-col items-center overflow-x-hidden font-inter">
             {view === 'LOGIN' && (
                 <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center w-full max-w-lg">
-                    <div className="w-full p-12 sm:p-16 rounded-[3.5rem] bg-white border border-slate-100 shadow-[0_32px_96px_-16px_rgba(0,0,0,0.12)] relative overflow-hidden flex flex-col items-center">
-                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-700 to-cyan-500"></div>
-                        <button onClick={handleLogoClick} className="mb-12 w-32 h-32 active:scale-95 transition-transform duration-500 flex items-center justify-center">
+                    <div className="w-full p-14 sm:p-20 rounded-[4rem] bg-white border border-slate-100 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] relative overflow-hidden flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
+                        <button onClick={handleLogoClick} className="mb-14 w-36 h-36 active:scale-90 transition-transform duration-500 flex items-center justify-center cursor-default">
                             <MSCLogo className="w-full h-full" />
                         </button>
-                        <h1 className="font-cinzel text-4xl font-black text-slate-900 mb-2 tracking-tighter">MITHRAN</h1>
-                        <p className="font-magic text-xs tracking-[0.4em] text-blue-700 mb-12 uppercase font-black">Elite Hub</p>
+                        <h1 className="font-cinzel text-5xl font-black text-slate-900 mb-2 tracking-tighter drop-shadow-sm">MITHRAN</h1>
+                        <p className="font-magic text-sm tracking-[0.5em] text-blue-700 mb-16 uppercase font-black opacity-90">Exclusive Rewards</p>
                         
-                        <div className="space-y-6 w-full">
-                            <div className="space-y-2 flex flex-col items-center">
-                                <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Portal Key</label>
-                                <div className="relative w-full">
+                        <div className="space-y-8 w-full">
+                            <div className="space-y-3 flex flex-col items-center">
+                                <label className="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em]">Access Member Portal</label>
+                                <div className="relative w-full group">
                                     <input 
                                         type="text" 
-                                        placeholder="Mobile or ID" 
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 outline-none text-slate-900 font-black focus:border-blue-600 focus:bg-white transition-all text-center placeholder:text-slate-300" 
+                                        placeholder="Mobile or Member ID" 
+                                        className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-8 py-5 outline-none text-slate-900 font-black focus:border-blue-600 focus:bg-white transition-all text-center placeholder:text-slate-300 text-lg shadow-inner" 
                                         value={loginInput} 
                                         onChange={(e) => setLoginInput(e.target.value)} 
                                         onKeyDown={(e) => e.key === 'Enter' && handleCustomerLogin()} 
                                     />
-                                    <button onClick={() => setShowScanner(true)} className="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-700 hover:text-white transition-all"><QrCode className="w-5 h-5" /></button>
+                                    <button onClick={() => setShowScanner(true)} className="absolute right-3 top-1/2 -translate-y-1/2 p-3.5 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-md active:scale-95"><QrCode className="w-6 h-6" /></button>
                                 </div>
                             </div>
-                            <button onClick={() => handleCustomerLogin()} disabled={isSyncing} className="w-full btn-magic py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-3 shadow-xl active:scale-95 disabled:opacity-50">
-                                {isSyncing ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />} Access
+                            <button onClick={() => handleCustomerLogin()} disabled={isSyncing} className="w-full btn-magic py-5 rounded-[1.5rem] font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-4 shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] hover:shadow-blue-500/40 active:scale-95 disabled:opacity-50 transition-all">
+                                {isSyncing ? <RefreshCw className="w-6 h-6 animate-spin" /> : <Sparkles className="w-6 h-6" />} Enter Gateway
                             </button>
                         </div>
                     </div>
@@ -359,47 +427,118 @@ const App: React.FC = () => {
             )}
 
             {view === 'ADMIN_LOGIN' && (
-                <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-slate-50 w-full">
-                    <div className="w-full max-sm p-12 rounded-[3rem] bg-white border border-slate-200 shadow-xl flex flex-col items-center">
-                        <MSCLogo className="w-20 h-20 mb-8" />
-                        <h2 className="font-cinzel text-xl font-black text-slate-900 mb-10 text-center uppercase tracking-widest border-b border-slate-50 pb-4 w-full">Security Check</h2>
-                        <form onSubmit={handleAdminLogin} className="space-y-5 w-full">
-                            <input type="text" placeholder="Username" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-4 text-slate-900 font-bold outline-none focus:border-blue-600 text-center" onChange={(e) => setAdminLoginData({...adminLoginData, username: e.target.value})} required />
-                            <input type="password" placeholder="Passkey" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-4 text-slate-900 font-bold outline-none focus:border-blue-600 text-center" onChange={(e) => setAdminLoginData({...adminLoginData, password: e.target.value})} required />
-                            <button className="w-full btn-magic py-4 rounded-xl text-white font-black uppercase text-[10px] tracking-widest shadow-xl mt-2" disabled={isSyncing}>
-                                {isSyncing ? <RefreshCw className="w-5 h-5 animate-spin"/> : "Authorize"}
+                <div className="fantasy-admin-bg flex flex-col items-center justify-center min-h-screen p-6 w-full">
+                    {/* Magical floating orbs */}
+                    <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-500/20 rounded-full blur-[60px] animate-[float_8s_infinite_ease-in-out]"></div>
+                    <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-purple-500/20 rounded-full blur-[80px] animate-[float_12s_infinite_ease-in-out_reverse]"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] animate-[pulse-glow_10s_infinite_ease-in-out]"></div>
+
+                    <div className="w-full max-w-sm p-12 sm:p-14 rounded-[4rem] glass-panel flex flex-col items-center animate-in zoom-in-95 duration-700 relative z-10">
+                        <div className="absolute -top-12 flex justify-center w-full">
+                             <div className="p-3 bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl">
+                                <MSCLogo className="w-20 h-20" />
+                             </div>
+                        </div>
+
+                        <div className="mt-12 w-full text-center">
+                            <h2 className="font-cinzel text-3xl font-black text-white mb-2 tracking-[0.2em] drop-shadow-lg">STAFF VAULT</h2>
+                            <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.4em] mb-12">Authorized Personnel Only</p>
+                        </div>
+
+                        <form onSubmit={handleAdminLogin} className="space-y-6 w-full">
+                            <div className="space-y-2 relative">
+                                <label className="text-[9px] font-black text-white/40 uppercase tracking-[0.4em] ml-4">Identity</label>
+                                <div className="relative">
+                                    <ShieldCheck className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-400 opacity-50" />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Admin ID" 
+                                        className="w-full magic-input rounded-2xl pl-16 pr-6 py-5 text-white font-bold outline-none text-center tracking-widest text-lg" 
+                                        onChange={(e) => setAdminLoginData({...adminLoginData, username: e.target.value})} 
+                                        required 
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2 relative">
+                                <label className="text-[9px] font-black text-white/40 uppercase tracking-[0.4em] ml-4">Access Code</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400 opacity-50" />
+                                    <input 
+                                        type="password" 
+                                        placeholder="••••••••" 
+                                        className="w-full magic-input rounded-2xl pl-16 pr-6 py-5 text-white font-bold outline-none text-center tracking-widest text-lg" 
+                                        onChange={(e) => setAdminLoginData({...adminLoginData, password: e.target.value})} 
+                                        required 
+                                    />
+                                </div>
+                            </div>
+                            <button className="w-full btn-magic py-5 rounded-[2rem] text-white font-black uppercase text-[12px] tracking-[0.4em] shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] mt-4 transition-all active:scale-95 group overflow-hidden relative" disabled={isSyncing}>
+                                <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-blue-400/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                {isSyncing ? <RefreshCw className="w-6 h-6 animate-spin mx-auto"/> : "Unlock Gateway"}
                             </button>
                         </form>
-                        <button onClick={() => setView('LOGIN')} className="mt-8 text-[10px] text-slate-500 font-black uppercase tracking-widest hover:text-blue-700 transition-colors flex items-center gap-2"><ArrowLeft className="w-4 h-4" /> Back</button>
+
+                        <button onClick={() => setView('LOGIN')} className="mt-12 text-[11px] text-white/50 font-black uppercase tracking-[0.3em] hover:text-white transition-colors flex items-center gap-3 group">
+                            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> Return to Portal
+                        </button>
+                    </div>
+
+                    <div className="mt-20 flex gap-4 opacity-20 relative z-10">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse [animation-delay:0.2s]"></div>
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse [animation-delay:0.4s]"></div>
                     </div>
                 </div>
             )}
 
             {view === 'CUSTOMER_DASHBOARD' && currentCustomer && (
-                <div className="min-h-screen bg-white p-6 pb-24 max-w-lg w-full flex flex-col items-center animate-in fade-in duration-700">
-                    <header className="flex items-center justify-between mb-12 mt-6 w-full">
-                        <MSCLogo className="w-14 h-14 shadow-lg" />
+                <div className="min-h-screen bg-white p-6 pb-24 max-w-lg w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <header className="flex items-center justify-between mb-16 mt-8 w-full">
+                        <MSCLogo className="w-16 h-16 shadow-2xl" />
                         <div className="text-center">
-                            <p className="text-blue-700 text-[10px] font-black uppercase tracking-[0.4em] mb-1 leading-none">MITHRAN</p>
-                            <h1 className="font-cinzel text-2xl font-black text-slate-900 tracking-tight leading-none">Member</h1>
+                            <p className="text-blue-700 text-[10px] font-black uppercase tracking-[0.5em] mb-1.5 leading-none">ELITE MEMBER</p>
+                            <h1 className="font-cinzel text-3xl font-black text-slate-900 tracking-tighter leading-none">Portal</h1>
                         </div>
-                        <button onClick={() => { setView('LOGIN'); setCurrentCustomer(null); }} className="p-3 bg-white text-slate-900 rounded-xl border border-slate-200 hover:bg-slate-900 hover:text-white transition-all flex-shrink-0"><LogOut className="w-5 h-5" /></button>
+                        <button onClick={() => { setView('LOGIN'); setCurrentCustomer(null); }} className="p-4 bg-white text-slate-900 rounded-2xl border border-slate-100 hover:bg-slate-900 hover:text-white transition-all shadow-lg active:scale-90 flex-shrink-0"><LogOut className="w-6 h-6" /></button>
                     </header>
                     
-                    <div className="w-full flex justify-center drop-shadow-[0_32px_64px_rgba(37,99,235,0.2)]">
+                    <div className="w-full flex justify-center drop-shadow-[0_40px_80px_rgba(37,99,235,0.3)] hover:scale-[1.02] transition-transform duration-500">
                         <MembershipCard customer={currentCustomer} />
                     </div>
 
-                    <div className="bg-white rounded-[3rem] p-12 mt-12 border border-slate-50 shadow-xl text-center w-full flex flex-col items-center">
-                        <h3 className="font-cinzel text-xs font-black text-slate-950 mb-10 flex justify-center items-center gap-3 tracking-widest uppercase"><Sparkles className="w-5 h-5 text-blue-700" /> Collection</h3>
-                        <div className="flex justify-between items-center px-2 mb-4 w-full max-w-xs">
-                            {[...Array(5)].map((_, i) => (
+                    <div className="bg-white rounded-[4rem] p-12 mt-16 border-2 border-slate-50 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] text-center w-full flex flex-col items-center relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500"></div>
+                        <h3 className="font-cinzel text-sm font-black text-slate-950 mb-12 flex justify-center items-center gap-4 tracking-[0.3em] uppercase">
+                            <Sparkles className="w-6 h-6 text-blue-600" /> Progression Status
+                        </h3>
+                        
+                        {/* Stamp Progress Bar */}
+                        <div className="flex justify-between items-center px-4 mb-6 w-full max-w-sm">
+                            {[...Array(MAX_STAMPS)].map((_, i) => (
                                 <DragonBall key={i} index={i} filled={i < currentCustomer.stamps} />
                             ))}
                         </div>
-                        <div className="mt-10 px-6 py-2.5 bg-blue-50 rounded-full inline-block border border-blue-100">
-                             <p className="text-[10px] font-black text-blue-800 uppercase tracking-[0.2em]">{currentCustomer.stamps} / 5 Collected</p>
-                        </div>
+
+                        {currentCustomer.stamps >= MAX_STAMPS ? (
+                            <div className="mt-12 bg-green-50 border-2 border-green-200 rounded-[2.5rem] p-8 w-full animate-bounce shadow-lg">
+                                <div className="flex items-center justify-center gap-3 mb-3">
+                                    <PartyPopper className="w-8 h-8 text-green-600" />
+                                    <h4 className="font-cinzel text-xl font-black text-green-700">JACKPOT!</h4>
+                                    <PartyPopper className="w-8 h-8 text-green-600" />
+                                </div>
+                                <p className="text-[12px] font-black text-green-600 uppercase tracking-widest leading-relaxed">
+                                    CONGRATULATIONS!<br/>YOUR 5TH SNACK IS ON THE HOUSE!
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="mt-12 px-10 py-4 bg-blue-50 rounded-full inline-block border-2 border-blue-100 shadow-sm transition-all hover:bg-blue-100">
+                                <p className="text-[11px] font-black text-blue-800 uppercase tracking-[0.3em]">{currentCustomer.stamps} / {MAX_STAMPS} BALLS COLLECTED</p>
+                            </div>
+                        )}
+                        
+                        <p className="mt-8 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                            Collect 4 Balls to unlock the free secret
+                        </p>
                     </div>
                 </div>
             )}
@@ -423,35 +562,34 @@ const App: React.FC = () => {
 
             {previewCustomer && (
                 <div className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-3xl flex flex-col items-center justify-center p-6 sm:p-10 overflow-y-auto">
-                    <div className="max-w-[480px] w-full flex flex-col items-center animate-in zoom-in-95 duration-500 relative">
+                    <div className="max-w-[500px] w-full flex flex-col items-center animate-in zoom-in-95 duration-500 relative">
                         <button 
                             onClick={() => setPreviewCustomer(null)} 
-                            className="absolute -top-12 right-0 text-white hover:bg-white/10 p-3 rounded-full transition-all z-50"
+                            className="absolute -top-16 right-0 text-white hover:bg-white/20 p-4 rounded-full transition-all z-50 active:scale-90"
                         >
-                            <X className="w-8 h-8" />
+                            <X className="w-10 h-10" />
                         </button>
                         
-                        <div className="w-full flex justify-center mb-10">
-                            {/* Standard Credit Card size visualization */}
-                            <div className="w-full shadow-2xl rounded-3xl overflow-hidden ring-4 ring-white/10">
+                        <div className="w-full flex justify-center mb-16 scale-110 sm:scale-100">
+                            <div className="w-full shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] rounded-[2.2rem] overflow-hidden ring-1 ring-white/10">
                                 <MembershipCard customer={previewCustomer} />
                             </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-4 w-full">
+                        <div className="flex flex-col sm:flex-row gap-6 w-full">
                             <button 
                                 onClick={handleDownloadCard} 
                                 disabled={isSyncing} 
-                                className="flex-1 bg-white text-slate-950 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 shadow-2xl hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-50"
+                                className="flex-1 bg-white text-slate-950 py-5 rounded-[2rem] font-black uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-4 shadow-2xl hover:bg-slate-50 transition-all active:scale-95 disabled:opacity-50"
                             >
-                                {isSyncing ? <RefreshCw className="w-5 h-5 animate-spin"/> : <Download className="w-5 h-5" />} Save JPG
+                                {isSyncing ? <RefreshCw className="w-6 h-6 animate-spin"/> : <Download className="w-6 h-6" />} Save JPG
                             </button>
                             <button 
                                 onClick={handleShareCard} 
                                 disabled={isSyncing} 
-                                className="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 shadow-2xl hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
+                                className="flex-1 bg-blue-600 text-white py-5 rounded-[2rem] font-black uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-4 shadow-2xl hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
                             >
-                                {isSyncing ? <RefreshCw className="w-5 h-5 animate-spin"/> : <Share2 className="w-5 h-5" />} Share
+                                {isSyncing ? <RefreshCw className="w-6 h-6 animate-spin"/> : <Share2 className="w-6 h-6" />} Send Card
                             </button>
                         </div>
                     </div>

@@ -45,6 +45,22 @@
             100% { transform: translateX(100%) rotate(30deg); }
         }
 
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.3; filter: blur(40px); }
+            50% { opacity: 0.6; filter: blur(60px); }
+        }
+
+        @keyframes shimmer-bg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .btn-magic {
             background: linear-gradient(135deg, #1e40af, #0369a1);
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -62,6 +78,32 @@
         /* Prevent overscroll bounce on mobile */
         body, #root {
             overscroll-behavior-y: contain;
+        }
+
+        .fantasy-admin-bg {
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .magic-input {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .magic-input:focus {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #3b82f6;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
         }
     </style>
 <script type="importmap">
