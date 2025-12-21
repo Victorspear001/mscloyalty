@@ -2,25 +2,31 @@
 import { createClient } from '@supabase/supabase-js';
 import { Customer, Admin } from '../types';
 
-const supabaseUrl = (process.env.SUPABASE_URL || 'https://your-project-url.supabase.co') as string;
-const supabaseAnonKey = (process.env.SUPABASE_ANON_KEY || 'your-anon-key-here') as string;
+const SUPABASE_URL = 'https://teyzbkdywrwukpbrwfti.supabase.co'; 
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRleXpia2R5d3J3dWtwYnJ3ZnRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyMzc1OTcsImV4cCI6MjA4MTgxMzU5N30.ok3r9DstEcMuoxbgfjEHlP3O6EA-UIgHXR4Wbkn6l4A';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const storageService = {
   // --- Customer Methods ---
   fetchCustomers: async (): Promise<Customer[]> => {
-    const { data, error } = await supabase
-      .from('customers')
-      .select('*')
-      .eq('is_deleted', false)
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('is_deleted', false)
+        .order('created_at', { ascending: false });
 
-    if (error) return [];
-    return data as Customer[];
+      if (error) throw error;
+      return data as Customer[];
+    } catch (err) {
+      console.error('Fetch Customers Error:', err);
+      return [];
+    }
   },
 
   addCustomer: async (name: string, mobile: string): Promise<Customer> => {
+    // Generate MSC ID based on count
     const { count } = await supabase.from('customers').select('*', { count: 'exact', head: true });
     const nextCount = (count || 0) + 1;
     const customerId = `MSC${nextCount.toString().padStart(4, '0')}`;
@@ -28,9 +34,14 @@ export const storageService = {
     const { data, error } = await supabase
       .from('customers')
       .insert([{
-          name, mobile, customer_id: customerId,
-          stamps: 0, redeems: 0, lifetime_stamps: 0,
-          tier_1_claimed: false, is_deleted: false,
+          name: name.trim(),
+          mobile: mobile.trim(),
+          customer_id: customerId,
+          stamps: 0,
+          redeems: 0,
+          lifetime_stamps: 0,
+          tier_1_claimed: false,
+          is_deleted: false,
       }])
       .select().single();
 
@@ -48,41 +59,53 @@ export const storageService = {
   },
 
   findCustomer: async (query: string): Promise<Customer | undefined> => {
+    const cleanQuery = query.trim();
+    // Search by exact mobile or like MSC ID
     const { data, error } = await supabase
       .from('customers')
       .select('*')
-      .or(`customer_id.ilike.${query},mobile.eq.${query}`)
+      .or(`customer_id.ilike.%${cleanQuery}%,mobile.eq.${cleanQuery}`)
       .eq('is_deleted', false)
       .maybeSingle();
 
-    if (error) return undefined;
+    if (error) {
+      console.error('Find Customer Error:', error);
+      return undefined;
+    }
     return data as Customer;
   },
 
   // --- Admin Methods ---
   addAdmin: async (admin: Admin): Promise<{ success: boolean; message: string }> => {
+    const cleanUsername = admin.username.toLowerCase().trim();
+    const cleanEmail = admin.email.toLowerCase().trim();
+    const cleanAnswer = admin.securityAnswer.toLowerCase().trim();
+
     const { error } = await supabase
       .from('admins')
       .insert([{
-          username: admin.username.toLowerCase().trim(),
+          username: cleanUsername,
           password: admin.password,
-          email: admin.email.toLowerCase().trim(),
+          email: cleanEmail,
           security_question: admin.securityQuestion,
-          security_answer: admin.securityAnswer.toLowerCase().trim(),
+          security_answer: cleanAnswer,
       }]);
     
     if (error) {
-      if (error.code === '23505') return { success: false, message: "Username or Email already exists in the archives." };
-      return { success: false, message: error.message };
+      if (error.code === '23505') {
+        return { success: false, message: "Username or Email is already registered in our magical scrolls." };
+      }
+      return { success: false, message: "Vault Error: " + error.message };
     }
-    return { success: true, message: "Successfully manifested." };
+    return { success: true, message: "Staff identity manifest successful!" };
   },
 
   findAdmin: async (username: string): Promise<Admin | undefined> => {
+    const cleanUsername = username.toLowerCase().trim();
     const { data, error } = await supabase
       .from('admins')
       .select('*')
-      .eq('username', username.toLowerCase().trim())
+      .eq('username', cleanUsername)
       .maybeSingle();
 
     if (error || !data) return undefined;
@@ -96,10 +119,11 @@ export const storageService = {
   },
 
   findAdminByEmail: async (email: string): Promise<Admin | undefined> => {
+    const cleanEmail = email.toLowerCase().trim();
     const { data, error } = await supabase
       .from('admins')
       .select('*')
-      .eq('email', email.toLowerCase().trim())
+      .eq('email', cleanEmail)
       .maybeSingle();
 
     if (error || !data) return undefined;
@@ -113,10 +137,11 @@ export const storageService = {
   },
 
   updateAdminPassword: async (email: string, newPassword: string) => {
+    const cleanEmail = email.toLowerCase().trim();
     const { error } = await supabase
       .from('admins')
       .update({ password: newPassword })
-      .eq('email', email.toLowerCase().trim());
+      .eq('email', cleanEmail);
 
     if (error) throw new Error(error.message);
   }
