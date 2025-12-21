@@ -1,6 +1,9 @@
 
 import { Rank } from './types';
 
+// The path to your PNG logo file in the root directory
+export const COMPANY_LOGO_URL = 'logo.png';
+
 export const RANK_THRESHOLDS = [
   { minRedeems: 0, rank: Rank.BRONZE, color: 'text-orange-700', bg: 'bg-orange-100' },
   { minRedeems: 3, rank: Rank.SILVER, color: 'text-slate-500', bg: 'bg-slate-100' },
