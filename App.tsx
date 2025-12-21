@@ -6,7 +6,7 @@ import {
     RefreshCw, Sparkles, CreditCard, X, 
     Gift, FileUp, FileDown, Archive, 
     RotateCcw, Monitor, Smartphone, LayoutDashboard,
-    AlertTriangle
+    Share2
 } from 'lucide-react';
 import { AppView, Customer, Admin } from './types';
 import { storageService } from './services/storageService';
@@ -37,7 +37,6 @@ const App: React.FC = () => {
     const refreshCustomerList = async () => {
         setIsSyncing(true);
         try {
-            // We fetch everyone (including archived) so we can toggle between views
             const list = await storageService.fetchCustomers(true);
             setCustomers(list);
         } catch (error) {
@@ -177,7 +176,7 @@ const App: React.FC = () => {
         if (!node) return;
         setIsSyncing(true);
         try {
-            const dataUrl = await htmlToImage.toPng(node, { pixelRatio: 2, backgroundColor: '#ffffff' });
+            const dataUrl = await htmlToImage.toPng(node, { pixelRatio: 3, backgroundColor: '#ffffff' });
             const link = document.createElement('a');
             link.download = `mithran-card-${previewCustomer?.customer_id}.png`;
             link.href = dataUrl;
@@ -189,13 +188,40 @@ const App: React.FC = () => {
         }
     };
 
+    const handleShareCard = async () => {
+        const node = document.getElementById('membership-card');
+        if (!node) return;
+        setIsSyncing(true);
+        try {
+            const dataUrl = await htmlToImage.toPng(node, { pixelRatio: 3, backgroundColor: '#ffffff' });
+            const response = await fetch(dataUrl);
+            const blob = await response.blob();
+            const file = new File([blob], `mithran-card-${previewCustomer?.customer_id}.png`, { type: 'image/png' });
+
+            if (navigator.share) {
+                await navigator.share({
+                    files: [file],
+                    title: 'Mithran Member Card',
+                    text: `Membership card for ${previewCustomer?.name}`
+                });
+            } else {
+                // Fallback for browsers that don't support sharing files
+                handleDownloadCard();
+            }
+        } catch (error) {
+            console.error('Share error:', error);
+            alert('Sharing is not supported on this device/browser.');
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
     const LogoImage = ({ className }: { className?: string }) => (
         <img 
             src={COMPANY_LOGO_URL} 
             alt="Mithran" 
             className={`${className} object-contain`}
             onError={(e) => {
-                // Fallback to a local path or a reliable placeholder if logo.png fails
                 (e.target as HTMLImageElement).src = 'logo.png';
                 (e.target as HTMLImageElement).onerror = () => {
                     (e.target as HTMLImageElement).src = 'https://img.icons8.com/fluency/96/sparkling.png';
@@ -237,7 +263,6 @@ const App: React.FC = () => {
                 </header>
 
                 <main className="max-w-7xl mx-auto p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    {/* Left Column: Management Actions */}
                     <div className="lg:col-span-4 space-y-6">
                         <div className="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm">
                             <h3 className="font-cinzel text-lg font-black text-slate-900 mb-6 flex items-center gap-3"><UserPlus className="w-6 h-6 text-blue-600" /> New Enrollment</h3>
@@ -270,7 +295,6 @@ const App: React.FC = () => {
                         </button>
                     </div>
 
-                    {/* Right Column: Member Table */}
                     <div className="lg:col-span-8 bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[600px]">
                         <div className="p-6 border-b border-slate-100 bg-slate-50/50">
                             <div className="relative w-full">
@@ -466,14 +490,37 @@ const App: React.FC = () => {
             )}
 
             {previewCustomer && (
-                <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-2xl flex items-center justify-center p-4">
-                    <div className="max-w-lg w-full relative animate-in zoom-in duration-300 flex flex-col items-center">
-                        <button onClick={() => setPreviewCustomer(null)} className="absolute -top-16 right-0 text-white p-3 hover:bg-white/10 rounded-full transition-all active:scale-90"><X className="w-10 h-10" /></button>
-                        <div className="w-full drop-shadow-[0_50px_100px_rgba(0,0,0,0.8)]"><MembershipCard customer={previewCustomer} /></div>
-                        <div className="mt-14 flex gap-5 w-full px-8">
-                            <button onClick={handleDownloadCard} disabled={isSyncing} className="flex-1 bg-white text-slate-900 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-[0.2em] flex items-center justify-center gap-4 shadow-2xl hover:bg-slate-50 transition-all disabled:opacity-50 active:scale-95">
-                                {isSyncing ? <RefreshCw className="w-5 h-5 animate-spin"/> : <Download className="w-5 h-5" />} Save Member Card
+                <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-2xl flex items-center justify-center p-4">
+                    <div className="max-w-xl w-full relative animate-in zoom-in duration-300 flex flex-col items-center">
+                        {/* Perfect alignment container for the card */}
+                        <div className="w-full relative flex flex-col items-center">
+                            <button 
+                                onClick={() => setPreviewCustomer(null)} 
+                                className="absolute -top-16 right-0 text-white/70 hover:text-white hover:bg-white/10 p-3 rounded-full transition-all active:scale-90"
+                            >
+                                <X className="w-8 h-8" />
                             </button>
+                            
+                            <div className="w-full shadow-[0_50px_100px_rgba(0,0,0,0.5)] rounded-[2.5rem]">
+                                <MembershipCard customer={previewCustomer} />
+                            </div>
+
+                            <div className="mt-12 flex flex-col sm:flex-row gap-4 w-full sm:px-4">
+                                <button 
+                                    onClick={handleDownloadCard} 
+                                    disabled={isSyncing} 
+                                    className="flex-1 bg-white text-slate-900 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-[0.2em] flex items-center justify-center gap-4 shadow-xl hover:bg-slate-50 transition-all disabled:opacity-50 active:scale-95"
+                                >
+                                    {isSyncing ? <RefreshCw className="w-5 h-5 animate-spin"/> : <Download className="w-5 h-5" />} Save Card
+                                </button>
+                                <button 
+                                    onClick={handleShareCard} 
+                                    disabled={isSyncing} 
+                                    className="flex-1 bg-blue-600 text-white py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-[0.2em] flex items-center justify-center gap-4 shadow-xl hover:bg-blue-700 transition-all disabled:opacity-50 active:scale-95"
+                                >
+                                    {isSyncing ? <RefreshCw className="w-5 h-5 animate-spin"/> : <Share2 className="w-5 h-5" />} Share Card
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
