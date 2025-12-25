@@ -128,21 +128,29 @@ export const storageService = {
 
   // --- Logo / Settings Methods ---
   getLogo: async (): Promise<string | null> => {
-    const { data, error } = await supabase
-      .from('app_settings')
-      .select('value')
-      .eq('key', 'app_logo')
-      .maybeSingle();
-    
-    if (error || !data) return null;
-    return data.value;
+    try {
+      const { data, error } = await supabase
+        .from('app_settings')
+        .select('value')
+        .eq('key', 'app_logo')
+        .maybeSingle();
+      
+      if (error || !data) return null;
+      return data.value;
+    } catch (err) {
+      return null;
+    }
   },
 
   saveLogo: async (base64Logo: string): Promise<void> => {
+    // We use onConflict to ensure it updates based on the unique 'key' column
     const { error } = await supabase
       .from('app_settings')
-      .upsert({ key: 'app_logo', value: base64Logo });
+      .upsert({ key: 'app_logo', value: base64Logo }, { onConflict: 'key' });
     
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("Supabase Save Logo Error:", error);
+      throw new Error(error.message);
+    }
   }
 };

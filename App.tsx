@@ -81,6 +81,12 @@ const App: React.FC = () => {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        // Validation: Limit logo size to 1MB to prevent Supabase payload errors
+        if (file.size > 1024 * 1024) {
+            alert("File is too large! Please upload a logo smaller than 1MB.");
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = async (event) => {
             const base64 = event.target?.result as string;
@@ -89,11 +95,15 @@ const App: React.FC = () => {
                 await storageService.saveLogo(base64);
                 setAppLogo(base64);
                 alert("Logo Updated Successfully!");
-            } catch (err) {
-                alert("Logo upload failed.");
+            } catch (err: any) {
+                console.error("Detailed Upload Error:", err);
+                alert(`Logo upload failed: ${err.message || 'Unknown error'}. Ensure the 'app_settings' table exists with a unique 'key' column.`);
             } finally {
                 setIsSyncing(false);
             }
+        };
+        reader.onerror = () => {
+            alert("Error reading the file. Please try again.");
         };
         reader.readAsDataURL(file);
     };
@@ -361,11 +371,13 @@ const App: React.FC = () => {
                                 </div>
                                 <button 
                                     onClick={() => logoInputRef.current?.click()}
-                                    className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-md"
+                                    className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-md disabled:opacity-50"
+                                    disabled={isSyncing}
                                 >
-                                    Change Logo
+                                    {isSyncing ? "Uploading..." : "Change Logo"}
                                 </button>
                                 <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Max 1MB (PNG/JPG)</p>
                             </div>
                         </div>
 
@@ -549,7 +561,7 @@ const App: React.FC = () => {
 
                     <div className="w-full max-w-sm p-12 sm:p-14 rounded-[4rem] glass-panel flex flex-col items-center animate-in zoom-in-95 duration-700 relative z-10">
                         <div className="absolute -top-12 flex justify-center w-full">
-                             <div className="p-4 bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl text-4xl w-24 h-24 flex items-center justify-center bg-white overflow-hidden">
+                             <div className="p-4 bg-white rounded-[2rem] border border-white/10 shadow-2xl w-24 h-24 flex items-center justify-center overflow-hidden">
                                 {appLogo ? <img src={appLogo} className="w-full h-full object-contain" /> : "🛡️"}
                              </div>
                         </div>
@@ -617,7 +629,7 @@ const App: React.FC = () => {
                     <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-500/20 rounded-full blur-[60px] animate-[float_8s_infinite_ease-in-out]"></div>
                     <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-purple-500/20 rounded-full blur-[80px] animate-[float_12s_infinite_ease-in-out_reverse]"></div>
 
-                    <div className="w-full max-w-sm p-12 rounded-[4rem] glass-panel flex flex-col items-center animate-in zoom-in-95 duration-700 relative z-10">
+                    <div className="w-full max-sm:p-8 p-12 rounded-[4rem] glass-panel flex flex-col items-center animate-in zoom-in-95 duration-700 relative z-10">
                         <div className="mt-4 w-full text-center">
                             <h2 className="font-cinzel text-2xl font-black text-white mb-2 tracking-[0.2em] drop-shadow-lg">NEW STAFF</h2>
                             <p className="text-[9px] font-black text-blue-400 uppercase tracking-[0.3em] mb-8">Registration Protocol</p>
