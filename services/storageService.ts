@@ -129,27 +129,47 @@ export const storageService = {
   // --- Logo / Settings Methods ---
   getLogo: async (): Promise<string | null> => {
     try {
+      // First try to check local storage for immediate render
+      const localLogo = localStorage.getItem('MSC_APP_LOGO');
+      
+      // Then try Supabase
       const { data, error } = await supabase
         .from('app_settings')
         .select('value')
         .eq('key', 'app_logo')
         .maybeSingle();
       
-      if (error || !data) return null;
-      return data.value;
+      if (data && data.value) {
+        // Update local cache if DB has new data
+        if (data.value !== localLogo) {
+            localStorage.setItem('MSC_APP_LOGO', data.value);
+        }
+        return data.value;
+      }
+      
+      return localLogo;
     } catch (err) {
-      return null;
+      // If DB fails, fallback to local
+      console.warn("Supabase fetch failed, using local storage", err);
+      return localStorage.getItem('MSC_APP_LOGO');
     }
   },
 
   saveLogo: async (base64Logo: string): Promise<void> => {
-    // We use onConflict to ensure it updates based on the unique 'key' column
+    // 1. Always update local storage for immediate feedback and offline capability
+    try {
+        localStorage.setItem('MSC_APP_LOGO', base64Logo);
+    } catch (e) {
+        console.error("Local Storage Error", e);
+    }
+
+    // 2. Attempt to save to Supabase
+    // We throw the error here so the UI knows if the DB sync failed (e.g. missing table)
     const { error } = await supabase
       .from('app_settings')
       .upsert({ key: 'app_logo', value: base64Logo }, { onConflict: 'key' });
     
     if (error) {
-      console.error("Supabase Save Logo Error:", error);
       throw new Error(error.message);
     }
   }

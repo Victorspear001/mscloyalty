@@ -51,7 +51,7 @@ const App: React.FC = () => {
     const loadAppLogo = async () => {
         try {
             const logo = await storageService.getLogo();
-            setAppLogo(logo);
+            if (logo) setAppLogo(logo);
         } catch (err) {
             console.error("Failed to load logo", err);
         }
@@ -94,10 +94,17 @@ const App: React.FC = () => {
             try {
                 await storageService.saveLogo(base64);
                 setAppLogo(base64);
-                alert("Logo Updated Successfully!");
+                alert("Logo Uploaded & Saved to Database!");
             } catch (err: any) {
                 console.error("Detailed Upload Error:", err);
-                alert(`Logo upload failed: ${err.message || 'Unknown error'}. Ensure the 'app_settings' table exists with a unique 'key' column.`);
+                // Check specifically for missing table error
+                if (err.message && err.message.includes('relation "public.app_settings" does not exist')) {
+                    alert("DATABASE SETUP REQUIRED: The 'app_settings' table is missing. Please run the SQL command provided in the chat.");
+                } else {
+                    alert("Logo saved to this device only. Database sync failed: " + err.message);
+                }
+                // We still update the state because storageService saves to localStorage as a fallback
+                setAppLogo(base64); 
             } finally {
                 setIsSyncing(false);
             }
