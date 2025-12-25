@@ -731,7 +731,7 @@ const App: React.FC = () => {
                 <div className="min-h-screen bg-white p-6 pb-24 max-w-lg w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <header className="relative flex items-center justify-center mb-12 mt-8 w-full">
                         <div onClick={handleCustomerHeaderClick} className="flex flex-col items-center cursor-pointer select-none animate-in fade-in duration-700">
-                            <div className="flex gap-2 text-lg mb-2 h-12 w-12 items-center justify-center">
+                            <div className="flex gap-2 text-2xl mb-3 h-20 w-20 items-center justify-center">
                                 {appLogo ? <img src={appLogo} className="w-full h-full object-contain animate-bounce" /> : <div className="animate-bounce">🍿</div>}
                             </div>
                             <h1 className="font-cinzel text-lg font-black text-slate-900 tracking-tight leading-none text-center">
