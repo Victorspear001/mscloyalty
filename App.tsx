@@ -525,11 +525,11 @@ const App: React.FC = () => {
                     <div className="w-full p-14 sm:p-20 rounded-[4rem] bg-white border border-slate-100 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] relative overflow-hidden flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700">
                         <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
                         
-                        <div onClick={handleLoginHeaderClick} className="mb-10 cursor-pointer select-none active:scale-95 transition-transform duration-300">
-                             <div className="flex justify-center gap-4 mb-4 h-16 w-16">
+                        <div onClick={handleLoginHeaderClick} className="mb-10 flex flex-col items-center cursor-pointer select-none active:scale-95 transition-transform duration-300">
+                             <div className="flex justify-center items-center gap-4 mb-4 h-16 w-16">
                                 {appLogo ? <img src={appLogo} className="w-full h-full object-contain animate-bounce" /> : <div className="text-4xl animate-bounce">🍿 🥤</div>}
                              </div>
-                             <h1 className="font-cinzel text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter leading-tight drop-shadow-sm">
+                             <h1 className="font-cinzel text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter leading-tight drop-shadow-sm text-center">
                                 MITHRAN<br/>
                                 <span className="text-xl sm:text-2xl text-blue-600 tracking-widest">SNACKS CORNER</span>
                              </h1>
