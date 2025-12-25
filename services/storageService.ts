@@ -124,5 +124,25 @@ export const storageService = {
       .eq('email', email.toLowerCase().trim());
 
     if (error) throw new Error(error.message);
+  },
+
+  // --- Logo / Settings Methods ---
+  getLogo: async (): Promise<string | null> => {
+    const { data, error } = await supabase
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'app_logo')
+      .maybeSingle();
+    
+    if (error || !data) return null;
+    return data.value;
+  },
+
+  saveLogo: async (base64Logo: string): Promise<void> => {
+    const { error } = await supabase
+      .from('app_settings')
+      .upsert({ key: 'app_logo', value: base64Logo });
+    
+    if (error) throw new Error(error.message);
   }
 };

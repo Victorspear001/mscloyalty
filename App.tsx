@@ -7,7 +7,7 @@ import {
     Archive, RotateCcw, Monitor, Smartphone, 
     LayoutDashboard, Share2, FileDown, FileUp,
     Home, Gift, PartyPopper, ShieldCheck, Lock,
-    Mail, Key, FileText
+    Mail, Key, FileText, Image as ImageIcon
 } from 'lucide-react';
 import { AppView, Customer, Admin } from './types';
 import { storageService } from './services/storageService';
@@ -29,7 +29,10 @@ const App: React.FC = () => {
     const [showArchive, setShowArchive] = useState(false);
     const [loginLogoClicks, setLoginLogoClicks] = useState(0);
     const [customerHeaderClicks, setCustomerHeaderClicks] = useState(0);
+    const [appLogo, setAppLogo] = useState<string | null>(null);
+    
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const logoInputRef = useRef<HTMLInputElement>(null);
 
     const [adminLoginData, setAdminLoginData] = useState({ username: '', password: '' });
     const [registerData, setRegisterData] = useState<Admin>({ 
@@ -45,6 +48,15 @@ const App: React.FC = () => {
 
     const MAX_STAMPS = 4; // After 4 stamps, 5th is free.
 
+    const loadAppLogo = async () => {
+        try {
+            const logo = await storageService.getLogo();
+            setAppLogo(logo);
+        } catch (err) {
+            console.error("Failed to load logo", err);
+        }
+    };
+
     const refreshCustomerList = async () => {
         setIsSyncing(true);
         try {
@@ -58,8 +70,33 @@ const App: React.FC = () => {
     };
 
     useEffect(() => {
+        loadAppLogo();
+    }, []);
+
+    useEffect(() => {
         if (view === 'ADMIN_DASHBOARD') refreshCustomerList();
     }, [view]);
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const base64 = event.target?.result as string;
+            setIsSyncing(true);
+            try {
+                await storageService.saveLogo(base64);
+                setAppLogo(base64);
+                alert("Logo Updated Successfully!");
+            } catch (err) {
+                alert("Logo upload failed.");
+            } finally {
+                setIsSyncing(false);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
 
     // Secret Door logic for Login Page
     const handleLoginHeaderClick = () => {
@@ -242,15 +279,13 @@ const App: React.FC = () => {
         if (!node) return;
         setIsSyncing(true);
         try {
-            // Using JPEG for better compatibility with messaging apps like WhatsApp
             const dataUrl = await htmlToImage.toJpeg(node, { 
                 quality: 0.95, 
                 pixelRatio: 3,
-                backgroundColor: '#1e293b' // Ensure dark background for the card
+                backgroundColor: '#1e293b'
             });
             const response = await fetch(dataUrl);
             const blob = await response.blob();
-            // WhatsApp often requires a file object for sharing images via Web Share API
             const file = new File([blob], `MSC-CARD.jpg`, { type: 'image/jpeg' });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -265,7 +300,6 @@ const App: React.FC = () => {
         } catch (error) {
             console.log("Sharing failed or not supported, falling back to download.", error);
             handleDownloadCard();
-            // Provide a clear message to the user
             setTimeout(() => alert("Image saved to gallery! You can now share it on WhatsApp manually."), 500);
         } finally {
             setIsSyncing(false);
@@ -294,7 +328,10 @@ const App: React.FC = () => {
                                 <Home className="w-5 h-5" />
                             </button>
                             <div className="flex flex-col leading-none select-none">
-                                <span className="font-cinzel font-black text-sm text-blue-900 tracking-tight">MITHRAN 🍿</span>
+                                <div className="flex items-center gap-2">
+                                    {appLogo ? <img src={appLogo} className="w-6 h-6 object-contain" /> : <span className="text-sm">🍿</span>}
+                                    <span className="font-cinzel font-black text-sm text-blue-900 tracking-tight">MITHRAN</span>
+                                </div>
                                 <span className="text-[9px] font-bold text-slate-400 tracking-[0.2em] uppercase">Snacks Corner</span>
                             </div>
                             <div className="h-6 w-px bg-slate-200 mx-2"></div>
@@ -313,6 +350,25 @@ const App: React.FC = () => {
                 <main className="max-w-7xl w-full p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     {/* Left Column: Forms and Actions */}
                     <div className="lg:col-span-4 space-y-8 flex flex-col items-center w-full">
+                        {/* Logo Management Section */}
+                        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl w-full relative overflow-hidden group">
+                             <h3 className="relative font-cinzel text-md font-black text-slate-900 mb-6 flex items-center justify-center gap-3 uppercase tracking-widest border-b border-slate-50 pb-4">
+                                <ImageIcon className="w-5 h-5 text-blue-600" /> Branding
+                            </h3>
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="w-24 h-24 rounded-2xl border-2 border-slate-100 flex items-center justify-center overflow-hidden bg-slate-50">
+                                    {appLogo ? <img src={appLogo} className="w-full h-full object-contain" /> : <span className="text-3xl">🍿</span>}
+                                </div>
+                                <button 
+                                    onClick={() => logoInputRef.current?.click()}
+                                    className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-md"
+                                >
+                                    Change Logo
+                                </button>
+                                <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                            </div>
+                        </div>
+
                         <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl w-full relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
                             <h3 className="relative font-cinzel text-md font-black text-slate-900 mb-8 flex items-center justify-center gap-3 uppercase tracking-widest border-b border-slate-50 pb-4">
@@ -451,7 +507,9 @@ const App: React.FC = () => {
                         <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
                         
                         <div onClick={handleLoginHeaderClick} className="mb-10 cursor-pointer select-none active:scale-95 transition-transform duration-300">
-                             <div className="flex justify-center gap-4 mb-2 text-4xl animate-bounce">🍿 🥤</div>
+                             <div className="flex justify-center gap-4 mb-4 h-16 w-16">
+                                {appLogo ? <img src={appLogo} className="w-full h-full object-contain animate-bounce" /> : <div className="text-4xl animate-bounce">🍿 🥤</div>}
+                             </div>
                              <h1 className="font-cinzel text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter leading-tight drop-shadow-sm">
                                 MITHRAN<br/>
                                 <span className="text-xl sm:text-2xl text-blue-600 tracking-widest">SNACKS CORNER</span>
@@ -485,15 +543,14 @@ const App: React.FC = () => {
 
             {view === 'ADMIN_LOGIN' && (
                 <div className="fantasy-admin-bg flex flex-col items-center justify-center min-h-screen p-6 w-full">
-                    {/* Magical floating orbs */}
                     <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-500/20 rounded-full blur-[60px] animate-[float_8s_infinite_ease-in-out]"></div>
                     <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-purple-500/20 rounded-full blur-[80px] animate-[float_12s_infinite_ease-in-out_reverse]"></div>
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] animate-[pulse-glow_10s_infinite_ease-in-out]"></div>
 
                     <div className="w-full max-w-sm p-12 sm:p-14 rounded-[4rem] glass-panel flex flex-col items-center animate-in zoom-in-95 duration-700 relative z-10">
                         <div className="absolute -top-12 flex justify-center w-full">
-                             <div className="p-4 bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl text-4xl">
-                                🛡️
+                             <div className="p-4 bg-slate-900 rounded-[2rem] border border-white/10 shadow-2xl text-4xl w-24 h-24 flex items-center justify-center bg-white overflow-hidden">
+                                {appLogo ? <img src={appLogo} className="w-full h-full object-contain" /> : "🛡️"}
                              </div>
                         </div>
 
@@ -654,7 +711,9 @@ const App: React.FC = () => {
                 <div className="min-h-screen bg-white p-6 pb-24 max-w-lg w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <header className="relative flex items-center justify-center mb-12 mt-8 w-full">
                         <div onClick={handleCustomerHeaderClick} className="flex flex-col items-center cursor-pointer select-none animate-in fade-in duration-700">
-                            <div className="flex gap-2 text-lg mb-1 animate-bounce">🍿 🥤 🥨</div>
+                            <div className="flex gap-2 text-lg mb-2 h-12 w-12 items-center justify-center">
+                                {appLogo ? <img src={appLogo} className="w-full h-full object-contain animate-bounce" /> : <div className="animate-bounce">🍿</div>}
+                            </div>
                             <h1 className="font-cinzel text-lg font-black text-slate-900 tracking-tight leading-none text-center">
                                 MITHRAN<br/>
                                 <span className="text-[10px] text-blue-600 tracking-[0.3em] font-bold">SNACKS CORNER</span>
@@ -667,7 +726,7 @@ const App: React.FC = () => {
                         onClick={() => setPreviewCustomer(currentCustomer)}
                         className="w-full max-w-[380px] flex justify-center drop-shadow-[0_40px_80px_rgba(37,99,235,0.3)] hover:scale-[1.02] transition-transform duration-500 cursor-pointer"
                     >
-                        <MembershipCard customer={currentCustomer} />
+                        <MembershipCard customer={currentCustomer} appLogo={appLogo} />
                     </div>
                     <p className="mt-4 text-[10px] text-slate-400 font-bold uppercase tracking-widest animate-pulse">Tap Card to Share</p>
 
@@ -677,7 +736,6 @@ const App: React.FC = () => {
                             <Sparkles className="w-6 h-6 text-blue-600" /> Progression Status
                         </h3>
                         
-                        {/* Stamp Progress Bar */}
                         <div className="flex justify-between items-center px-4 mb-6 w-full max-w-sm">
                             {[...Array(MAX_STAMPS)].map((_, i) => (
                                 <DragonBall key={i} index={i} filled={i < currentCustomer.stamps} />
@@ -737,7 +795,7 @@ const App: React.FC = () => {
                         
                         <div className="flex justify-center mb-10 w-full">
                             <div className="w-full max-w-[360px] shadow-[0_25px_50px_-12px_rgba(0,0,0,1)] rounded-[1.5rem] overflow-hidden ring-1 ring-white/10">
-                                <MembershipCard customer={previewCustomer} />
+                                <MembershipCard customer={previewCustomer} appLogo={appLogo} />
                             </div>
                         </div>
 

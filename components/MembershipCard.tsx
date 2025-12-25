@@ -6,13 +6,14 @@ import { getRankInfo } from '../constants';
 
 interface MembershipCardProps {
   customer: Customer;
+  appLogo?: string | null;
 }
 
 /**
  * Standard Credit Card Dimensions: 85.60 mm x 53.98 mm (Ratio 1.585:1)
  * Optimized for Premium Branding.
  */
-const MembershipCard: React.FC<MembershipCardProps> = ({ customer }) => {
+const MembershipCard: React.FC<MembershipCardProps> = ({ customer, appLogo }) => {
   const rankInfo = getRankInfo(customer.redeems);
   const qrData = customer.customer_id;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(qrData)}&bgcolor=ffffff&color=0f172a&margin=1`;
@@ -39,7 +40,8 @@ const MembershipCard: React.FC<MembershipCardProps> = ({ customer }) => {
           <div className="flex items-center gap-2">
             <div className="flex flex-col">
               <h2 className="font-cinzel text-[9px] sm:text-[10px] font-black tracking-[0.1em] text-white leading-tight drop-shadow-2xl flex items-center gap-1.5 whitespace-nowrap">
-                <span>🍿</span> MITHRAN SNACKS CORNER <span>🥤</span>
+                {appLogo ? <img src={appLogo} className="w-4 h-4 object-contain" /> : <span>🍿</span>}
+                MITHRAN SNACKS CORNER
               </h2>
               <p className="text-[6px] sm:text-[7px] font-black tracking-[0.4em] text-cyan-300 mt-1 uppercase leading-none drop-shadow-lg opacity-90">Platinum Member</p>
             </div>
