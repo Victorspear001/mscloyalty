@@ -474,18 +474,19 @@ const App: React.FC = () => {
                                                             {c.stamps >= MAX_STAMPS ? (
                                                                 <button 
                                                                     onClick={() => handleRedeem(c)}
+                                                                    title="Mark Reward as Claimed"
                                                                     className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest animate-pulse flex items-center gap-2 shadow-lg"
                                                                 >
                                                                     <Gift className="w-4 h-4" /> Redeem Free
                                                                 </button>
                                                             ) : (
                                                                 <div className="flex items-center justify-center gap-3">
-                                                                    <button onClick={() => storageService.updateCustomer(c.id, { stamps: Math.max(0, c.stamps - 1) }).then(refreshCustomerList)} className="p-2 rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white transition-all"><Minus className="w-4 h-4"/></button>
+                                                                    <button onClick={() => storageService.updateCustomer(c.id, { stamps: Math.max(0, c.stamps - 1) }).then(refreshCustomerList)} title="Remove 1 Stamp" className="p-2 rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white transition-all"><Minus className="w-4 h-4"/></button>
                                                                     <div className="flex flex-col items-center">
                                                                         <span className="font-cinzel text-2xl font-black w-6 text-center leading-none">{c.stamps}</span>
                                                                         <span className="text-[8px] font-bold text-slate-400 mt-1 uppercase">of 4</span>
                                                                     </div>
-                                                                    <button onClick={() => storageService.updateCustomer(c.id, { stamps: Math.min(MAX_STAMPS, c.stamps + 1) }).then(refreshCustomerList)} className="p-2 rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white transition-all"><Plus className="w-4 h-4"/></button>
+                                                                    <button onClick={() => storageService.updateCustomer(c.id, { stamps: Math.min(MAX_STAMPS, c.stamps + 1) }).then(refreshCustomerList)} title="Add 1 Stamp" className="p-2 rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white transition-all"><Plus className="w-4 h-4"/></button>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -495,14 +496,14 @@ const App: React.FC = () => {
                                                 </td>
                                                 <td className="px-8 py-6 text-right">
                                                     <div className="flex justify-end gap-3">
-                                                        <button onClick={() => setPreviewCustomer(c)} className="p-2.5 text-blue-700 bg-blue-50 rounded-xl hover:bg-blue-700 hover:text-white transition-all shadow-sm" title="Preview Card"><CreditCard className="w-5 h-5"/></button>
+                                                        <button onClick={() => setPreviewCustomer(c)} className="p-2.5 text-blue-700 bg-blue-50 rounded-xl hover:bg-blue-700 hover:text-white transition-all shadow-sm" title="View Membership Card"><CreditCard className="w-5 h-5"/></button>
                                                         {c.is_deleted ? (
                                                             <>
-                                                                <button onClick={async () => { await storageService.updateCustomer(c.id, { is_deleted: false }); refreshCustomerList(); }} className="p-2.5 text-green-700 bg-green-50 rounded-xl hover:bg-green-700 hover:text-white transition-all shadow-sm" title="Restore Member"><RotateCcw className="w-5 h-5"/></button>
-                                                                <button onClick={() => handlePermanentDelete(c.id, c.name)} className="p-2.5 text-red-700 bg-red-50 rounded-xl hover:bg-red-700 hover:text-white transition-all shadow-sm" title="Delete Permanently"><Trash2 className="w-5 h-5"/></button>
+                                                                <button onClick={async () => { await storageService.updateCustomer(c.id, { is_deleted: false }); refreshCustomerList(); }} className="p-2.5 text-green-700 bg-green-50 rounded-xl hover:bg-green-700 hover:text-white transition-all shadow-sm" title="Restore from Archive"><RotateCcw className="w-5 h-5"/></button>
+                                                                <button onClick={() => handlePermanentDelete(c.id, c.name)} className="p-2.5 text-red-700 bg-red-50 rounded-xl hover:bg-red-700 hover:text-white transition-all shadow-sm" title="Permanently Delete Record"><Trash2 className="w-5 h-5"/></button>
                                                             </>
                                                         ) : (
-                                                            <button onClick={async () => { if(confirm(`Archive ${c.name}?`)) { await storageService.deleteCustomerSoft(c.id); refreshCustomerList(); } }} className="p-2.5 text-slate-400 bg-slate-100 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm" title="Archive Member"><Archive className="w-5 h-5"/></button>
+                                                            <button onClick={async () => { if(confirm(`Archive ${c.name}?`)) { await storageService.deleteCustomerSoft(c.id); refreshCustomerList(); } }} className="p-2.5 text-slate-400 bg-slate-100 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm" title="Move to Archive"><Archive className="w-5 h-5"/></button>
                                                         )}
                                                     </div>
                                                 </td>
